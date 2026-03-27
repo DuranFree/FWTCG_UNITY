@@ -2,6 +2,34 @@
 
 ---
 
+## 2026-03-27 — P8: 传奇系统
+
+**Phase**: P8 传奇系统 (Legend System)
+
+**New files**:
+- `Assets/Scripts/Core/LegendSystem.cs` — AbilityDef 技能定义表（硬编码 kaisa/masteryi）；CheckLegendPassives / TriggerLegendEvent / CanUseLegendAbility / ActivateLegendAbility / ResetLegendAbilitiesForTurn；AiLegendActionPhase / AiLegendDuelAction
+- `Assets/Tests/EditMode/LegendSystemTests.cs` — 25 项行为验证测试
+
+**Modified files**:
+- `GameState.cs` — LegendInstance 新增 `maxHp`（进化后动态最大HP）
+- `TurnManager.cs` — SetLegendSystem；StartTurn 调用 ResetLegendAbilitiesForTurn
+- `CombatResolver.cs` — SetLegendSystem；TriggerCombat 伤害前 TriggerLegendEvent("onCombatDefend")，CleanDead 后 CheckLegendPassives
+- `CardDeployer.cs` — SetLegendSystem；DeployToBase/ToBF 调用 CheckLegendPassives
+- `AIController.cs` — SetLegendSystem；AiAction P8 调用 AiLegendActionPhase；AiDuelAction P8 调用 AiLegendDuelAction
+
+**Test results**: 288/288 passed (prior 263 + 25 new P8)
+
+**Design decisions**:
+- 技能定义硬编码在 `_abilityDefs` 字典（按 data.id 查表），不用 ScriptableObject 嵌套
+- kaisa_void_sense: once=false（每次只要未 exhausted 均可激活）
+- maxHp 字段新增，避免修改只读 data.hp（ScriptableObject）
+
+**Technical debt**: 无
+
+**Problems encountered**: 无（首次无编译错误/测试失败的 Phase）
+
+---
+
 ## P5（移植）: 基础 AI — 2026-03-27
 
 **Status**: ✅ Completed
