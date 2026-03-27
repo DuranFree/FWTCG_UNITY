@@ -4,9 +4,9 @@
 ---
 
 ## Slice 1 — 核心回合循环
-- [ ] 卡牌数据（CardData ScriptableObject：id、name、cost、atk、keywords、effect 等全字段）
-- [ ] 6种符文数据（RuneData SO：blazing/radiant/verdant/crushing/chaos/order）
-- [ ] 游戏状态单例（GameState：等价 G 对象，含所有字段）
+- ✅ 卡牌数据（CardData ScriptableObject：id、name、cost、atk、keywords、effect 等全字段）
+- ✅ 6种符文数据（RuneData SO：blazing/radiant/verdant/crushing/chaos/order）
+- ✅ 游戏状态单例（GameState：等价 G 对象，含所有字段）
 - [ ] 回合阶段状态机（awaken → start → summon → draw → action → end）
 - [ ] 摸牌系统（draw phase：从主牌堆抽1张到手牌）
 - [ ] 手牌展示（最多7张）

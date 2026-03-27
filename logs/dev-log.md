@@ -68,3 +68,26 @@
 **Technical debt**: 无
 
 **Problems encountered**: 注：Phase 1/2 收尾时未显式报告清单状态，已在 CLAUDE.md 第8条补丁修复
+
+---
+
+## P1（移植）: 卡牌数据 + 游戏状态 — 2026-03-27
+
+**Status**: ✅ Completed
+
+**What was done**:
+- 创建 Unity 项目（复用 FWTCG_UNITY 的 ProjectSettings/Packages，URP + UTF 已就绪）
+- Assets/Scripts/Data/CardData.cs — ScriptableObject，全字段含未来卡组构筑扩展口
+- Assets/Scripts/Data/RuneData.cs — ScriptableObject，6种符文
+- Assets/Scripts/Core/CardInstance.cs — 运行时实例，等价 mk()，含 EffectiveAtk 属性
+- Assets/Scripts/Core/GameState.cs — 等价 G 对象，含全部 70+ 字段
+- Assets/Tests/EditMode/CardInstanceTests.cs — 16个行为验证测试
+- 🟢 [逻辑测试] 全部通过 (16/16)
+
+**Decisions made**:
+- asmdef 需要 `"includePlatforms": ["Editor"]` + `"defineConstraints": ["UNITY_INCLUDE_TESTS"]` 才能被 UTF 发现（首次踩坑，已修复）
+- CardInstance 纯 C# 类，不依赖 MonoBehaviour，可直接在 EditMode 测试中实例化
+
+**Technical debt**: 无
+
+**Problems encountered**: UTF asmdef 首次运行0个测试——缺少 includePlatforms + defineConstraints，第二次修复后全绿
