@@ -53,32 +53,32 @@
 ---
 
 ## Slice 4 — 传奇系统
-- [ ] 传奇牌独立 HP 系统（pLeg.currentHp，与普通单位隔离）
-- [ ] 传奇被动检查（checkLegendPassives）
-- [ ] 传奇触发事件系统（triggerLegendEvent + 事件名匹配）
-- [ ] 传奇主动技能激活（activateLegendAbility，含费用检查）
-- [ ] 卡莎：进化被动（4关键词升级，+3/+3，仅一次）
-- [ ] 卡莎：虚空感知主动技（消耗自身，给法术+1炽烈符能）
-- [ ] 易大师：独影剑鸣被动（1名盟友独自防守时+2 ATK）
-- [ ] AI 传奇行动（aiLegendActionPhase + aiLegendDuelAction）
+- ✅ 传奇牌独立 HP 系统（pLeg.currentHp / maxHp，与普通单位隔离）
+- ✅ 传奇被动检查（checkLegendPassives）
+- ✅ 传奇触发事件系统（triggerLegendEvent + 事件名匹配）
+- ✅ 传奇主动技能激活（activateLegendAbility，含费用检查）
+- ✅ 卡莎：进化被动（4关键词升级，+3/+3，仅一次）
+- ✅ 卡莎：虚空感知主动技（消耗自身，给法术+1炽烈符能）
+- ✅ 易大师：独影剑鸣被动（1名盟友独自防守时+2 ATK）
+- ✅ AI 传奇行动（aiLegendActionPhase + aiLegendDuelAction）
 
 ---
 
 ## Slice 5 — 卡牌效果全集
 
 ### 入场效果（onSummon）
-- [ ] 约德尔教官：入场摸1牌
-- [ ] 德莱厄斯：本回合≥2张出牌时+2/+2并回刷
-- [ ] 熔岩巨兽：每名坚守盟友+1 ATK
-- [ ] 贾克斯：手牌装备获得【反应】
-- [ ] 缇亚娜·冕卫：对手本回合不得积据守分
-- [ ] 先见机甲：预看牌堆顶，可选择回收
+- ✅ 约德尔教官：入场摸1牌（`yordel_instructor_enter`）
+- ✅ 德莱厄斯：本回合≥2张出牌时+2/+2并回刷（`darius_second_card`，cardsPlayedThisTurn>1）
+- ✅ 熔岩巨兽：每名坚守盟友+1 ATK（`malph_enter`，统计 baseZone 中含"坚守"单位数）
+- ✅ 贾克斯：手牌装备获得【反应】（`jax_enter`，遍历 hand 添加关键词）
+- [ ] 缇亚娜·冕卫：对手本回合不得积据守分（addScore 中需扫描缇亚娜，P9 实现）
+- [ ] 先见机甲：预看牌堆顶，可选择回收（需 prompt UI，P9 实现）
 
 ### 绝念效果（triggerDeathwish）
-- [ ] 虚空碎片：死亡时手牌生成「碎片」法术（手牌<7时）
-- [ ] 虚空哨兵：下一名盟友+1/+1
-- [ ] 警觉哨兵：摸1牌（牌堆>0时）
-- [ ] 嚎叫波洛：仅该区无其他盟友时摸1牌
+- ✅ 虚空碎片：死亡时手牌生成「碎片」法术（`voidling`，手牌<7时）
+- ✅ 虚空哨兵：下一名盟友+1/+1（`void_sentinel`，pNextAllyBuff）
+- ✅ 警觉哨兵：摸1牌（`alert_sentinel`，牌堆>0时）
+- ✅ 嚎叫波洛：仅该区无其他盟友时摸1牌（`wailing_poro`，CountAlliesExcluding==0）
 
 ### 战场牌效果（16张）
 - [ ] altar_unity — 统一祭坛
@@ -125,20 +125,20 @@
 ---
 
 ## 硬编码数值（深度扫描发现）
-- [ ] WIN_SCORE = 8
-- [ ] 手牌上限 = 7
-- [ ] 战场数量 = 2，每侧最多 2 个单位
-- [ ] 符文牌堆：卡莎 炽烈×7+灵光×5，易 翠意×6+摧破×6
-- [ ] 传奇初始HP：卡莎14，易12；初始ATK=5，费用=5
-- [ ] 对决跳过阈值 = 2次
-- [ ] 回合计时器 = 30秒
-- [ ] 每副主牌堆 = 40张，符文堆 = 12张
-- [ ] 卡莎进化：需4种不同关键词，加成+3/+3
-- [ ] 易大师防守触发：1名盟友，加成+2 ATK（当回合）
-- [ ] 德莱厄斯触发：本回合出牌≥2
-- [ ] 千尾监视者：全体敌方-3 ATK（当回合）
-- [ ] atk(u) 最小值 = 1
-- [ ] AI行动间隔 = 700ms；Toast持续 = 1800ms
+- ✅ WIN_SCORE = 8（GameState.const，TurnManager.AddScore/CheckWin 全部引用）
+- ✅ 手牌上限 = 7（GameState.MAX_HAND，所有摸牌/绝念/法术效果均守卫）
+- ✅ 战场数量 = 2，每侧最多 2 个单位（bf[2] + MAX_BF_UNITS，AIController 引用）
+- [ ] 符文牌堆：卡莎 炽烈×7+灵光×5，易 翠意×6+摧破×6（游戏初始化 ScriptableObject，P10）
+- [ ] 传奇初始HP：卡莎14，易12；初始ATK=5，费用=5（CardData ScriptableObject 尚未配置，P10）
+- ✅ 对决跳过阈值 = 2次（SpellSystem duelSkips >= 2，两处均守卫）
+- ✅ 回合计时器 = 30秒（GameState.TIMER_SECONDS，turnTimerSeconds 字段）
+- [ ] 每副主牌堆 = 40张，符文堆 = 12张（游戏初始化代码，P10）
+- ✅ 卡莎进化：需4种不同关键词，加成+3/+3（LegendSystem.EffectEvolve，P8）
+- ✅ 易大师防守触发：1名盟友，加成+2 ATK（当回合）（LegendSystem.EffectMasteryiDefendBuff，P8）
+- ✅ 德莱厄斯触发：本回合出牌≥2（CardDeployer.OnSummon darius_second_card，cardsPlayedThisTurn>1）
+- ✅ 千尾监视者：全体敌方-3 ATK（当回合）（CardDeployer.OnSummon thousand_tail_enter，tb.atk-=3）
+- ✅ atk(u) 最小值 = 1（CombatResolver.EffAtk = Math.Max(1, currentAtk + tb.atk)）
+- ✅ AI行动间隔 = 700ms（AIController Schedule(0.7f, ...)；Toast 属 UI 层，P10）
 
 ---
 
