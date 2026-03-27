@@ -103,7 +103,7 @@
 
 ---
 
-## Slice 6 — 游戏流程 & Meta（P10 ✅ 逻辑层完成，384 tests）
+## Slice 6 — 游戏流程 & Meta（P10 ✅ 逻辑层，P11 ✅ GameManager 桥接，384 tests）
 - [ ] 标题界面（开始按钮）— UI Phase
 - ✅ 硬币决定先后手（逻辑：GameInitializer.CoinFlip）
 - ✅ 战场选择（逻辑：GameInitializer.SelectBattlefields，从各方战场牌池随机抽1张）

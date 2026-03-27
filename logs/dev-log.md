@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-03-27 — P11: GameManager（MonoBehaviour 桥接层）
+
+**Phase**: P11 Unity 桥接 — GameManager
+
+**New files**:
+- `Assets/Scripts/Core/GameManager.cs` — MonoBehaviour 单例，持有全部纯 C# 系统，将逻辑层接入 Unity 生命周期：
+  - Awake: 实例化所有系统 + 注入跨系统依赖 + AI.Schedule → Coroutine + Timer.OnTimeout → PlayerEndTurn
+  - StartGame(DeckConfig): 调用 GI.SetupDecks / CoinFlip / SelectBattlefields → 触发 OnStateChanged
+  - ConfirmMulligan(List<int>): 调用 GI.ConfirmMulligan → 启动 RunGame() Coroutine
+  - RunGame / RunTurn 协程：五阶段（Awaken/Start/Summon/Draw/Action）→ 玩家等待 G.phase==End，AI AiAction() 自调 TM.DoEndPhase() → G.phase=End
+  - 计时器：Update() 每帧 Tick；超时自动调 TM.PlayerEndTurn()
+  - 玩家 API：PlayerEndTurn / PlayCard / TapRune / RecycleRune / MoveUnit / ActivateLegendAbility / DuelSkip / DuelPlayCard
+  - 事件：OnStateChanged / OnPhaseChanged / OnLog / OnGameOver / OnTimerTick
+
+**Test results**: 384/384 passed（GameManager 是 MonoBehaviour，无 EditMode 测试；编译通过，现有测试全绿）
+
+**Design decisions**:
+- 回合结束信号通过 `G.phase == GamePhase.End` 检测，而非额外 flag；DoEndPhase() 无论被谁调用（玩家/AI/超时）都能正确触发
+- AI.Schedule → `StartCoroutine(ScheduleCoroutine(delay, fn))` 实现 0.7s 逐步行动
+- LegendSystem 构造为 `new LegendSystem(G, TM)`（只接受2个参数，非4个）
+- 对外 API 尽量细粒度，UI 层只调用，不直接修改 G
+
+**Technical debt**: 无新增
+
+---
+
 ## 2026-03-27 — P10: 游戏初始化流程 & Meta
 
 **Phase**: P10 游戏流程 & Meta（GameInitializer / TurnTimerSystem / LocalizationTable / ForesightMech）
