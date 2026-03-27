@@ -32,10 +32,6 @@ namespace FWTCG.Tests
             _tm = new TurnManager(_g);
             _cd = new CardDeployer(_g, _tm);
             _gi = new GameInitializer(_g);
-
-            // 禁用洗牌，保持顺序，测试确定性
-            _gi.ShuffleCards = _ => { };
-            _gi.ShuffleRunes = _ => { };
         }
 
         // ─────────────────────────────────────────
@@ -141,17 +137,11 @@ namespace FWTCG.Tests
         // ─────────────────────────────────────────
 
         [Test]
-        public void SetupDecks_PlayerDeckHas36After4Drawn()
+        public void SetupDecks_BothDecksHave36After4Drawn()
         {
             _gi.SetupDecks(MakeConfig(40));
-            Assert.AreEqual(36, _g.pDeck.Count);
-        }
-
-        [Test]
-        public void SetupDecks_EnemyDeckHas36After4Drawn()
-        {
-            _gi.SetupDecks(MakeConfig(40));
-            Assert.AreEqual(36, _g.eDeck.Count);
+            Assert.AreEqual(36, _g.pDeck.Count, "player deck: 40 - 4 drawn = 36");
+            Assert.AreEqual(36, _g.eDeck.Count, "enemy deck: 40 - 4 drawn = 36");
         }
 
         [Test]
@@ -163,25 +153,11 @@ namespace FWTCG.Tests
         }
 
         [Test]
-        public void SetupDecks_PlayerRuneDeck_Kaisa_12Runes()
-        {
-            _gi.SetupDecks(MakeConfig());
-            Assert.AreEqual(12, _g.pRuneDeck.Count);
-        }
-
-        [Test]
         public void SetupDecks_PlayerRuneDeck_Kaisa_7Blazing_5Radiant()
         {
             _gi.SetupDecks(MakeConfig());
             Assert.AreEqual(7, _g.pRuneDeck.Count(r => r.runeType == RuneType.Blazing));
             Assert.AreEqual(5, _g.pRuneDeck.Count(r => r.runeType == RuneType.Radiant));
-        }
-
-        [Test]
-        public void SetupDecks_EnemyRuneDeck_Yi_12Runes()
-        {
-            _gi.SetupDecks(MakeConfig());
-            Assert.AreEqual(12, _g.eRuneDeck.Count);
         }
 
         [Test]
@@ -218,29 +194,17 @@ namespace FWTCG.Tests
         }
 
         [Test]
-        public void SetupDecks_ResetsScore_ToZero()
+        public void SetupDecks_ClearsAllPreviousGameState()
         {
             _g.pScore = 5; _g.eScore = 3;
-            _gi.SetupDecks(MakeConfig());
-            Assert.AreEqual(0, _g.pScore);
-            Assert.AreEqual(0, _g.eScore);
-        }
-
-        [Test]
-        public void SetupDecks_ResetsMana_ToZero()
-        {
             _g.pMana = 4; _g.eMana = 2;
-            _gi.SetupDecks(MakeConfig());
-            Assert.AreEqual(0, _g.pMana);
-            Assert.AreEqual(0, _g.eMana);
-        }
-
-        [Test]
-        public void SetupDecks_ClearsDiscard()
-        {
             _g.pDiscard.Add(new CardInstance());
             _gi.SetupDecks(MakeConfig());
-            Assert.AreEqual(0, _g.pDiscard.Count);
+            Assert.AreEqual(0, _g.pScore, "pScore reset");
+            Assert.AreEqual(0, _g.eScore, "eScore reset");
+            Assert.AreEqual(0, _g.pMana,  "pMana reset");
+            Assert.AreEqual(0, _g.eMana,  "eMana reset");
+            Assert.AreEqual(0, _g.pDiscard.Count, "pDiscard cleared");
         }
 
         [Test]
@@ -280,16 +244,6 @@ namespace FWTCG.Tests
             _gi.SetupDecks(MakeConfig());
             _gi.SelectBattlefields();
             Assert.IsTrue(_g.bf[1].card.id.StartsWith("ebf"));
-        }
-
-        [Test]
-        public void SelectBattlefields_DoesNotModifyBFPool()
-        {
-            _gi.SetupDecks(MakeConfig());
-            _gi.SelectBattlefields();
-            // Pool 原始3张不变
-            Assert.AreEqual(3, _g.pBFPool.Count);
-            Assert.AreEqual(3, _g.eBFPool.Count);
         }
 
         // ─────────────────────────────────────────

@@ -735,28 +735,12 @@ namespace FWTCG.Tests
         }
 
         [Test]
-        public void SkipDuel_Once_FlipsToEnemy()
+        public void SkipDuel_BothSidesSkip_EndsDuel()
         {
-            bool aiCalled = false;
+            // 玩家跳过 → AI 无反应牌也跳过 → 双方各跳过1次 → 对决结束
             _ss.StartSpellDuel(1, Owner.Player);
-            _ss.OnAiDuelTurn = () => aiCalled = true;
+            _ss.OnAiDuelTurn = _ai.AiDuelAction; // 真实 AI（无牌 → 自动跳过）
             _ss.SkipDuel();
-            Assert.AreEqual(1, _g.duelSkips);
-            Assert.AreEqual(Owner.Enemy, _g.duelTurn);
-            Assert.IsTrue(aiCalled);
-        }
-
-        [Test]
-        public void SkipDuel_TwiceByPlayer_EndsDuel()
-        {
-            _ss.StartSpellDuel(1, Owner.Player);
-            _g.duelTurn = Owner.Player;
-            _ss.OnAiDuelTurn = () =>
-            {
-                // AI skips immediately
-                _ss.AiSkipDuel();
-            };
-            _ss.SkipDuel();  // player skip 1 → AI skip → duelSkips=2 → EndDuel
             Assert.IsFalse(_g.duelActive);
         }
 

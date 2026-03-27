@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-03-27 — P12: TDD 规范修复（测试重构）
+
+**Phase**: P12 TDD 规范合规修复
+
+**New files**: 无
+
+**Modified files**:
+- `Assets/Tests/EditMode/RuneControllerTests.cs` — 重写所有断言 `pendingRunes` 内部状态的测试（Rule 2 违规），改为通过 `ConfirmRunes()` 验证最终行为
+- `Assets/Tests/EditMode/SpellSystemTests.cs` — 移除 `OnAiDuelTurn` mock stub（Rule 3 违规），改用真实 `_ai.AiDuelAction`；删除 `SkipDuel_Once_FlipsToEnemy`（同时违反 Rule 2 + Rule 3）
+- `Assets/Tests/EditMode/GameInitializerTests.cs` — 移除 `ShuffleCards/ShuffleRunes` 注入 `_ => {}` stub（Rule 3 违规）；合并横向单字段测试为行为测试（Rule 1 违规）；删除 `SelectBattlefields_DoesNotModifyBFPool`（Rule 2 违规）
+
+**Test results**: 377/377 passed（P11 384 → P12 377，净减 7 个冗余/违规测试）
+
+**Design decisions**:
+- 移除 7 个违规测试，未损失任何真实行为覆盖率
+- RuneController 测试统一走 TapRune→ConfirmRunes 完整路径，验证法力/符文状态
+- SpellSystem 对决测试用空手牌 AI（无牌 → 自动跳过），避免 mock 自己的代码
+- GameInitializer shuffle 委托本质是算法实现，不属于系统边界，不应 mock
+
+**Problems encountered**:
+- Unity batch mode 加 `-quit` 标志会在测试执行前退出 → 去掉 `-quit` 解决
+
+---
+
 ## 2026-03-27 — P11: GameManager（MonoBehaviour 桥接层）
 
 **Phase**: P11 Unity 桥接 — GameManager

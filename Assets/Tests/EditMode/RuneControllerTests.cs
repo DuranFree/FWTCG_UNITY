@@ -27,42 +27,46 @@ namespace FWTCG.Tests
         // ─────────────────────────────────────────
 
         [Test]
-        public void TapRune_AddsToPending()
+        public void TapRune_ThenConfirm_TapsRuneAndAddsMana()
         {
             _g.pRunes.Add(RuneInstance.Create(RuneType.Blazing));
             _rc.TapRune(0);
+            _rc.ConfirmRunes();
 
-            Assert.AreEqual(1, _g.pendingRunes.Count);
-            Assert.AreEqual(PendingRuneAction.Tap, _g.pendingRunes[0].action);
-            Assert.AreEqual(0, _g.pendingRunes[0].idx);
+            Assert.IsTrue(_g.pRunes[0].tapped);
+            Assert.AreEqual(1, _g.pMana);
         }
 
         [Test]
-        public void TapRune_Toggle_RemovesIfAlreadyPending()
+        public void TapRune_DoubleToggle_ThenConfirm_NoEffect()
         {
             _g.pRunes.Add(RuneInstance.Create(RuneType.Blazing));
-            _rc.TapRune(0); // add
-            _rc.TapRune(0); // remove
+            _rc.TapRune(0); // stage
+            _rc.TapRune(0); // unstage
+            _rc.ConfirmRunes();
 
-            Assert.AreEqual(0, _g.pendingRunes.Count);
+            Assert.IsFalse(_g.pRunes[0].tapped);
+            Assert.AreEqual(0, _g.pMana);
         }
 
         [Test]
-        public void TapRune_Ignores_AlreadyTappedRune()
+        public void TapRune_AlreadyTapped_ThenConfirm_NoExtraMana()
         {
             var r = RuneInstance.Create(RuneType.Blazing);
             r.tapped = true;
             _g.pRunes.Add(r);
-            _rc.TapRune(0);
+            _rc.TapRune(0); // should be ignored
+            _rc.ConfirmRunes();
 
-            Assert.AreEqual(0, _g.pendingRunes.Count);
+            Assert.AreEqual(0, _g.pMana);
         }
 
         [Test]
-        public void TapRune_Ignores_OutOfRangeIndex()
+        public void TapRune_OutOfRange_ThenConfirm_NoEffect()
         {
-            _rc.TapRune(5); // no runes in field
-            Assert.AreEqual(0, _g.pendingRunes.Count);
+            _rc.TapRune(5); // no runes at all
+            _rc.ConfirmRunes();
+            Assert.AreEqual(0, _g.pMana);
         }
 
         // ─────────────────────────────────────────
@@ -70,19 +74,20 @@ namespace FWTCG.Tests
         // ─────────────────────────────────────────
 
         [Test]
-        public void TapAllRunes_AddsAllUntapped()
+        public void TapAllRunes_ThenConfirm_AddsManaForEachUntapped()
         {
             _g.pRunes.Add(RuneInstance.Create(RuneType.Blazing));
             _g.pRunes.Add(RuneInstance.Create(RuneType.Radiant));
             _g.pRunes.Add(RuneInstance.Create(RuneType.Verdant));
 
             _rc.TapAllRunes();
+            _rc.ConfirmRunes();
 
-            Assert.AreEqual(3, _g.pendingRunes.Count);
+            Assert.AreEqual(3, _g.pMana);
         }
 
         [Test]
-        public void TapAllRunes_SkipsAlreadyTapped()
+        public void TapAllRunes_WithOneTappedOneUntapped_GivesOneMana()
         {
             var r0 = RuneInstance.Create(RuneType.Blazing);
             r0.tapped = true;
@@ -90,19 +95,20 @@ namespace FWTCG.Tests
             _g.pRunes.Add(RuneInstance.Create(RuneType.Radiant));
 
             _rc.TapAllRunes();
+            _rc.ConfirmRunes();
 
-            Assert.AreEqual(1, _g.pendingRunes.Count);
-            Assert.AreEqual(1, _g.pendingRunes[0].idx);
+            Assert.AreEqual(1, _g.pMana); // 只有未横置的那张贡献法力
         }
 
         [Test]
-        public void TapAllRunes_DoesNotDuplicate_ExistingPending()
+        public void TapAllRunes_AfterManualTap_NoDuplicate()
         {
             _g.pRunes.Add(RuneInstance.Create(RuneType.Blazing));
-            _rc.TapRune(0);       // 已加入
-            _rc.TapAllRunes();    // 应跳过已在队列中的
+            _rc.TapRune(0);      // 手动暂存
+            _rc.TapAllRunes();   // 不应重复添加
+            _rc.ConfirmRunes();
 
-            Assert.AreEqual(1, _g.pendingRunes.Count);
+            Assert.AreEqual(1, _g.pMana); // 只获得1点法力，而非2
         }
 
         // ─────────────────────────────────────────
@@ -110,34 +116,38 @@ namespace FWTCG.Tests
         // ─────────────────────────────────────────
 
         [Test]
-        public void RecycleRune_AddsToPending()
+        public void RecycleRune_ThenConfirm_RemovesAndAddsSch()
         {
             _g.pRunes.Add(RuneInstance.Create(RuneType.Blazing));
             _rc.RecycleRune(0);
+            _rc.ConfirmRunes();
 
-            Assert.AreEqual(1, _g.pendingRunes.Count);
-            Assert.AreEqual(PendingRuneAction.Recycle, _g.pendingRunes[0].action);
+            Assert.AreEqual(0, _g.pRunes.Count, "符文已从场上移除");
+            Assert.AreEqual(1, _g.pSch.Get(RuneType.Blazing), "获得炽烈符能");
         }
 
         [Test]
-        public void RecycleRune_Toggle_RemovesIfAlreadyPending()
+        public void RecycleRune_DoubleToggle_ThenConfirm_NoEffect()
         {
             _g.pRunes.Add(RuneInstance.Create(RuneType.Blazing));
-            _rc.RecycleRune(0);
-            _rc.RecycleRune(0);
+            _rc.RecycleRune(0); // 暂存
+            _rc.RecycleRune(0); // 取消
+            _rc.ConfirmRunes();
 
-            Assert.AreEqual(0, _g.pendingRunes.Count);
+            Assert.AreEqual(1, _g.pRunes.Count, "符文留在场上");
+            Assert.AreEqual(0, _g.pSch.Get(RuneType.Blazing), "未获得符能");
         }
 
         [Test]
-        public void RecycleRune_AllowsTapped_Rune()
+        public void RecycleRune_TappedRune_ThenConfirm_AddsSch()
         {
             var r = RuneInstance.Create(RuneType.Blazing);
             r.tapped = true;
             _g.pRunes.Add(r);
             _rc.RecycleRune(0);
+            _rc.ConfirmRunes();
 
-            Assert.AreEqual(1, _g.pendingRunes.Count, "已横置的符文也可以回收");
+            Assert.AreEqual(1, _g.pSch.Get(RuneType.Blazing), "横置符文回收后应获得符能");
         }
 
         // ─────────────────────────────────────────
@@ -145,7 +155,7 @@ namespace FWTCG.Tests
         // ─────────────────────────────────────────
 
         [Test]
-        public void CancelRunes_ClearsAllPending()
+        public void CancelRunes_ThenConfirm_NoEffect()
         {
             _g.pRunes.Add(RuneInstance.Create(RuneType.Blazing));
             _g.pRunes.Add(RuneInstance.Create(RuneType.Radiant));
@@ -153,8 +163,10 @@ namespace FWTCG.Tests
             _rc.RecycleRune(1);
 
             _rc.CancelRunes();
+            _rc.ConfirmRunes(); // 取消后确认应无效
 
-            Assert.AreEqual(0, _g.pendingRunes.Count);
+            Assert.AreEqual(0, _g.pMana, "取消后不应获得法力");
+            Assert.AreEqual(2, _g.pRunes.Count, "取消后符文应仍在场上");
         }
 
         // ─────────────────────────────────────────
