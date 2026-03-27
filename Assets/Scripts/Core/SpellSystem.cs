@@ -726,16 +726,79 @@ namespace FWTCG.Core
                     break;
                 }
 
-                // ── 装备效果（P7 存根）──
+                // ── 装备效果（P7 装配逻辑）──
+                // trinity_equip / guardian_equip / dorans_equip:
+                //   玩家路径：PromptTarget 选择基地单位附着（可选，跳过则停在基地）
+                //   AI路径：自动选择基地最高战力单位
                 case "trinity_equip":
                 case "guardian_equip":
                 case "dorans_equip":
+                {
+                    var baseUnits = G.GetBase(owner).Where(u => u.type != CardType.Equipment).ToList();
+                    if (baseUnits.Count > 0)
+                    {
+                        // PromptTarget：UI 层可选目标（optional），null 表示跳过，装备留在基地
+                        var target = PromptTarget(baseUnits);
+                        if (target != null)
+                        {
+                            // 装备已在基地（通过 DeployToBase 进入），此处从基地找到并附着
+                            // 注：此 case 在 ApplySpell 中被调用时，装备已由 DeployToBase 放入基地
+                            // 通过 G._lastDeployedEquipUid 找到刚放入基地的装备实例（如存在）
+                            CardInstance equipInst = null;
+                            if (G.LastDeployedUid.HasValue)
+                            {
+                                equipInst = G.GetBase(owner).FirstOrDefault(
+                                    u => u.uid == G.LastDeployedUid.Value && u.type == CardType.Equipment);
+                            }
+                            // 若找不到（如 AI 直接 ApplySpell），用 spell 本身作为装备实例（已是 mk 后的实例）
+                            if (equipInst == null)
+                                equipInst = spell;
+
+                            _cd.AttachEquipToUnit(equipInst, target, owner, paySchCost: false);
+                            // atkBonus 已在 AttachEquipToUnit 内处理
+                        }
+                        // 若 target == null：装备留在基地（待命状态，可后续用 ActivateEquipAbility 附着）
+                    }
+                    // 若基地无单位：装备部署后待在基地
+                    break;
+                }
+
+                // death_shield (中娅沙漏)：部署到基地即生效（cleanDeadAll 自动检查）
                 case "death_shield":
+                    // 无即时效果；触发效果在 CardDeployer.TryDeathShield 中处理
                     break;
 
                 default:
                     break;
             }
+        }
+
+        // ─────────────────────────────────────────
+        // 装备系统（P7）
+        // ─────────────────────────────────────────
+
+        /// <summary>
+        /// 激活基地中装备的装配异能，等价原版 activateEquipAbility。
+        /// 校验费用 → PromptTarget 选择单位 → AttachEquipToUnit（支付 equipSchCost）。
+        /// 返回 true 表示成功附着；false 表示取消/费用不足。
+        /// </summary>
+        public bool ActivateEquipAbility(CardInstance equip, Owner owner)
+        {
+            if (G.turn != owner || G.phase != GamePhase.Action) return false;
+
+            int  needSch  = equip.equipSchCost;
+            var  sch      = G.GetSch(owner);
+            bool canPay   = needSch <= 0 || sch.Get(equip.equipSchType) >= needSch;
+            if (!canPay) return false;
+
+            var baseUnits = G.GetBase(owner).Where(u => u.type != CardType.Equipment).ToList();
+            if (baseUnits.Count == 0) return false;
+
+            var target = PromptTarget(baseUnits);
+            if (target == null) return false;
+
+            _cd.AttachEquipToUnit(equip, target, owner, paySchCost: true);
+            return true;
         }
 
         // ─────────────────────────────────────────

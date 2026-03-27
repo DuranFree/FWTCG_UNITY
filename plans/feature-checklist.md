@@ -40,14 +40,15 @@
 ---
 
 ## Slice 3 — 装备系统
-- [ ] 装备牌部署到基地
-- [ ] 装备装配到单位（deployEquipAttach，含符能费用）
-- [ ] 装备随单位移动/死亡
-- [ ] 装备技能激活（activateEquipAbility）
-- [ ] 三相之力效果（trinityEquipped 标记）
-- [ ] 天使圣甲效果（死亡护盾）
-- [ ] 多兰之刃效果
-- [ ] 中亚苦痛效果（Zhonya）
+- ✅ 装备牌部署到基地（DeployToBase，type=Equipment，LastDeployedUid 追踪）
+- ✅ 装备装配到单位（AttachEquipToUnit，ApplySpell 内 PromptTarget 选择目标）
+- ✅ 装备随单位死亡进废牌堆（CleanBFSide/CleanBaseSide 已处理 attachedEquipments）
+- ✅ 装备技能激活（ActivateEquipAbility，校验 equipSchCost）
+- ✅ 三相之力效果（trinityEquipped 标记，+2战力）
+- ✅ 守护天使效果（guardian_equip 死亡护盾，TryDeathShield 优先检查附着装备）
+- ✅ 多兰之刃效果（dorans_equip，+2战力）
+- ✅ 中娅沙漏效果（death_shield，基地装备触发 TryDeathShield）
+- ✅ AI 装备部署（AiAction 步骤5a，优先部署+附着到最高战力单位）
 
 ---
 

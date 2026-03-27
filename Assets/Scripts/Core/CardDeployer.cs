@@ -84,6 +84,7 @@ namespace FWTCG.Core
             bool rallyActive = owner == Owner.Player ? G.pRallyActive : G.eRallyActive;
             unit.exhausted = !(enterActive || rallyActive);
 
+            G.LastDeployedUid = unit.uid;
             G.GetBase(owner).Add(unit);
             OnSummon(unit, owner);
             _tm.CheckWin();
@@ -110,6 +111,7 @@ namespace FWTCG.Core
             bool rallyActive = owner == Owner.Player ? G.pRallyActive : G.eRallyActive;
             unit.exhausted = !(enterActive || rallyActive);
 
+            G.LastDeployedUid = unit.uid;
             (owner == Owner.Player ? bf.pU : bf.eU).Add(unit);
             OnSummon(unit, owner);
             _tm.CheckWin();
@@ -181,15 +183,35 @@ namespace FWTCG.Core
             CleanDeadAll();
         }
 
-        // ── TryDeathShield: 中娅沙漏——濒死单位保护 ──
+        // ── TryDeathShield: 死亡护盾（守护天使附着 + 中娅沙漏基地）──
         /// <summary>
-        /// 若己方基地有 death_shield 装备，摧毁装备，将濒死单位救回基地（疲惫状态）。
-        /// 注：战场清理中对装备需排除（type==equipment），基地装备单独守卫。
+        /// 优先检查单位附着的守护天使（guardian_equip），其次检查基地中的中娅沙漏（death_shield）。
+        /// 两者效果相同：摧毁装备，将单位以休眠状态召回基地，重置伤害。
         /// </summary>
         public bool TryDeathShield(CardInstance dying,
                                    List<CardInstance> ownerBase,
                                    List<CardInstance> ownerDiscard)
         {
+            // 1. 附着的守护天使（guardian_equip）
+            if (dying.attachedEquipments != null)
+            {
+                int guardianIdx = dying.attachedEquipments.FindIndex(e => e.effect == "guardian_equip");
+                if (guardianIdx >= 0)
+                {
+                    var guardian = dying.attachedEquipments[guardianIdx];
+                    dying.attachedEquipments.RemoveAt(guardianIdx);
+                    ownerDiscard.Add(guardian);
+
+                    dying.currentHp  = dying.currentAtk;  // 重置伤害（保留永久 buff）
+                    dying.exhausted  = true;
+                    dying.stunned    = false;
+                    dying.tb         = new TurnBuffs { atk = 0 };
+                    ownerBase.Add(dying);
+                    return true;
+                }
+            }
+
+            // 2. 基地中的中娅沙漏（death_shield）
             int shieldIdx = ownerBase.FindIndex(u => u.effect == "death_shield");
             if (shieldIdx < 0) return false;
 
@@ -197,14 +219,42 @@ namespace FWTCG.Core
             ownerBase.RemoveAt(shieldIdx);
             ownerDiscard.Add(shield);
 
-            dying.currentHp  = dying.atk;
-            dying.currentAtk = dying.atk;
+            dying.currentHp  = dying.currentAtk;  // 重置伤害（保留永久 buff）
             dying.exhausted  = true;
             dying.stunned    = false;
             dying.tb         = new TurnBuffs { atk = 0 };
-
             ownerBase.Add(dying);
             return true;
+        }
+
+        // ── AttachEquipToUnit: 将基地中的装备附着到单位（激活装配异能）──
+        /// <summary>
+        /// 从基地移除装备，附着到目标单位，应用 atkBonus 并支付 equipSchCost。
+        /// 等价原版 activateEquipAbility 的核心结算逻辑。
+        /// </summary>
+        public void AttachEquipToUnit(CardInstance equip, CardInstance target,
+                                      Owner owner, bool paySchCost = true)
+        {
+            var baseZone = G.GetBase(owner);
+            var sch      = G.GetSch(owner);
+
+            if (paySchCost && equip.equipSchCost > 0)
+                sch.Spend(equip.equipSchType, equip.equipSchCost);
+
+            baseZone.Remove(equip);
+
+            if (target.attachedEquipments == null)
+                target.attachedEquipments = new System.Collections.Generic.List<CardInstance>();
+            target.attachedEquipments.Add(equip);
+
+            if (equip.atkBonus > 0)
+            {
+                target.atk        += equip.atkBonus;
+                target.currentAtk += equip.atkBonus;
+                target.currentHp  += equip.atkBonus;  // HP = atk，一并提升
+            }
+            if (equip.effect == "trinity_equip")
+                target.trinityEquipped = true;
         }
 
         // ── CleanDeadAll: 全局死亡清理 ──

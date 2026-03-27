@@ -326,7 +326,32 @@ namespace FWTCG.Core
                     }
                 }
 
-                // ── 5. 出随从（按 aiCardValue 评分排序）──
+                // ── 5a. 部署装备（P7）──
+                if (_ss != null)
+                {
+                    var equips = G.eHand
+                        .Where(c => c.type == CardType.Equipment
+                                 && c.cost <= G.eMana
+                                 && G.eSch.Get(c.schType)  >= c.schCost
+                                 && G.eSch.Get(c.schType2) >= c.schCost2
+                                 && G.eBase.Count < 5)
+                        .ToList();
+
+                    if (equips.Count > 0)
+                    {
+                        var eq = equips[0];
+                        // AI 装备目标：选基地最高战力单位
+                        _ss.PromptTarget = candidateList =>
+                            candidateList.OrderByDescending(u => CombatResolver.EffAtk(u)).FirstOrDefault();
+                        var deployed = _cd.DeployToBase(eq, Owner.Enemy);
+                        // 若基地有非装备单位，立即附着（ApplySpell 内通过 PromptTarget 处理）
+                        _ss.ApplySpell(deployed, Owner.Enemy, null);
+                        Schedule(0.7f, AiAction);
+                        return;
+                    }
+                }
+
+                // ── 5b. 出随从（按 aiCardValue 评分排序）──
                 var units = G.eHand
                     .Where(c => c.type != CardType.Spell
                              && c.type != CardType.Equipment

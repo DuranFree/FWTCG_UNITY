@@ -98,6 +98,7 @@ namespace FWTCG.Core
         public List<int> bfScoredThisTurn    = new();
         public List<int> bfConqueredThisTurn = new();
         public int lastPlayerSpellCost;
+        public int? LastDeployedUid;    // 最近一次 DeployToBase/ToBF 的单位 uid（等价原版 G._lastDeployedUid）
 
         // ── 对决 ──
         public bool duelActive;

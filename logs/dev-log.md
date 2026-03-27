@@ -231,3 +231,32 @@
 - deal3_twice 测试初版单位 HP=5（两次3伤死亡）→ 改 HP=8
 - rally_call 测试检查 eRallyActive（DoEndPhase 重置）→ 改检查 eDiscard + unit.exhausted
 - balance_resolve 测试绘制的单位 cost=1 被后续 AiAction 递归部署 → 改 cost=4
+
+---
+
+## 2026-03-27 — P7: 装备系统
+
+**Phase**: P7 装备系统 (Equipment System)
+
+**New files**:
+- `Assets/Tests/EditMode/EquipmentSystemTests.cs` — 21 项行为验证测试
+
+**Modified files**:
+- `Assets/Scripts/Data/CardData.cs` — 添加 `atkBonus` 字段（装配战力加成）
+- `Assets/Scripts/Core/CardInstance.cs` — 添加 `atkBonus` 字段（From + Mk 同步）
+- `Assets/Scripts/Core/GameState.cs` — 添加 `LastDeployedUid` 字段（追踪最近部署单位 uid）
+- `Assets/Scripts/Core/CardDeployer.cs` — TryDeathShield 扩展（优先检查 guardian_equip 附着）；新增 AttachEquipToUnit 方法；DeployToBase/ToBF 设置 LastDeployedUid
+- `Assets/Scripts/Core/SpellSystem.cs` — trinity/guardian/dorans/death_shield case 实现；新增 ActivateEquipAbility 方法
+- `Assets/Scripts/Core/AIController.cs` — AiAction 步骤5a：AI 部署装备并立即附着到最高战力单位
+
+**Test results**: 263/263 passed (prior 242 + 21 new P7)
+
+**Design decisions**:
+- guardian_equip 检查优先于 death_shield（守护天使先于中娅触发）
+- 装备 ApplySpell 通过 PromptTarget 委托让玩家选择目标（null=跳过，留在基地）
+- AI 装备通过 PromptTarget=OrderByDescending(EffAtk) 选最强单位
+
+**Technical debt**: P7 UI 层需实现"optional target"提示弹窗
+
+**Problems encountered**:
+- 测试断言 `IsFalse(pDiscard.Contains(unit))` 错误（死亡单位确实进废牌堆）→ 改为 IsTrue

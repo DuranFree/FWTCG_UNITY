@@ -46,6 +46,7 @@ namespace FWTCG.Data
         [Header("Equipment Equip Cost (装备专用)")]
         [SerializeField] public int equipSchCost;
         [SerializeField] public RuneType equipSchType;
+        [SerializeField] public int atkBonus;            // 装配加成战力（如三相+2，守护天使+1，多兰+2）
 
         [Header("Special Flags")]
         [SerializeField] public bool isHero;             // 英雄卡（驻留英雄区）

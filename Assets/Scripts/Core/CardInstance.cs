@@ -34,6 +34,7 @@ namespace FWTCG.Core
         public int echoManaCost;
         public int equipSchCost;
         public RuneType equipSchType;
+        public int atkBonus;
         public bool isHero;
         public int strongAtkBonus;
         public int guardBonus;
@@ -83,6 +84,7 @@ namespace FWTCG.Core
             inst.echoManaCost   = data.echoManaCost;
             inst.equipSchCost   = data.equipSchCost;
             inst.equipSchType   = data.equipSchType;
+            inst.atkBonus       = data.atkBonus;
             inst.isHero         = data.isHero;
             inst.strongAtkBonus = data.strongAtkBonus > 0 ? data.strongAtkBonus : 1;
             inst.guardBonus     = data.guardBonus     > 0 ? data.guardBonus     : 1;
@@ -133,6 +135,7 @@ namespace FWTCG.Core
             inst.echoManaCost   = echoManaCost;
             inst.equipSchCost   = equipSchCost;
             inst.equipSchType   = equipSchType;
+            inst.atkBonus       = atkBonus;
             inst.isHero         = isHero;
             inst.strongAtkBonus = strongAtkBonus > 0 ? strongAtkBonus : 1;
             inst.guardBonus     = guardBonus     > 0 ? guardBonus     : 1;
