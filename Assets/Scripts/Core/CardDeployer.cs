@@ -10,7 +10,7 @@ namespace FWTCG.Core
     ///   moveUnit / removeUnitFromField / dealDamage /
     ///   cleanDeadAll / tryDeathShield / onSummon / triggerDeathwish
     ///
-    /// 纯 C# 类，不依赖 MonoBehaviour；异步提示（急速可选费用、先见机甲预知）在 P5 UI 层实现。
+    /// 纯 C# 类，不依赖 MonoBehaviour；急速可选费用在 UI 层实现；先见机甲预知通过 PromptForesight delegate（P10）完成。
     /// </summary>
     public class CardDeployer
     {
@@ -30,6 +30,14 @@ namespace FWTCG.Core
 
         /// <summary>注入战场牌系统（P9）。</summary>
         public void SetBattlefieldSystem(BattlefieldSystem bfs) => _bfSystem = bfs;
+
+        /// <summary>
+        /// 先见机甲预知 prompt（P10）。
+        /// 传入牌库顶 CardInstance，返回 true = 玩家选择回收至库底，false = 保留在库顶。
+        /// 测试默认：不回收（() => false）；UI 层覆写为展示弹窗后等待玩家点击。
+        /// AI 侧亦使用此 delegate，可注入简单启发式策略。
+        /// </summary>
+        public System.Func<CardInstance, bool> PromptForesight = _ => false;
 
         // ── GetEffectiveCost: 计算有效费用 ──
         /// <summary>
@@ -451,7 +459,7 @@ namespace FWTCG.Core
         /// <summary>
         /// 等价原版 spell.js onSummon()。
         /// 先处理 pNextAllyBuff（虚空哨兵遗愿），再 switch on unit.effect。
-        /// 注：先见机甲（foresight_mech_enter）需要 prompt，P5 实现。
+        /// 注：先见机甲（foresight_mech_enter）通过 PromptForesight delegate 实现，P10 已完成。
         /// </summary>
         public void OnSummon(CardInstance unit, Owner owner)
         {
@@ -542,7 +550,21 @@ namespace FWTCG.Core
                     }
                     break;
                 }
-                // foresight_mech_enter: P5（需要 prompt，无法在纯逻辑层实现）
+                case "foresight_mech_enter":
+                {
+                    // 预知：查看库顶1张，可选择回收至库底（P10）
+                    if (deck.Count > 0)
+                    {
+                        var topCard = deck[deck.Count - 1];
+                        bool recycle = PromptForesight(topCard);
+                        if (recycle)
+                        {
+                            deck.RemoveAt(deck.Count - 1);
+                            deck.Insert(0, topCard);   // 放入库底（index 0）
+                        }
+                    }
+                    break;
+                }
                 default:
                     break;
             }

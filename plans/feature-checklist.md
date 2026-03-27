@@ -72,7 +72,7 @@
 - ✅ 熔岩巨兽：每名坚守盟友+1 ATK（`malph_enter`，统计 baseZone 中含"坚守"单位数）
 - ✅ 贾克斯：手牌装备获得【反应】（`jax_enter`，遍历 hand 添加关键词）
 - ✅ 缇亚娜·冕卫：对手本回合不得积据守分（BattlefieldSystem.IsTiyanaBlockingHold，AddScore 调用）
-- [ ] 先见机甲：预看牌堆顶，可选择回收（需 prompt UI，P10 实现）
+- ✅ 先见机甲：预看牌堆顶，可选择回收至库底（CardDeployer.PromptForesight delegate，P10）
 
 ### 绝念效果（triggerDeathwish）
 - ✅ 虚空碎片：死亡时手牌生成「碎片」法术（`voidling`，手牌<7时）
@@ -103,18 +103,18 @@
 
 ---
 
-## Slice 6 — 游戏流程 & Meta
-- [ ] 标题界面（开始按钮）
-- [ ] 硬币决定先后手（动画 + 结果）
-- [ ] 战场选择（玩家从3张中选1张）
-- [ ] 先手调整（Mulligan：最多换2张）
-- [ ] 积分轨道展示（0-8格，动画）
-- [ ] 战斗日志（可展开/折叠）
-- [ ] 游戏结束界面（胜/败）
-- [ ] 卡牌详情预览（点击查看完整文字）
-- [ ] 弃牌堆/放逐堆查看器
-- [ ] 30秒回合计时器（倒计时 + 超时自动结束）
-- [ ] 本地化字符串表（现阶段仅中文，预留多语言接口）
+## Slice 6 — 游戏流程 & Meta（P10 ✅ 逻辑层完成，384 tests）
+- [ ] 标题界面（开始按钮）— UI Phase
+- ✅ 硬币决定先后手（逻辑：GameInitializer.CoinFlip）
+- ✅ 战场选择（逻辑：GameInitializer.SelectBattlefields，从各方战场牌池随机抽1张）
+- ✅ 先手调整（逻辑：GameInitializer.ConfirmMulligan，最多换2张）
+- [ ] 积分轨道展示（0-8格，动画）— UI Phase
+- [ ] 战斗日志（可展开/折叠）— UI Phase
+- [ ] 游戏结束界面（胜/败）— UI Phase
+- [ ] 卡牌详情预览（点击查看完整文字）— UI Phase
+- [ ] 弃牌堆/放逐堆查看器— UI Phase
+- ✅ 30秒回合计时器（逻辑：TurnTimerSystem.Reset/Start/Stop/Tick/OnTimeout）
+- ✅ 本地化字符串表（LocalizationTable，中文全套，Format 支持占位符）
 
 ---
 
@@ -131,11 +131,11 @@
 - ✅ WIN_SCORE = 8（GameState.const，TurnManager.AddScore/CheckWin 全部引用）
 - ✅ 手牌上限 = 7（GameState.MAX_HAND，所有摸牌/绝念/法术效果均守卫）
 - ✅ 战场数量 = 2，每侧最多 2 个单位（bf[2] + MAX_BF_UNITS，AIController 引用）
-- [ ] 符文牌堆：卡莎 炽烈×7+灵光×5，易 翠意×6+摧破×6（游戏初始化 ScriptableObject，P10）
-- [ ] 传奇初始HP：卡莎14，易12；初始ATK=5，费用=5（CardData ScriptableObject 尚未配置，P10）
+- ✅ 符文牌堆：卡莎 炽烈×7+灵光×5，易 翠意×6+摧破×6（GameInitializer.KaisaRuneTypes/MasterYiRuneTypes，P10）
+- [ ] 传奇初始HP：卡莎14，易12；初始ATK=5，费用=5（CardData ScriptableObject 尚未配置，UI Phase）
 - ✅ 对决跳过阈值 = 2次（SpellSystem duelSkips >= 2，两处均守卫）
-- ✅ 回合计时器 = 30秒（GameState.TIMER_SECONDS，turnTimerSeconds 字段）
-- [ ] 每副主牌堆 = 40张，符文堆 = 12张（游戏初始化代码，P10）
+- ✅ 回合计时器 = 30秒（GameState.TIMER_SECONDS，TurnTimerSystem，P10）
+- ✅ 每副主牌堆 = 40张，符文堆 = 12张（GameInitializer.SetupDecks DeckConfig 约束，P10）
 - ✅ 卡莎进化：需4种不同关键词，加成+3/+3（LegendSystem.EffectEvolve，P8）
 - ✅ 易大师防守触发：1名盟友，加成+2 ATK（当回合）（LegendSystem.EffectMasteryiDefendBuff，P8）
 - ✅ 德莱厄斯触发：本回合出牌≥2（CardDeployer.OnSummon darius_second_card，cardsPlayedThisTurn>1）

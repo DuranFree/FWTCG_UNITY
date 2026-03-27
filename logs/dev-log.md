@@ -2,6 +2,60 @@
 
 ---
 
+## 2026-03-27 — P10: 游戏初始化流程 & Meta
+
+**Phase**: P10 游戏流程 & Meta（GameInitializer / TurnTimerSystem / LocalizationTable / ForesightMech）
+
+**New files**:
+- `Assets/Scripts/Core/GameInitializer.cs` — 游戏初始化流程：CoinFlip（先后手）/ SetupDecks（牌堆+符文堆+传奇+战场牌池+初始摸牌4张）/ SelectBattlefields（各方随机选1张战场牌）/ ConfirmMulligan（最多换2张手牌）；KaisaRuneTypes/MasterYiRuneTypes 便利工厂；ShuffleCards/ShuffleRunes 可注入
+- `Assets/Scripts/Core/TurnTimerSystem.cs` — 30秒倒计时逻辑：Reset/Start/Stop/Tick(delta)/OnTimeout；IsRunning 状态；TimeRemaining 属性（整秒，ceil）
+- `Assets/Scripts/Core/LocalizationTable.cs` — 中文字符串表（当前仅中文）：Get(key) / Format(key, args)；覆盖阶段、回合、翻币、Mulligan、区域、战斗、法术对决、积分、符文、关键词、先见机甲等全套字符串
+- `Assets/Tests/EditMode/GameInitializerTests.cs` — 54 项行为验证测试
+
+**Modified files**:
+- `CardDeployer.cs` — 新增 PromptForesight delegate；实现 foresight_mech_enter（查看库顶，可选回收至库底；空牌库无抛异常）
+
+**Test results**: 384/384 passed (prior 330 + 54 new P10)
+
+**Design decisions**:
+- GameInitializer 独立于 ScriptableObject，通过 DeckConfig 注入卡牌数据，EditMode 测试可直接 new
+- ShuffleCards / ShuffleRunes 均为 Action<List<T>>，测试注入空操作以固定顺序
+- CoinFlip: GetRandom() < 0.5f → Player；边界值 0.5f → Enemy（与 JS Math.random() < 0.5 一致）
+- ConfirmMulligan: 降序移除避免索引位移；超出2张限制取前2个（降序后最大的2个）
+- foresight_mech_enter: PromptForesight(topCard) → true 则 RemoveAt(deck.Count-1) + Insert(0, card)；不给符能（与卡牌文字一致：仅循环，不是"回收"）
+
+**Technical debt**: 传奇 CardData ScriptableObject 尚未在 Unity Editor Inspector 中配置 HP/ATK/Cost
+
+---
+
+## 2026-03-27 — P9: 战场牌效果全集
+
+**Phase**: P9 卡牌效果全集 (BattlefieldSystem)
+
+**New files**:
+- `Assets/Scripts/Core/BattlefieldSystem.cs` — 集中实现全部 16 张战场牌触发逻辑：OnHold / ModifyAddScore / IsTiyanaBlockingHold / OnCombatStart / OnConquer / OnDefenseFailure / OnUnitEnterBF / OnUnitLeaveBF / OnSpellTargetAlly / ModifySpellDamage / CanDeployToBF / CanMoveToBase；5个 Prompt 委托（PromptBaseUnit / PromptDiscardUnit / PromptHandCard / PromptTappedRune / PromptConfirm）
+- `Assets/Tests/EditMode/BattlefieldSystemTests.cs` — 42 项行为验证测试（涵盖全部 16 张战场牌 + 缇亚娜）
+
+**Modified files**:
+- `TurnManager.cs` — SetBattlefieldSystem；DoStart 调用 OnHold；AddScore 调用 ModifyAddScore + IsTiyanaBlockingHold
+- `CombatResolver.cs` — SetBattlefieldSystem；TriggerCombat 伤害前 OnCombatStart；征服后 OnConquer + OnDefenseFailure
+- `CardDeployer.cs` — SetBattlefieldSystem；DeployToBF 前置 CanDeployToBF 检查；MoveUnit 增加 CanMoveToBase + OnUnitLeaveBF + OnUnitEnterBF 调用
+- `SpellSystem.cs` — SetBattlefieldSystem；新增 DealSpellDmg 包装器（经 ModifySpellDamage 后调用 _cd.DealDamage）；ApplySpell 增加 dreaming_tree 触发（OnSpellTargetAlly）
+
+**Test results**: 330/330 passed (prior 288 + 42 new P9)
+
+**Design decisions**:
+- BattlefieldSystem 独立类（非 MonoBehaviour），通过 SetBattlefieldSystem 注入到 4 个系统
+- DealSpellDmg 包装所有法术伤害，void_gate (+1) 通过 ModifySpellDamage 透明加成
+- ascending_stairs 实现与 text 不一致（text: WIN_SCORE+1; 实现: 每次+1pts）—— 记入 tech-debt 等规则确认
+
+**Technical debt**: ascending_stairs text/实现不一致待规则确认；先见机甲 P10 补全
+
+**Problems encountered**:
+- DealSpellDmg 方法体内部的 `_cd.DealDamage(...)` 也被 replace_all 误替换成 `DealSpellDmg(...)` → 自调用导致 StackOverflowException；手动修正后全绿
+
+---
+
 ## 2026-03-27 — P8: 传奇系统
 
 **Phase**: P8 传奇系统 (Legend System)
