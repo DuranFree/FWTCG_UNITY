@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -52,6 +53,13 @@ namespace FWTCG.UI
         private GameObject _gameOverPanel;
         private Text       _gameOverText;
 
+        // 战场面板背景图（BF 控制光晕）
+        private Image      _bf0PanelImg;
+        private Image      _bf1PanelImg;
+
+        // 手牌入场动画追踪
+        private readonly HashSet<int> _prevHandUids = new();
+
         // 日志面板
         private Text       _logText;
         private ScrollRect _logScroll;
@@ -70,6 +78,14 @@ namespace FWTCG.UI
         private static readonly Color C_RuneBg  = new Color(0.06f, 0.10f, 0.04f, 0.85f);
         private static readonly Color C_HandBg  = new Color(0.03f, 0.04f, 0.10f, 0.85f);
         private static readonly Color C_LogBg   = new Color(0.02f, 0.02f, 0.04f, 0.95f);
+
+        // 6种符文专属颜色（炽烈橙/灵光黄/翠意绿/摧破红/混沌紫/序理蓝）
+        private static readonly Color C_RuneBlazing  = new Color(1.00f, 0.45f, 0.10f);
+        private static readonly Color C_RuneRadiant  = new Color(1.00f, 0.92f, 0.30f);
+        private static readonly Color C_RuneVerdant  = new Color(0.27f, 0.82f, 0.27f);
+        private static readonly Color C_RuneCrushing = new Color(0.90f, 0.22f, 0.22f);
+        private static readonly Color C_RuneChaos    = new Color(0.72f, 0.32f, 0.95f);
+        private static readonly Color C_RuneOrder    = new Color(0.28f, 0.58f, 1.00f);
 
         // ─────────────────────────────────────────────
         // 运行时状态
@@ -108,6 +124,9 @@ namespace FWTCG.UI
             toastGo.AddComponent<ToastSystem>();
             var floatGo = new GameObject("DamageFloatText");
             floatGo.AddComponent<DamageFloatText>();
+
+            // 战场控制光晕持续循环
+            StartCoroutine(BFGlowLoop());
 
             _gm.StartGame(DeckFactory.MakeKaisaVsMasterYi());
         }
@@ -245,7 +264,8 @@ namespace FWTCG.UI
                 var r = G.pRunes[i];
                 int capturedIdx = i;
                 string runeLabel = RuneLabel(r);
-                Color  runeCol   = r.tapped ? Color.gray : Color.green;
+                Color  baseRune  = RuneColor(r.runeType);
+                Color  runeCol   = r.tapped ? baseRune * 0.38f : baseRune;
 
                 var row = AddHorizontalGroup(_playerRuneTrans);
 
@@ -278,8 +298,10 @@ namespace FWTCG.UI
             ClearChildren(_playerHandTrans);
             var G = _gm.G;
 
+            var currentUids = new HashSet<int>();
             foreach (var card in G.pHand)
             {
+                currentUids.Add(card.uid);
                 bool isSel = _sel.IsCardSelected && _sel.SelectedUid == card.uid;
                 Color col = isSel ? Color.cyan : Color.white;
                 int capturedUid = card.uid;
@@ -291,8 +313,16 @@ namespace FWTCG.UI
                         _sel.ToggleCard(capturedUid);
                         Refresh();
                     });
-                _ = btn;
+
+                // 仅对新进入手牌的卡播放入场动画
+                if (!_prevHandUids.Contains(card.uid))
+                {
+                    var rt = btn.GetComponent<RectTransform>();
+                    if (rt != null) StartCoroutine(UITween.PopIn(rt, 0.28f));
+                }
             }
+            _prevHandUids.Clear();
+            _prevHandUids.UnionWith(currentUids);
         }
 
         private void RefreshPlayerInfo()
@@ -486,7 +516,12 @@ namespace FWTCG.UI
             bfLayout.padding = new RectOffset(4, 4, 4, 4);
 
             _bf0Trans = MakeScrollContent(bfPanel.transform, "BF0Content", horizontal: false);
+            _bf0PanelImg = _bf0Trans.gameObject.AddComponent<Image>();
+            _bf0PanelImg.color = C_BFBg;
+
             _bf1Trans = MakeScrollContent(bfPanel.transform, "BF1Content", horizontal: false);
+            _bf1PanelImg = _bf1Trans.gameObject.AddComponent<Image>();
+            _bf1PanelImg.color = C_BFBg;
 
             // ── 玩家基地（25-34%）──
             var playerBasePanel = MakePanel(root, "PlayerBasePanel",
@@ -851,6 +886,56 @@ namespace FWTCG.UI
             string state = r.tapped ? "[横]" : "[立]";
             return $"{state}{r.runeType}";
         }
+
+        // ─────────────────────────────────────────────
+        // 视觉特效辅助
+        // ─────────────────────────────────────────────
+
+        /// <summary>
+        /// 战场控制光晕持续循环：每帧根据 bf[0]/bf[1].ctrl 更新 BF 面板背景色。
+        /// Player = 青色光晕，Enemy = 红色光晕，Neutral = 暗色基准。
+        /// </summary>
+        private IEnumerator BFGlowLoop()
+        {
+            while (true)
+            {
+                if (_gm != null)
+                {
+                    float pulse = (Mathf.Sin(Time.time * 1.5f) + 1f) * 0.5f;  // 0→1→0，约 4.2s 周期
+                    float glow  = UITween.ApplyEasePublic(pulse, UITween.Ease.InOutQuad) * 0.30f;
+
+                    if (_bf0PanelImg != null)
+                    {
+                        Color target = BFCtrlColor(_gm.G.bf[0].ctrl);
+                        _bf0PanelImg.color = Color.Lerp(C_BFBg, target, glow);
+                    }
+                    if (_bf1PanelImg != null)
+                    {
+                        Color target = BFCtrlColor(_gm.G.bf[1].ctrl);
+                        _bf1PanelImg.color = Color.Lerp(C_BFBg, target, glow);
+                    }
+                }
+                yield return null;
+            }
+        }
+
+        private static Color BFCtrlColor(Owner? ctrl) => ctrl switch
+        {
+            Owner.Player => C_Cyan,
+            Owner.Enemy  => new Color(0.90f, 0.20f, 0.20f),
+            _            => new Color(0.40f, 0.40f, 0.40f),
+        };
+
+        private static Color RuneColor(RuneType t) => t switch
+        {
+            RuneType.Blazing  => C_RuneBlazing,
+            RuneType.Radiant  => C_RuneRadiant,
+            RuneType.Verdant  => C_RuneVerdant,
+            RuneType.Crushing => C_RuneCrushing,
+            RuneType.Chaos    => C_RuneChaos,
+            RuneType.Order    => C_RuneOrder,
+            _                 => Color.white,
+        };
 
         private static void EnsureEventSystem()
         {

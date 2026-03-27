@@ -2,6 +2,29 @@
 
 ---
 
+## 2026-03-28 — P15: 视觉动画层（符文配色 + 战场光晕 + 手牌入场）
+
+**Phase**: P15 Visual Animation Layer
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — 添加 BFGlowLoop 战场呼吸动画协程（Sin × InOutQuad，约 4.2s 周期；ctrl=Player 青/Enemy 红/null 灰）；6种符文专属色常量（炽烈橙/灵光黄/翠意绿/摧破红/混沌紫/序理蓝）；手牌入场 PopIn 动画（新 uid 检测，0.28s OutBack）
+
+**New features**:
+- `BFGlowLoop()` — 持续 Coroutine，每帧根据 bf[0/1].ctrl 更新 `_bf0PanelImg`/`_bf1PanelImg` 颜色，base=C_BFBg，glow 强度 max 30%
+- `BFCtrlColor(Owner?)` — 静态 switch，Player→C_Cyan，Enemy→红(0.9,0.2,0.2)，null→灰
+- `RuneColor(RuneType)` — 静态 switch，6 种符文 → 专属 Color 常量
+- `_prevHandUids` (HashSet<int>) — 追踪上次渲染手牌，仅对新加入 uid 触发 `UITween.PopIn`
+- `_bf0PanelImg`/`_bf1PanelImg` (Image) — BuildCanvas 中对 BF 内容区添加 Image 组件并存储引用
+
+**Test results**: 391/391（无新测试，纯视觉层）
+
+**Design decisions**:
+- BF 光晕用单个持久 Coroutine（非每次 Refresh 重启），避免光晕闪烁/重置
+- 符文横置时亮度乘 0.38（非纯灰），保留色相以便玩家仍能识别符文类型
+- PopIn 改用 0.28s（短于默认 0.35s），减少每次打出牌的延迟感
+
+---
+
 ## 2026-03-28 — P14: 视觉特效基础层（无 DOTween）
 
 **Phase**: P14 Visual Effects (Base Layer)

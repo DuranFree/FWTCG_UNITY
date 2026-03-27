@@ -22,7 +22,7 @@
 
 ## 颜色
 - ✅ 主色调：金色 #c8aa6e、深黑 #010a13、青色 #0ac8b9 — P14 GameUI C_Gold/C_Dark/C_Cyan 常量，应用到全部面板
-- [ ] 6种符文专属配色（炽烈橙/灵光黄/翠意绿/摧破红/混沌紫/序理蓝，各 Base/Glow/Core/Bright 四层）
+- ✅ 6种符文专属配色（炽烈橙/灵光黄/翠意绿/摧破红/混沌紫/序理蓝）— P15 GameUI C_RuneBlazing/Radiant/Verdant/Crushing/Chaos/Order，符文面板按类型着色（横置变暗 ×0.38）
 - [ ] 状态色：可打绿 #40e88a、伤害红 #e84057、法术蓝 rgba(96,165,250)、装备青 #0ac8b9
 
 ## 字体
@@ -31,12 +31,12 @@
 - [ ] 文字光晕效果（金色 text-shadow 0 0 12~40px rgba(200,170,110)）
 
 ## 动画
-- [ ] 手牌入场动画（0.6s ease-out，上升+透明度）
+- ✅ 手牌入场动画（PopIn 0.28s OutBack）— P15 GameUI.RefreshPlayerHand，新 uid 检测，StartCoroutine UITween.PopIn
 - [ ] 卡牌可打出旋转光环（3s 线性，绿色彗星边框）
 - [ ] 悬停 3D 倾斜（±18°，perspective 800px，JS 驱动）
 - [ ] 全息闪光扫过（foil-sweep 0.8s）
-- [ ] 战场区域呼吸动画（4-5s 循环）
-- [ ] 战场控制光晕（player/enemy 各自颜色 1.2s 循环）
+- ✅ 战场区域呼吸动画（约 4.2s 循环）— P15 BFGlowLoop Coroutine，Sin 波 × InOutQuad，BF0/BF1 面板背景持续呼吸
+- ✅ 战场控制光晕（player 青色 / enemy 红色 / neutral 灰色）— P15 BFGlowLoop + BFCtrlColor 静态方法
 - [ ] 积分轨道得分脉冲（绿/红 0.5s）
 - ✅ 伤害数字浮起（1.2s ease-out，向上 60px）— P14 DamageFloatText.cs，5色分类（伤害/治疗/增益/减益/金色）
 - ✅ 全屏震动（0.42s）— P14 UITween.Shake()，Coroutine 实现
