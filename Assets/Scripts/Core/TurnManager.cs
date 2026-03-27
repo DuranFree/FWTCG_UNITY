@@ -11,8 +11,12 @@ namespace FWTCG.Core
     public class TurnManager
     {
         public readonly GameState G;
+        private LegendSystem _legendSystem;
 
         public TurnManager(GameState g) { G = g; }
+
+        /// <summary>注入传奇系统（P8）。</summary>
+        public void SetLegendSystem(LegendSystem ls) => _legendSystem = ls;
 
         // ── StartTurn: 每回合起点 ──
         /// <summary>
@@ -25,7 +29,7 @@ namespace FWTCG.Core
             foreach (var b in G.bf) b.conqDone = false;
             G.bfScoredThisTurn.Clear();
             G.bfConqueredThisTurn.Clear();
-            // resetLegendAbilitiesForTurn: P8 实现
+            _legendSystem?.ResetLegendAbilitiesForTurn(who);
         }
 
         // ── DoAwaken: 唤醒阶段 ──

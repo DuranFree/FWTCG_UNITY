@@ -22,7 +22,8 @@ namespace FWTCG.Core
         public readonly GameState G;
         private readonly TurnManager    _tm;
         private readonly CardDeployer   _cd;
-        private SpellSystem             _ss;   // 注入（P6+）
+        private SpellSystem             _ss;           // 注入（P6+）
+        private LegendSystem            _legendSystem; // 注入（P8）
 
         /// <summary>
         /// 步进调度器：(延迟秒数, 回调)。
@@ -39,10 +40,11 @@ namespace FWTCG.Core
             Schedule = (_, fn) => fn();   // 默认同步（测试友好）
         }
 
-        /// <summary>
-        /// 注入 SpellSystem（P6 后必须调用，否则法术相关功能无效）。
-        /// </summary>
+        /// <summary>注入 SpellSystem（P6 后必须调用）。</summary>
         public void SetSpellSystem(SpellSystem ss) => _ss = ss;
+
+        /// <summary>注入 LegendSystem（P8）。</summary>
+        public void SetLegendSystem(LegendSystem ls) => _legendSystem = ls;
 
         // ─────────────────────────────────────────
         // 评分工具
@@ -410,7 +412,12 @@ namespace FWTCG.Core
                     }
                 }
 
-                // ── P8 存根：传奇主动技能 ──
+                // ── P8：传奇主动技能 ──
+                if (_legendSystem != null && _legendSystem.AiLegendActionPhase())
+                {
+                    Schedule(0.7f, AiAction);
+                    return;
+                }
             }
 
             // ── 7. 移动单位至战场 ──
@@ -548,7 +555,8 @@ namespace FWTCG.Core
                 return;
             }
 
-            // ── P8 存根：传奇迅捷技能 ──
+            // ── P8：传奇迅捷/反应技能 ──
+            if (_legendSystem != null && _legendSystem.AiLegendDuelAction()) return;
 
             // ── 跳过响应 ──
             _ss.AiSkipDuel();

@@ -218,6 +218,7 @@ namespace FWTCG.Core
         public int uid;
         public CardData data;
         public int currentHp;    // 运行期唯一操作此字段，不操作 data.hp
+        public int maxHp;        // 动态最大HP（进化后可超过 data.hp）
         public int currentAtk;
         public bool exhausted;
         public bool stunned;
@@ -235,6 +236,7 @@ namespace FWTCG.Core
                 uid        = ++_uidCounter,
                 data       = data,
                 currentHp  = data.hp,    // 初始化时用 hp，之后只操作 currentHp
+                maxHp      = data.hp,    // 初始化最大HP（进化后由 LegendSystem 增加）
                 currentAtk = data.atk,
                 exhausted  = false,
                 level      = 1,

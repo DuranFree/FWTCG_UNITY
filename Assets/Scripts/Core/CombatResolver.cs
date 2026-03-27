@@ -17,6 +17,7 @@ namespace FWTCG.Core
         public readonly GameState G;
         private readonly TurnManager _tm;
         private readonly CardDeployer _deployer;
+        private LegendSystem _legendSystem;
 
         public CombatResolver(GameState g, TurnManager tm, CardDeployer deployer)
         {
@@ -24,6 +25,9 @@ namespace FWTCG.Core
             _tm       = tm;
             _deployer = deployer;
         }
+
+        /// <summary>注入传奇系统（P8）。</summary>
+        public void SetLegendSystem(LegendSystem ls) => _legendSystem = ls;
 
         // ── 有效战力 = max(1, currentAtk + tb.atk) ──
         public static int EffAtk(CardInstance u)
@@ -62,6 +66,10 @@ namespace FWTCG.Core
             var atkUs = attacker == Owner.Player ? bf.pU : bf.eU;
             var defUs = attacker == Owner.Player ? bf.eU : bf.pU;
 
+            // ── P8：防守方传奇触发被动（独影剑鸣：1名盟友独守时+2战力）──
+            Owner defOwner = G.Opponent(attacker);
+            _legendSystem?.TriggerLegendEvent("onCombatDefend", defOwner, new LegendEventCtx { bfId = bfId });
+
             // ── 伤害计算（眩晕单位输出强制为 0）──
             int atkPow = atkUs.Sum(u => u.stunned ? 0 : RoleAtk(u, "attacker"));
             int defPow = defUs.Sum(u => u.stunned ? 0 : RoleAtk(u, "defender"));
@@ -90,6 +98,10 @@ namespace FWTCG.Core
 
             // ── 死亡清理（BF 侧 + 基地侧）──
             CleanDead(bfId);
+
+            // ── P8：战斗后检查被动（卡莎进化触发点）──
+            _legendSystem?.CheckLegendPassives(attacker);
+            _legendSystem?.CheckLegendPassives(G.Opponent(attacker));
 
             // ── 规则 627.5：战斗结束后重置所有存活单位的标记伤害 ──
             var allSurvivors = new List<CardInstance>(G.pBase);

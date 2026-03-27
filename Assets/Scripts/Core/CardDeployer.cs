@@ -16,12 +16,16 @@ namespace FWTCG.Core
     {
         public readonly GameState G;
         private readonly TurnManager _tm;
+        private LegendSystem _legendSystem;
 
         public CardDeployer(GameState g, TurnManager tm)
         {
-            G  = g;
+            G   = g;
             _tm = tm;
         }
+
+        /// <summary>注入传奇系统（P8）。</summary>
+        public void SetLegendSystem(LegendSystem ls) => _legendSystem = ls;
 
         // ── GetEffectiveCost: 计算有效费用 ──
         /// <summary>
@@ -87,6 +91,8 @@ namespace FWTCG.Core
             G.LastDeployedUid = unit.uid;
             G.GetBase(owner).Add(unit);
             OnSummon(unit, owner);
+            // P8：入场后检查被动（卡莎进化触发点）
+            _legendSystem?.CheckLegendPassives(owner);
             _tm.CheckWin();
             return unit;
         }
@@ -114,6 +120,8 @@ namespace FWTCG.Core
             G.LastDeployedUid = unit.uid;
             (owner == Owner.Player ? bf.pU : bf.eU).Add(unit);
             OnSummon(unit, owner);
+            // P8：入场后检查被动（卡莎进化触发点）
+            _legendSystem?.CheckLegendPassives(owner);
             _tm.CheckWin();
             return unit;
         }
