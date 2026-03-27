@@ -35,6 +35,7 @@ namespace FWTCG.Core
         public RuneType equipSchType;
         public bool isHero;
         public int strongAtkBonus;
+        public int guardBonus;
         public bool canMoveToBase;
         public string imgPath;
 
@@ -82,6 +83,7 @@ namespace FWTCG.Core
             inst.equipSchType   = data.equipSchType;
             inst.isHero         = data.isHero;
             inst.strongAtkBonus = data.strongAtkBonus > 0 ? data.strongAtkBonus : 1;
+            inst.guardBonus     = data.guardBonus     > 0 ? data.guardBonus     : 1;
             inst.canMoveToBase  = data.canMoveToBase;
             inst.imgPath        = data.imgPath;
 
@@ -130,6 +132,7 @@ namespace FWTCG.Core
             inst.equipSchType   = equipSchType;
             inst.isHero         = isHero;
             inst.strongAtkBonus = strongAtkBonus > 0 ? strongAtkBonus : 1;
+            inst.guardBonus     = guardBonus     > 0 ? guardBonus     : 1;
             inst.canMoveToBase  = canMoveToBase;
             inst.imgPath        = imgPath;
             // 重置运行时状态（等价原版 mk() 追加字段）

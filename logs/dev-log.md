@@ -2,6 +2,35 @@
 
 ---
 
+## P4（移植）: 基础战斗结算 — 2026-03-27
+
+**Status**: ✅ Completed
+
+**What was done**:
+- 读取 combat.js 全文（triggerCombat/cleanDead/roleAtk/assignDmg）
+- CardData.cs 补充：`guardBonus` 字段（默认1，等价原版 `u.guardBonus || 1`）
+- CardInstance.cs 补充：`guardBonus` 字段，From() 和 Mk() 均已复制
+- Assets/Scripts/Core/CombatResolver.cs — 战斗结算核心：
+  - `RoleAtk(u, role)`：atk(u) + 强攻 strongAtkBonus（进攻方）+ 坚守 guardBonus（防守方）
+  - `AssignDmg(pool, targets)`：壁垒单位优先吸收，同组内按最低HP先吸收
+  - `TriggerCombat(bfId, attacker)`：计算双方战力→分配伤害→压制溢出打传奇→CleanDead→HP重置（规则627.5）→胜负判定（Conquer/Defend/Draw/BothDead）
+  - `CleanDead(bfId)`：BF侧（装备召回基地、death_shield检查、deathwish、重置、废牌）+ 基地侧（同步清理）
+- `CombatResult` 枚举：Conquer / Defend / Draw / BothDead
+- Assets/Tests/EditMode/CombatResolverTests.cs — 28 个行为验证测试
+- 🟢 [逻辑测试] 全部通过 (148/148，含 P1~P3 的 120 个)
+
+**Decisions made**:
+- CombatResolver 依赖 CardDeployer（共用 TryDeathShield + TriggerDeathwish），避免逻辑重复
+- reckoner_arena 战场牌在战斗时赋予关键词 → P5 实现
+- postCombatTriggers（战场牌征服效果）→ P5 实现
+- triggerLegendEvent('onCombatDefend', ...) 易大师独影剑鸣 → P5 连接
+
+**Technical debt**: 无
+
+**Problems encountered**: 运行测试时 Unity 因"project already open in another instance"崩溃——与 P1/P2 同样的 UnityLockfile 问题；kill Unity + rm Temp/UnityLockfile 后重新运行正常
+
+---
+
 ## Phase 1: 需求挖掘 + 深度扫描 — 2026-03-27
 
 **Status**: ✅ Completed

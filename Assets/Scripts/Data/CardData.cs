@@ -49,6 +49,7 @@ namespace FWTCG.Data
         [Header("Special Flags")]
         [SerializeField] public bool isHero;             // 英雄卡（驻留英雄区）
         [SerializeField] public int strongAtkBonus = 1;  // 强攻加成（默认1）
+        [SerializeField] public int guardBonus     = 1;  // 坚守加成（默认1）
         [SerializeField] public bool canMoveToBase = true;
 
         [Header("Art")]

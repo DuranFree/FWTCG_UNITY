@@ -17,10 +17,10 @@
 - ✅ 随从牌出牌到基地（deployToBase：消耗法力，进行 onSummon）
 - ✅ 随从牌出牌到战场（deployToBF：消耗法力，exhausted=true 除非急速/号令）
 - ✅ 单位从基地移动到战场（moveUnit，含装备强制回基地）
-- [ ] 基础战斗结算（triggerCombat：atk vs atk，低atk单位死亡）
+- ✅ 基础战斗结算（triggerCombat：roleAtk/强攻/坚守/壁垒/压制，低atk单位死亡）
 - ✅ 单位死亡清理（cleanDeadAll，含绝念触发、中娅沙漏、附着装备处理）
 - ✅ 积分系统（pScore/eScore，据守/征服得分，WIN_SCORE=8，第8分限制，燃尽）
-- [ ] 战场控制权（ctrl：player/enemy/null，征服条件）
+- ✅ 战场控制权（ctrl：player/enemy/null，征服条件，进攻方撤退）
 - [ ] 基础 AI 回合（点符文→出随从→移动→结束）
 - ✅ 结束回合（playerEndTurn，doEndPhase）
 

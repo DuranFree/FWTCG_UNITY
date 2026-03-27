@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="148" result="Passed" total="148" passed="148" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.0814549">
+  <test-suite type="TestSuite" id="1159" name="FWTCG_UNITY" fullname="FWTCG_UNITY" runstate="Runnable" testcasecount="148" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.081455" total="148" passed="148" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="1314" name="FWTCG.Tests.EditMode.dll" fullname="E:/claudeCode/unity/FWTCG_UNITY_V2/Library/ScriptAssemblies/FWTCG.Tests.EditMode.dll" runstate="Runnable" testcasecount="148" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.072755" total="148" passed="148" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="45352" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="1315" name="FWTCG" fullname="FWTCG" runstate="Runnable" testcasecount="148" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.072556" total="148" passed="148" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1316" name="Tests" fullname="FWTCG.Tests" runstate="Runnable" testcasecount="148" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.070074" total="148" passed="148" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1160" name="CardDeployerTests" fullname="FWTCG.Tests.CardDeployerTests" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" testcasecount="54" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.033864" total="54" passed="54" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1167" name="CanPlay_False_InDuel_NonFastCard" fullname="FWTCG.Tests.CardDeployerTests.CanPlay_False_InDuel_NonFastCard" methodname="CanPlay_False_InDuel_NonFastCard" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1670143376" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.007970" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1166" name="CanPlay_False_WhenCardLocked" fullname="FWTCG.Tests.CardDeployerTests.CanPlay_False_WhenCardLocked" methodname="CanPlay_False_WhenCardLocked" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="517215965" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000209" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1161" name="CanPlay_False_WhenGameOver" fullname="FWTCG.Tests.CardDeployerTests.CanPlay_False_WhenGameOver" methodname="CanPlay_False_WhenGameOver" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1757383209" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000105" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1163" name="CanPlay_False_WhenInsufficientMana" fullname="FWTCG.Tests.CardDeployerTests.CanPlay_False_WhenInsufficientMana" methodname="CanPlay_False_WhenInsufficientMana" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1889106714" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000086" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1164" name="CanPlay_False_WhenInsufficientSch" fullname="FWTCG.Tests.CardDeployerTests.CanPlay_False_WhenInsufficientSch" methodname="CanPlay_False_WhenInsufficientSch" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1417003229" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000161" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1162" name="CanPlay_False_WhenNotActionPhase" fullname="FWTCG.Tests.CardDeployerTests.CanPlay_False_WhenNotActionPhase" methodname="CanPlay_False_WhenNotActionPhase" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1952297399" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000104" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1168" name="CanPlay_True_InDuel_FastCard" fullname="FWTCG.Tests.CardDeployerTests.CanPlay_True_InDuel_FastCard" methodname="CanPlay_True_InDuel_FastCard" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1849875232" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000258" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1165" name="CanPlay_True_NormalConditions" fullname="FWTCG.Tests.CardDeployerTests.CanPlay_True_NormalConditions" methodname="CanPlay_True_NormalConditions" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1446927534" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000120" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1199" name="CleanDeadAll_AliveUnits_NotRemoved" fullname="FWTCG.Tests.CardDeployerTests.CleanDeadAll_AliveUnits_NotRemoved" methodname="CleanDeadAll_AliveUnits_NotRemoved" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="472466741" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.004323" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1200" name="CleanDeadAll_AttachedEquipGoesToDiscard" fullname="FWTCG.Tests.CardDeployerTests.CleanDeadAll_AttachedEquipGoesToDiscard" methodname="CleanDeadAll_AttachedEquipGoesToDiscard" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="580684406" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000723" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1201" name="CleanDeadAll_Equipment_NotRemovedFromBase" fullname="FWTCG.Tests.CardDeployerTests.CleanDeadAll_Equipment_NotRemovedFromBase" methodname="CleanDeadAll_Equipment_NotRemovedFromBase" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1197960156" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000175" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1202" name="CleanDeadAll_MisplacedEquipInBF_RecalledToBase" fullname="FWTCG.Tests.CardDeployerTests.CleanDeadAll_MisplacedEquipInBF_RecalledToBase" methodname="CleanDeadAll_MisplacedEquipInBF_RecalledToBase" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1241443580" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000219" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1198" name="CleanDeadAll_MovesDeadToDiscard" fullname="FWTCG.Tests.CardDeployerTests.CleanDeadAll_MovesDeadToDiscard" methodname="CleanDeadAll_MovesDeadToDiscard" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="345492284" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000135" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1197" name="CleanDeadAll_RemovesDeadFromBF" fullname="FWTCG.Tests.CardDeployerTests.CleanDeadAll_RemovesDeadFromBF" methodname="CleanDeadAll_RemovesDeadFromBF" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="718938927" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000288" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1194" name="DealDamage_ClampsToZero_AndUnitDies" fullname="FWTCG.Tests.CardDeployerTests.DealDamage_ClampsToZero_AndUnitDies" methodname="DealDamage_ClampsToZero_AndUnitDies" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="911613822" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000221" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1195" name="DealDamage_KilledUnit_RemovedFromBase" fullname="FWTCG.Tests.CardDeployerTests.DealDamage_KilledUnit_RemovedFromBase" methodname="DealDamage_KilledUnit_RemovedFromBase" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1950462631" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000146" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1196" name="DealDamage_Legend_ReducesLegendHp" fullname="FWTCG.Tests.CardDeployerTests.DealDamage_Legend_ReducesLegendHp" methodname="DealDamage_Legend_ReducesLegendHp" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1709965267" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000172" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1193" name="DealDamage_ReducesUnitHp" fullname="FWTCG.Tests.CardDeployerTests.DealDamage_ReducesUnitHp" methodname="DealDamage_ReducesUnitHp" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1362426579" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000136" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1175" name="DeployToBase_AddsUnitToBase" fullname="FWTCG.Tests.CardDeployerTests.DeployToBase_AddsUnitToBase" methodname="DeployToBase_AddsUnitToBase" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="2084414104" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.001001" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1183" name="DeployToBase_AppliesNextAllyBuff" fullname="FWTCG.Tests.CardDeployerTests.DeployToBase_AppliesNextAllyBuff" methodname="DeployToBase_AppliesNextAllyBuff" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="896477068" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000202" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1184" name="DeployToBase_CreatesNewUid_NotHandCardUid" fullname="FWTCG.Tests.CardDeployerTests.DeployToBase_CreatesNewUid_NotHandCardUid" methodname="DeployToBase_CreatesNewUid_NotHandCardUid" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1478078223" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.001094" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1176" name="DeployToBase_DeductsMana" fullname="FWTCG.Tests.CardDeployerTests.DeployToBase_DeductsMana" methodname="DeployToBase_DeductsMana" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="42060846" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000245" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1177" name="DeployToBase_DeductsSch" fullname="FWTCG.Tests.CardDeployerTests.DeployToBase_DeductsSch" methodname="DeployToBase_DeductsSch" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="435620751" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000273" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1179" name="DeployToBase_IncreasesCardsPlayedThisTurn" fullname="FWTCG.Tests.CardDeployerTests.DeployToBase_IncreasesCardsPlayedThisTurn" methodname="DeployToBase_IncreasesCardsPlayedThisTurn" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="2092433129" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000217" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1178" name="DeployToBase_RemovesCardFromHand" fullname="FWTCG.Tests.CardDeployerTests.DeployToBase_RemovesCardFromHand" methodname="DeployToBase_RemovesCardFromHand" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1060930709" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000176" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1181" name="DeployToBase_UnitIsActive_WhenEnterActiveTrue" fullname="FWTCG.Tests.CardDeployerTests.DeployToBase_UnitIsActive_WhenEnterActiveTrue" methodname="DeployToBase_UnitIsActive_WhenEnterActiveTrue" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1640647919" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000134" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1182" name="DeployToBase_UnitIsActive_WhenRallyActive" fullname="FWTCG.Tests.CardDeployerTests.DeployToBase_UnitIsActive_WhenRallyActive" methodname="DeployToBase_UnitIsActive_WhenRallyActive" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="2112368659" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000131" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1180" name="DeployToBase_UnitIsExhausted_ByDefault" fullname="FWTCG.Tests.CardDeployerTests.DeployToBase_UnitIsExhausted_ByDefault" methodname="DeployToBase_UnitIsExhausted_ByDefault" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1370665901" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000122" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1185" name="DeployToBF_AddsUnitToSlot" fullname="FWTCG.Tests.CardDeployerTests.DeployToBF_AddsUnitToSlot" methodname="DeployToBF_AddsUnitToSlot" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1971101539" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000213" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1188" name="DeployToBF_InvalidBfId_ReturnsNull" fullname="FWTCG.Tests.CardDeployerTests.DeployToBF_InvalidBfId_ReturnsNull" methodname="DeployToBF_InvalidBfId_ReturnsNull" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="266406835" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000220" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1187" name="DeployToBF_UnitIsActive_WhenRallyActive" fullname="FWTCG.Tests.CardDeployerTests.DeployToBF_UnitIsActive_WhenRallyActive" methodname="DeployToBF_UnitIsActive_WhenRallyActive" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="352039518" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000222" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1186" name="DeployToBF_UnitIsExhausted_ByDefault" fullname="FWTCG.Tests.CardDeployerTests.DeployToBF_UnitIsExhausted_ByDefault" methodname="DeployToBF_UnitIsExhausted_ByDefault" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="388794166" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000162" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1170" name="GetEffectiveCost_BalanceResolve_DiscountWhenOppNear8" fullname="FWTCG.Tests.CardDeployerTests.GetEffectiveCost_BalanceResolve_DiscountWhenOppNear8" methodname="GetEffectiveCost_BalanceResolve_DiscountWhenOppNear8" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="389939202" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000127" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1171" name="GetEffectiveCost_BalanceResolve_NoDiscountWhenOppFar" fullname="FWTCG.Tests.CardDeployerTests.GetEffectiveCost_BalanceResolve_NoDiscountWhenOppFar" methodname="GetEffectiveCost_BalanceResolve_NoDiscountWhenOppFar" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1106581769" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000112" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1169" name="GetEffectiveCost_NormalCard_ReturnsCost" fullname="FWTCG.Tests.CardDeployerTests.GetEffectiveCost_NormalCard_ReturnsCost" methodname="GetEffectiveCost_NormalCard_ReturnsCost" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="831921903" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000241" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1172" name="Mk_CreatesNewUid" fullname="FWTCG.Tests.CardDeployerTests.Mk_CreatesNewUid" methodname="Mk_CreatesNewUid" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="492780039" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000110" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1174" name="Mk_ResetsRuntimeState" fullname="FWTCG.Tests.CardDeployerTests.Mk_ResetsRuntimeState" methodname="Mk_ResetsRuntimeState" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="280432346" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000115" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1173" name="Mk_SetsCurrentHpToAtk" fullname="FWTCG.Tests.CardDeployerTests.Mk_SetsCurrentHpToAtk" methodname="Mk_SetsCurrentHpToAtk" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1722528730" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000096" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1191" name="MoveUnit_Equipment_ForcedToBase" fullname="FWTCG.Tests.CardDeployerTests.MoveUnit_Equipment_ForcedToBase" methodname="MoveUnit_Equipment_ForcedToBase" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="283650054" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000371" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1189" name="MoveUnit_FromBaseToBF" fullname="FWTCG.Tests.CardDeployerTests.MoveUnit_FromBaseToBF" methodname="MoveUnit_FromBaseToBF" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1479925630" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000170" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1190" name="MoveUnit_FromBFToBase" fullname="FWTCG.Tests.CardDeployerTests.MoveUnit_FromBFToBase" methodname="MoveUnit_FromBFToBase" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="309520732" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000224" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1192" name="MoveUnit_NoUnitDuplication" fullname="FWTCG.Tests.CardDeployerTests.MoveUnit_NoUnitDuplication" methodname="MoveUnit_NoUnitDuplication" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="449653974" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000175" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1211" name="OnSummon_DariusSecondCard_Bonus_WhenSecondCard" fullname="FWTCG.Tests.CardDeployerTests.OnSummon_DariusSecondCard_Bonus_WhenSecondCard" methodname="OnSummon_DariusSecondCard_Bonus_WhenSecondCard" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="873007508" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000169" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1212" name="OnSummon_DariusSecondCard_NoBonus_WhenFirstCard" fullname="FWTCG.Tests.CardDeployerTests.OnSummon_DariusSecondCard_NoBonus_WhenFirstCard" methodname="OnSummon_DariusSecondCard_NoBonus_WhenFirstCard" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1974663094" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000102" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1214" name="OnSummon_MalphEnter_BonusPerHoldAlly" fullname="FWTCG.Tests.CardDeployerTests.OnSummon_MalphEnter_BonusPerHoldAlly" methodname="OnSummon_MalphEnter_BonusPerHoldAlly" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="989345325" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000658" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1209" name="OnSummon_NextAllyBuff_Applied" fullname="FWTCG.Tests.CardDeployerTests.OnSummon_NextAllyBuff_Applied" methodname="OnSummon_NextAllyBuff_Applied" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1050071968" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000134" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1213" name="OnSummon_ThousandTail_DebuffsAllEnemies" fullname="FWTCG.Tests.CardDeployerTests.OnSummon_ThousandTail_DebuffsAllEnemies" methodname="OnSummon_ThousandTail_DebuffsAllEnemies" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="160636563" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000307" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1210" name="OnSummon_YordelInstructor_DrawsCard" fullname="FWTCG.Tests.CardDeployerTests.OnSummon_YordelInstructor_DrawsCard" methodname="OnSummon_YordelInstructor_DrawsCard" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1105320308" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000161" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1205" name="TriggerDeathwish_AlertSentinel_DrawsCard" fullname="FWTCG.Tests.CardDeployerTests.TriggerDeathwish_AlertSentinel_DrawsCard" methodname="TriggerDeathwish_AlertSentinel_DrawsCard" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1247672329" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000208" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1207" name="TriggerDeathwish_Voidling_CreatesFragmentInHand" fullname="FWTCG.Tests.CardDeployerTests.TriggerDeathwish_Voidling_CreatesFragmentInHand" methodname="TriggerDeathwish_Voidling_CreatesFragmentInHand" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1071321492" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000140" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1208" name="TriggerDeathwish_Voidling_NoFragment_WhenHandFull" fullname="FWTCG.Tests.CardDeployerTests.TriggerDeathwish_Voidling_NoFragment_WhenHandFull" methodname="TriggerDeathwish_Voidling_NoFragment_WhenHandFull" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1104440081" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000195" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1206" name="TriggerDeathwish_VoidSentinel_IncreasesNextAllyBuff" fullname="FWTCG.Tests.CardDeployerTests.TriggerDeathwish_VoidSentinel_IncreasesNextAllyBuff" methodname="TriggerDeathwish_VoidSentinel_IncreasesNextAllyBuff" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1182922790" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000113" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1203" name="TryDeathShield_ReturnsFalse_WhenNoShield" fullname="FWTCG.Tests.CardDeployerTests.TryDeathShield_ReturnsFalse_WhenNoShield" methodname="TryDeathShield_ReturnsFalse_WhenNoShield" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="1384597010" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000093" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1204" name="TryDeathShield_SavesUnit_AndDestroysShield" fullname="FWTCG.Tests.CardDeployerTests.TryDeathShield_SavesUnit_AndDestroysShield" methodname="TryDeathShield_SavesUnit_AndDestroysShield" classname="FWTCG.Tests.CardDeployerTests" runstate="Runnable" seed="439792357" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000203" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1215" name="CardInstanceTests" fullname="FWTCG.Tests.CardInstanceTests" classname="FWTCG.Tests.CardInstanceTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.002078" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1218" name="EffectiveAtk_IncludesTurnBuff" fullname="FWTCG.Tests.CardInstanceTests.EffectiveAtk_IncludesTurnBuff" methodname="EffectiveAtk_IncludesTurnBuff" classname="FWTCG.Tests.CardInstanceTests" runstate="Runnable" seed="245832706" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000228" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1219" name="EffectiveAtk_MinimumOne" fullname="FWTCG.Tests.CardInstanceTests.EffectiveAtk_MinimumOne" methodname="EffectiveAtk_MinimumOne" classname="FWTCG.Tests.CardInstanceTests" runstate="Runnable" seed="2107668684" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000116" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1220" name="EffectiveAtk_NegativeTurnBuff_Clamps" fullname="FWTCG.Tests.CardInstanceTests.EffectiveAtk_NegativeTurnBuff_Clamps" methodname="EffectiveAtk_NegativeTurnBuff_Clamps" classname="FWTCG.Tests.CardInstanceTests" runstate="Runnable" seed="868544056" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000089" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1223" name="IsPowerful_ConsidersTurnBuff" fullname="FWTCG.Tests.CardInstanceTests.IsPowerful_ConsidersTurnBuff" methodname="IsPowerful_ConsidersTurnBuff" classname="FWTCG.Tests.CardInstanceTests" runstate="Runnable" seed="601527865" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000100" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1222" name="IsPowerful_TrueWhenEffectiveAtkGe5" fullname="FWTCG.Tests.CardInstanceTests.IsPowerful_TrueWhenEffectiveAtkGe5" methodname="IsPowerful_TrueWhenEffectiveAtkGe5" classname="FWTCG.Tests.CardInstanceTests" runstate="Runnable" seed="669183506" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000113" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1216" name="Mk_AssignsIncrementingUids" fullname="FWTCG.Tests.CardInstanceTests.Mk_AssignsIncrementingUids" methodname="Mk_AssignsIncrementingUids" classname="FWTCG.Tests.CardInstanceTests" runstate="Runnable" seed="1189757864" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000096" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1217" name="Mk_CurrentHp_EqualsAtk_ForFollower" fullname="FWTCG.Tests.CardInstanceTests.Mk_CurrentHp_EqualsAtk_ForFollower" methodname="Mk_CurrentHp_EqualsAtk_ForFollower" classname="FWTCG.Tests.CardInstanceTests" runstate="Runnable" seed="1908226712" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000103" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1221" name="Mk_InitialState_Correct" fullname="FWTCG.Tests.CardInstanceTests.Mk_InitialState_Correct" methodname="Mk_InitialState_Correct" classname="FWTCG.Tests.CardInstanceTests" runstate="Runnable" seed="974237243" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000182" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1224" name="Mk_StrongAtkBonus_DefaultOne" fullname="FWTCG.Tests.CardInstanceTests.Mk_StrongAtkBonus_DefaultOne" methodname="Mk_StrongAtkBonus_DefaultOne" classname="FWTCG.Tests.CardInstanceTests" runstate="Runnable" seed="2013408813" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000091" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1233" name="CombatResolverTests" fullname="FWTCG.Tests.CombatResolverTests" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" testcasecount="28" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.012346" total="28" passed="28" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1256" name="CleanDead_DeathShield_SavesUnit" fullname="FWTCG.Tests.CombatResolverTests.CleanDead_DeathShield_SavesUnit" methodname="CleanDead_DeathShield_SavesUnit" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="1070032422" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.001412" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1255" name="CleanDead_Equipment_RecalledToBase" fullname="FWTCG.Tests.CombatResolverTests.CleanDead_Equipment_RecalledToBase" methodname="CleanDead_Equipment_RecalledToBase" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="1470511242" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000230" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1234" name="RoleAtk_Base_NormalUnit" fullname="FWTCG.Tests.CombatResolverTests.RoleAtk_Base_NormalUnit" methodname="RoleAtk_Base_NormalUnit" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="1269332104" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000191" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1237" name="RoleAtk_Guard_AppliesAsDefender" fullname="FWTCG.Tests.CombatResolverTests.RoleAtk_Guard_AppliesAsDefender" methodname="RoleAtk_Guard_AppliesAsDefender" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="1697274214" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000141" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1238" name="RoleAtk_Guard_NoBonus_AsAttacker" fullname="FWTCG.Tests.CombatResolverTests.RoleAtk_Guard_NoBonus_AsAttacker" methodname="RoleAtk_Guard_NoBonus_AsAttacker" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="1263540556" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000126" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1240" name="RoleAtk_MinimumOne" fullname="FWTCG.Tests.CombatResolverTests.RoleAtk_MinimumOne" methodname="RoleAtk_MinimumOne" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="830002459" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000088" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1235" name="RoleAtk_StrongAtk_AppliesAsAttacker" fullname="FWTCG.Tests.CombatResolverTests.RoleAtk_StrongAtk_AppliesAsAttacker" methodname="RoleAtk_StrongAtk_AppliesAsAttacker" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="213923153" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000112" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1236" name="RoleAtk_StrongAtk_NoBonus_AsDefender" fullname="FWTCG.Tests.CombatResolverTests.RoleAtk_StrongAtk_NoBonus_AsDefender" methodname="RoleAtk_StrongAtk_NoBonus_AsDefender" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="1878684113" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000113" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1239" name="RoleAtk_TurnBuff_Included" fullname="FWTCG.Tests.CombatResolverTests.RoleAtk_TurnBuff_Included" methodname="RoleAtk_TurnBuff_Included" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="568516332" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000085" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1246" name="TriggerCombat_Barrier_AbsorbsFirst" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_Barrier_AbsorbsFirst" methodname="TriggerCombat_Barrier_AbsorbsFirst" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="796356907" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.003092" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1244" name="TriggerCombat_BothDead" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_BothDead" methodname="TriggerCombat_BothDead" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="679325348" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000307" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1254" name="TriggerCombat_BothDead_BothInDiscard" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_BothDead_BothInDiscard" methodname="TriggerCombat_BothDead_BothInDiscard" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="38414354" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000189" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1241" name="TriggerCombat_Conquer_AtkKillsDef" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_Conquer_AtkKillsDef" methodname="TriggerCombat_Conquer_AtkKillsDef" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="1097051195" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000200" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1249" name="TriggerCombat_Conquer_NoDoubleScore_IfAlreadyConqDone" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_Conquer_NoDoubleScore_IfAlreadyConqDone" methodname="TriggerCombat_Conquer_NoDoubleScore_IfAlreadyConqDone" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="427638994" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000167" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1250" name="TriggerCombat_Conquer_NoScoreIfAlreadyControlled" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_Conquer_NoScoreIfAlreadyControlled" methodname="TriggerCombat_Conquer_NoScoreIfAlreadyControlled" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="1832497457" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000286" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1253" name="TriggerCombat_DeadUnitGoesToDiscard" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_DeadUnitGoesToDiscard" methodname="TriggerCombat_DeadUnitGoesToDiscard" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="1027716629" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000233" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1242" name="TriggerCombat_Defend_DefKillsAtk" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_Defend_DefKillsAtk" methodname="TriggerCombat_Defend_DefKillsAtk" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="1975528130" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000295" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1243" name="TriggerCombat_Draw_BothAlive_AtkRetreats" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_Draw_BothAlive_AtkRetreats" methodname="TriggerCombat_Draw_BothAlive_AtkRetreats" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="268728949" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000264" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1261" name="TriggerCombat_DrawRetreater_IsExhausted" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_DrawRetreater_IsExhausted" methodname="TriggerCombat_DrawRetreater_IsExhausted" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="15451661" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000220" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1251" name="TriggerCombat_EnemyConquers_EnemyScoreIncrement" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_EnemyConquers_EnemyScoreIncrement" methodname="TriggerCombat_EnemyConquers_EnemyScoreIncrement" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="1257104411" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000217" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1260" name="TriggerCombat_InvalidBfId_ReturnsBothDead" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_InvalidBfId_ReturnsBothDead" methodname="TriggerCombat_InvalidBfId_ReturnsBothDead" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="1214610898" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000104" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1259" name="TriggerCombat_MultiUnit_TotalPower" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_MultiUnit_TotalPower" methodname="TriggerCombat_MultiUnit_TotalPower" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="264497539" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000272" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1245" name="TriggerCombat_Stunned_DealsZero" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_Stunned_DealsZero" methodname="TriggerCombat_Stunned_DealsZero" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="1666233985" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000194" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1252" name="TriggerCombat_SurvivorHpReset" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_SurvivorHpReset" methodname="TriggerCombat_SurvivorHpReset" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="1000891279" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000193" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1258" name="TriggerCombat_TracksEnemyDmgDealt" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_TracksEnemyDmgDealt" methodname="TriggerCombat_TracksEnemyDmgDealt" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="1225167945" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000162" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1257" name="TriggerCombat_TracksPlayerDmgDealt" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_TracksPlayerDmgDealt" methodname="TriggerCombat_TracksPlayerDmgDealt" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="138450010" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000227" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1248" name="TriggerCombat_Trample_DefenderSide_OverflowToPlayerLeg" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_Trample_DefenderSide_OverflowToPlayerLeg" methodname="TriggerCombat_Trample_DefenderSide_OverflowToPlayerLeg" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="158669060" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000228" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1247" name="TriggerCombat_Trample_OverflowToLegend" fullname="FWTCG.Tests.CombatResolverTests.TriggerCombat_Trample_OverflowToLegend" methodname="TriggerCombat_Trample_OverflowToLegend" classname="FWTCG.Tests.CombatResolverTests" runstate="Runnable" seed="958096097" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000213" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1225" name="GameStateTests" fullname="FWTCG.Tests.GameStateTests" classname="FWTCG.Tests.GameStateTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.001879" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1227" name="GameState_Constants" fullname="FWTCG.Tests.GameStateTests.GameState_Constants" methodname="GameState_Constants" classname="FWTCG.Tests.GameStateTests" runstate="Runnable" seed="498289816" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000124" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1226" name="GameState_InitialValues" fullname="FWTCG.Tests.GameStateTests.GameState_InitialValues" methodname="GameState_InitialValues" classname="FWTCG.Tests.GameStateTests" runstate="Runnable" seed="350278089" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000158" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1232" name="GameState_Opponent" fullname="FWTCG.Tests.GameStateTests.GameState_Opponent" methodname="GameState_Opponent" classname="FWTCG.Tests.GameStateTests" runstate="Runnable" seed="36715296" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000100" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1231" name="LegendInstance_From_UsesHpField_ForCurrentHp" fullname="FWTCG.Tests.GameStateTests.LegendInstance_From_UsesHpField_ForCurrentHp" methodname="LegendInstance_From_UsesHpField_ForCurrentHp" classname="FWTCG.Tests.GameStateTests" runstate="Runnable" seed="61809303" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000129" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1228" name="SchematicCounts_AddAndSpend" fullname="FWTCG.Tests.GameStateTests.SchematicCounts_AddAndSpend" methodname="SchematicCounts_AddAndSpend" classname="FWTCG.Tests.GameStateTests" runstate="Runnable" seed="652068537" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000088" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1230" name="SchematicCounts_Reset_ClearsAll" fullname="FWTCG.Tests.GameStateTests.SchematicCounts_Reset_ClearsAll" methodname="SchematicCounts_Reset_ClearsAll" classname="FWTCG.Tests.GameStateTests" runstate="Runnable" seed="1462114952" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000106" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1229" name="SchematicCounts_Spend_NeverNegative" fullname="FWTCG.Tests.GameStateTests.SchematicCounts_Spend_NeverNegative" methodname="SchematicCounts_Spend_NeverNegative" classname="FWTCG.Tests.GameStateTests" runstate="Runnable" seed="2021483058" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000065" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1262" name="RuneControllerTests" fullname="FWTCG.Tests.RuneControllerTests" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" testcasecount="21" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.008481" total="21" passed="21" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1273" name="CancelRunes_ClearsAllPending" fullname="FWTCG.Tests.RuneControllerTests.CancelRunes_ClearsAllPending" methodname="CancelRunes_ClearsAllPending" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="1516711006" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000656" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1282" name="ConfirmRunes_ClearsPendingAfterExecution" fullname="FWTCG.Tests.RuneControllerTests.ConfirmRunes_ClearsPendingAfterExecution" methodname="ConfirmRunes_ClearsPendingAfterExecution" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="699802457" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000427" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1283" name="ConfirmRunes_NoOp_WhenPendingEmpty" fullname="FWTCG.Tests.RuneControllerTests.ConfirmRunes_NoOp_WhenPendingEmpty" methodname="ConfirmRunes_NoOp_WhenPendingEmpty" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="1234361848" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000115" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1279" name="ConfirmRunes_Recycle_AddsSch" fullname="FWTCG.Tests.RuneControllerTests.ConfirmRunes_Recycle_AddsSch" methodname="ConfirmRunes_Recycle_AddsSch" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="881880909" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000134" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1278" name="ConfirmRunes_Recycle_AddsToRuneDeckFront" fullname="FWTCG.Tests.RuneControllerTests.ConfirmRunes_Recycle_AddsToRuneDeckFront" methodname="ConfirmRunes_Recycle_AddsToRuneDeckFront" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="1544290087" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000227" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1277" name="ConfirmRunes_Recycle_RemovesFromField" fullname="FWTCG.Tests.RuneControllerTests.ConfirmRunes_Recycle_RemovesFromField" methodname="ConfirmRunes_Recycle_RemovesFromField" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="838636111" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000192" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1281" name="ConfirmRunes_Recycle_SortDescByIdx_PreservesIndices" fullname="FWTCG.Tests.RuneControllerTests.ConfirmRunes_Recycle_SortDescByIdx_PreservesIndices" methodname="ConfirmRunes_Recycle_SortDescByIdx_PreservesIndices" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="737403944" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000249" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1280" name="ConfirmRunes_Recycle_UntapsRecycledRune" fullname="FWTCG.Tests.RuneControllerTests.ConfirmRunes_Recycle_UntapsRecycledRune" methodname="ConfirmRunes_Recycle_UntapsRecycledRune" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="2114305526" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000158" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1274" name="ConfirmRunes_Tap_SetsTappedAndIncrementsMana" fullname="FWTCG.Tests.RuneControllerTests.ConfirmRunes_Tap_SetsTappedAndIncrementsMana" methodname="ConfirmRunes_Tap_SetsTappedAndIncrementsMana" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="561681392" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000125" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1276" name="ConfirmRunes_Tap_SkipsAlreadyTapped" fullname="FWTCG.Tests.RuneControllerTests.ConfirmRunes_Tap_SkipsAlreadyTapped" methodname="ConfirmRunes_Tap_SkipsAlreadyTapped" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="1318055455" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000157" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1275" name="ConfirmRunes_TapAll_IncrementsManaForEach" fullname="FWTCG.Tests.RuneControllerTests.ConfirmRunes_TapAll_IncrementsManaForEach" methodname="ConfirmRunes_TapAll_IncrementsManaForEach" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="1002706542" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000413" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1270" name="RecycleRune_AddsToPending" fullname="FWTCG.Tests.RuneControllerTests.RecycleRune_AddsToPending" methodname="RecycleRune_AddsToPending" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="1685510591" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000400" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1272" name="RecycleRune_AllowsTapped_Rune" fullname="FWTCG.Tests.RuneControllerTests.RecycleRune_AllowsTapped_Rune" methodname="RecycleRune_AllowsTapped_Rune" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="1017211693" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000158" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1271" name="RecycleRune_Toggle_RemovesIfAlreadyPending" fullname="FWTCG.Tests.RuneControllerTests.RecycleRune_Toggle_RemovesIfAlreadyPending" methodname="RecycleRune_Toggle_RemovesIfAlreadyPending" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="1006147970" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000122" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1267" name="TapAllRunes_AddsAllUntapped" fullname="FWTCG.Tests.RuneControllerTests.TapAllRunes_AddsAllUntapped" methodname="TapAllRunes_AddsAllUntapped" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="837536327" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000147" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1269" name="TapAllRunes_DoesNotDuplicate_ExistingPending" fullname="FWTCG.Tests.RuneControllerTests.TapAllRunes_DoesNotDuplicate_ExistingPending" methodname="TapAllRunes_DoesNotDuplicate_ExistingPending" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="1708919899" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000106" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1268" name="TapAllRunes_SkipsAlreadyTapped" fullname="FWTCG.Tests.RuneControllerTests.TapAllRunes_SkipsAlreadyTapped" methodname="TapAllRunes_SkipsAlreadyTapped" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="741014874" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000132" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1263" name="TapRune_AddsToPending" fullname="FWTCG.Tests.RuneControllerTests.TapRune_AddsToPending" methodname="TapRune_AddsToPending" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="910114321" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000161" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1265" name="TapRune_Ignores_AlreadyTappedRune" fullname="FWTCG.Tests.RuneControllerTests.TapRune_Ignores_AlreadyTappedRune" methodname="TapRune_Ignores_AlreadyTappedRune" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="1014353671" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000153" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1266" name="TapRune_Ignores_OutOfRangeIndex" fullname="FWTCG.Tests.RuneControllerTests.TapRune_Ignores_OutOfRangeIndex" methodname="TapRune_Ignores_OutOfRangeIndex" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="208316629" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000099" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1264" name="TapRune_Toggle_RemovesIfAlreadyPending" fullname="FWTCG.Tests.RuneControllerTests.TapRune_Toggle_RemovesIfAlreadyPending" methodname="TapRune_Toggle_RemovesIfAlreadyPending" classname="FWTCG.Tests.RuneControllerTests" runstate="Runnable" seed="984325871" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000139" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1284" name="TurnManagerTests" fullname="FWTCG.Tests.TurnManagerTests" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" testcasecount="29" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.007191" total="29" passed="29" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1309" name="AddScore_Conquer_AtWinMinus1_AllowedIfAllBfConquered" fullname="FWTCG.Tests.TurnManagerTests.AddScore_Conquer_AtWinMinus1_AllowedIfAllBfConquered" methodname="AddScore_Conquer_AtWinMinus1_AllowedIfAllBfConquered" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="1570438150" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000418" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1308" name="AddScore_Conquer_AtWinMinus1_BlockedIfNotAllBfConquered" fullname="FWTCG.Tests.TurnManagerTests.AddScore_Conquer_AtWinMinus1_BlockedIfNotAllBfConquered" methodname="AddScore_Conquer_AtWinMinus1_BlockedIfNotAllBfConquered" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="396918650" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000293" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1307" name="AddScore_IncreasesEnemyScore" fullname="FWTCG.Tests.TurnManagerTests.AddScore_IncreasesEnemyScore" methodname="AddScore_IncreasesEnemyScore" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="707624999" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000101" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1306" name="AddScore_IncreasesPlayerScore" fullname="FWTCG.Tests.TurnManagerTests.AddScore_IncreasesPlayerScore" methodname="AddScore_IncreasesPlayerScore" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="723966917" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000096" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1311" name="CheckWin_SetsGameOver_WhenLegendDies" fullname="FWTCG.Tests.TurnManagerTests.CheckWin_SetsGameOver_WhenLegendDies" methodname="CheckWin_SetsGameOver_WhenLegendDies" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="1065391865" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000121" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1310" name="CheckWin_SetsGameOver_WhenPlayerReaches8" fullname="FWTCG.Tests.TurnManagerTests.CheckWin_SetsGameOver_WhenPlayerReaches8" methodname="CheckWin_SetsGameOver_WhenPlayerReaches8" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="163817561" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000073" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1288" name="DoAwaken_ClearsCardsPlayedThisTurn" fullname="FWTCG.Tests.TurnManagerTests.DoAwaken_ClearsCardsPlayedThisTurn" methodname="DoAwaken_ClearsCardsPlayedThisTurn" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="1081415859" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000345" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1289" name="DoAwaken_ClearsPendingRunes_ForPlayer" fullname="FWTCG.Tests.TurnManagerTests.DoAwaken_ClearsPendingRunes_ForPlayer" methodname="DoAwaken_ClearsPendingRunes_ForPlayer" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="1277209945" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000217" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1285" name="DoAwaken_ResetsExhaustedUnits" fullname="FWTCG.Tests.TurnManagerTests.DoAwaken_ResetsExhaustedUnits" methodname="DoAwaken_ResetsExhaustedUnits" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="472610358" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000158" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1290" name="DoAwaken_ResetsLegendExhausted" fullname="FWTCG.Tests.TurnManagerTests.DoAwaken_ResetsLegendExhausted" methodname="DoAwaken_ResetsLegendExhausted" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="1942177402" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000114" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1287" name="DoAwaken_ResetsSch" fullname="FWTCG.Tests.TurnManagerTests.DoAwaken_ResetsSch" methodname="DoAwaken_ResetsSch" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="1417611242" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000103" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1286" name="DoAwaken_UntapsRunes" fullname="FWTCG.Tests.TurnManagerTests.DoAwaken_UntapsRunes" methodname="DoAwaken_UntapsRunes" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="1991752075" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000118" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1294" name="DoDraw_DrawsCardFromDeck" fullname="FWTCG.Tests.TurnManagerTests.DoDraw_DrawsCardFromDeck" methodname="DoDraw_DrawsCardFromDeck" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="1617555357" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000429" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1296" name="DoDraw_EmptyDeck_ReshufflesDiscard_AndBurnoutOpponent" fullname="FWTCG.Tests.TurnManagerTests.DoDraw_EmptyDeck_ReshufflesDiscard_AndBurnoutOpponent" methodname="DoDraw_EmptyDeck_ReshufflesDiscard_AndBurnoutOpponent" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="1607580146" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000455" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1297" name="DoDraw_EmptyDeckAndDiscard_NoDrawButStillBurnout" fullname="FWTCG.Tests.TurnManagerTests.DoDraw_EmptyDeckAndDiscard_NoDrawButStillBurnout" methodname="DoDraw_EmptyDeckAndDiscard_NoDrawButStillBurnout" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="1762584762" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000124" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1295" name="DoDraw_ResetsManaAndSch" fullname="FWTCG.Tests.TurnManagerTests.DoDraw_ResetsManaAndSch" methodname="DoDraw_ResetsManaAndSch" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="562610445" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000189" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1298" name="DoEndPhase_ClearsStunned" fullname="FWTCG.Tests.TurnManagerTests.DoEndPhase_ClearsStunned" methodname="DoEndPhase_ClearsStunned" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="1387091672" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000435" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1300" name="DoEndPhase_ClearsTurnBuff" fullname="FWTCG.Tests.TurnManagerTests.DoEndPhase_ClearsTurnBuff" methodname="DoEndPhase_ClearsTurnBuff" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="26795777" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000236" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1304" name="DoEndPhase_ExtraTurn_DoesNotIncreaseRound" fullname="FWTCG.Tests.TurnManagerTests.DoEndPhase_ExtraTurn_DoesNotIncreaseRound" methodname="DoEndPhase_ExtraTurn_DoesNotIncreaseRound" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="739883665" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000134" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1301" name="DoEndPhase_IncreasesRound" fullname="FWTCG.Tests.TurnManagerTests.DoEndPhase_IncreasesRound" methodname="DoEndPhase_IncreasesRound" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="1934794867" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000091" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1299" name="DoEndPhase_ResetsHpToAtk" fullname="FWTCG.Tests.TurnManagerTests.DoEndPhase_ResetsHpToAtk" methodname="DoEndPhase_ResetsHpToAtk" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="183010795" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000142" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1305" name="DoEndPhase_SetsFirstTurnDone" fullname="FWTCG.Tests.TurnManagerTests.DoEndPhase_SetsFirstTurnDone" methodname="DoEndPhase_SetsFirstTurnDone" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="499046899" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000083" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1303" name="DoEndPhase_SwitchesTurn_EnemyToPlayer" fullname="FWTCG.Tests.TurnManagerTests.DoEndPhase_SwitchesTurn_EnemyToPlayer" methodname="DoEndPhase_SwitchesTurn_EnemyToPlayer" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="28136739" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000079" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1302" name="DoEndPhase_SwitchesTurn_PlayerToEnemy" fullname="FWTCG.Tests.TurnManagerTests.DoEndPhase_SwitchesTurn_PlayerToEnemy" methodname="DoEndPhase_SwitchesTurn_PlayerToEnemy" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="179111984" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000071" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1293" name="DoSummon_DoesNotExceedRuneDeck" fullname="FWTCG.Tests.TurnManagerTests.DoSummon_DoesNotExceedRuneDeck" methodname="DoSummon_DoesNotExceedRuneDeck" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="1548684232" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000254" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1292" name="DoSummon_DrawsThreeRunes_BackPlayerFirstTurn" fullname="FWTCG.Tests.TurnManagerTests.DoSummon_DrawsThreeRunes_BackPlayerFirstTurn" methodname="DoSummon_DrawsThreeRunes_BackPlayerFirstTurn" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="354786163" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000170" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1291" name="DoSummon_DrawsTwoRunes_NormalTurn" fullname="FWTCG.Tests.TurnManagerTests.DoSummon_DrawsTwoRunes_NormalTurn" methodname="DoSummon_DrawsTwoRunes_NormalTurn" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="690753650" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000144" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1313" name="PlayerEndTurn_IgnoredForEnemy" fullname="FWTCG.Tests.TurnManagerTests.PlayerEndTurn_IgnoredForEnemy" methodname="PlayerEndTurn_IgnoredForEnemy" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="1150804178" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000114" asserts="0">
+              <properties />
+            </test-case>
+            <test-case id="1312" name="PlayerEndTurn_OnlyWorksInActionPhase" fullname="FWTCG.Tests.TurnManagerTests.PlayerEndTurn_OnlyWorksInActionPhase" methodname="PlayerEndTurn_OnlyWorksInActionPhase" classname="FWTCG.Tests.TurnManagerTests" runstate="Runnable" seed="222692193" result="Passed" start-time="2026-03-27 11:18:20Z" end-time="2026-03-27 11:18:20Z" duration="0.000098" asserts="0">
+              <properties />
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
