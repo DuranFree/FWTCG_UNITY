@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-03-28 — P14: 视觉特效基础层（无 DOTween）
+
+**Phase**: P14 Visual Effects (Base Layer)
+
+**New files**:
+- `Assets/Scripts/UI/UITween.cs` — 轻量 Coroutine 补间工具（FadeIn/Out, TintTo, PulseColor, MoveY, ScaleTo, PopIn, Shake），5种缓动函数，替代 DOTween 基础功能
+- `Assets/Scripts/UI/ToastSystem.cs` — 浮动通知单例，淡入上滑+淡出队列，Canvas sortingOrder=100 置顶
+- `Assets/Scripts/UI/DamageFloatText.cs` — 伤害数字浮起系统，5色分类（伤害红/治疗绿/增益蓝/减益橙/金色），1.2s OutQuad 向上60px
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — 接入 Toast/DamageFloat，添加 LoR 主题色常量（C_Gold/C_Dark/C_Cyan 等），应用到全部面板背景
+- `Assets/Scripts/UI/DeckFactory.cs` — 修复 cardName bug（`name = "..."` → `cardName = "..."`，Make() 补 `so.cardName = template.cardName`）
+
+**Test results**: 391/391 passed（无新测试，纯 UI/视觉层不含可测逻辑）
+
+**Design decisions**:
+- DOTween 未在项目中安装，用 Coroutine + `UITween.Lerp01` 自行实现等价动画，接口设计参考 DOTween API 风格
+- ToastSystem 仅触发"重要事件"（积分/战斗/死亡/征服/据守/进化/对决关键词），避免每条日志都弹窗
+- `ApplyEasePublic` 作为 `private ApplyEase` 的公共包装，供 ToastSystem 等外部调用
+
+**Problems encountered**:
+- `ToastSystem.cs` 引用 `UITween.ApplyEasePublic` 但该方法初版是 `private` → 添加 `public static` 包装解决
+- cardName bug（P13 遗留技术债）在 P14 开始前热修
+
+---
+
 ## 2026-03-28 — P13: 主游戏 UI（自建 Canvas）
 
 **Phase**: P13 Main Game UI

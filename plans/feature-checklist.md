@@ -109,7 +109,7 @@
 - ✅ 战场选择（逻辑：GameInitializer.SelectBattlefields，从各方战场牌池随机抽1张）
 - ✅ 先手调整（逻辑：GameInitializer.ConfirmMulligan，最多换2张）
 - [ ] 积分轨道展示（0-8格，动画）— UI Phase
-- ✅ 战斗日志（滚动面板）— P13 GameUI.cs 右侧 LogPanel，AppendLog 追加
+- ✅ 战斗日志（滚动面板）— P13 GameUI.cs 右侧 LogPanel，AppendLog 追加；P14 重要事件触发 Toast
 - ✅ 游戏结束界面（胜/败）— P13 GameUI.cs GameOverPanel + 再来一局按钮
 - [ ] 卡牌详情预览（点击查看完整文字）— UI Phase
 - [ ] 弃牌堆/放逐堆查看器— UI Phase

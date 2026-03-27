@@ -57,6 +57,21 @@ namespace FWTCG.UI
         private ScrollRect _logScroll;
 
         // ─────────────────────────────────────────────
+        // 主题颜色常量（LoR 风格）
+        // ─────────────────────────────────────────────
+
+        private static readonly Color C_Gold    = new Color(0.78f, 0.67f, 0.43f, 1f);  // #c8aa6e
+        private static readonly Color C_Cyan    = new Color(0.04f, 0.78f, 0.73f, 1f);  // #0ac8b9
+        private static readonly Color C_Dark    = new Color(0.004f, 0.04f, 0.07f, 1f); // #010a13
+        private static readonly Color C_DarkBg  = new Color(0.06f, 0.08f, 0.12f, 0.92f);
+        private static readonly Color C_EnemyBg = new Color(0.12f, 0.04f, 0.04f, 0.85f);
+        private static readonly Color C_PlayBg  = new Color(0.03f, 0.07f, 0.12f, 0.85f);
+        private static readonly Color C_BFBg    = new Color(0.04f, 0.08f, 0.14f, 0.80f);
+        private static readonly Color C_RuneBg  = new Color(0.06f, 0.10f, 0.04f, 0.85f);
+        private static readonly Color C_HandBg  = new Color(0.03f, 0.04f, 0.10f, 0.85f);
+        private static readonly Color C_LogBg   = new Color(0.02f, 0.02f, 0.04f, 0.95f);
+
+        // ─────────────────────────────────────────────
         // 运行时状态
         // ─────────────────────────────────────────────
 
@@ -87,6 +102,12 @@ namespace FWTCG.UI
             _gm.OnLog          += AppendLog;
             _gm.OnGameOver     += HandleGameOver;
             _gm.OnTimerTick    += _ => RefreshPlayerInfo();
+
+            // 启动辅助系统
+            var toastGo = new GameObject("ToastSystem");
+            toastGo.AddComponent<ToastSystem>();
+            var floatGo = new GameObject("DamageFloatText");
+            floatGo.AddComponent<DamageFloatText>();
 
             _gm.StartGame(DeckFactory.MakeKaisaVsMasterYi());
         }
@@ -394,11 +415,20 @@ namespace FWTCG.UI
             if (_logText != null)
             {
                 _logText.text = _logAccum;
-                // 强制滚动到底部
                 Canvas.ForceUpdateCanvases();
                 if (_logScroll != null)
                     _logScroll.verticalNormalizedPosition = 0f;
             }
+            // 重要事件推送 Toast（伤害/积分/阶段切换）
+            if (ToastSystem.Instance != null && IsImportantLog(msg))
+                ToastSystem.Instance.Show(msg, 1.8f);
+        }
+
+        private static bool IsImportantLog(string msg)
+        {
+            return msg.Contains("积分") || msg.Contains("战斗") || msg.Contains("死亡")
+                || msg.Contains("征服") || msg.Contains("据守") || msg.Contains("进化")
+                || msg.Contains("胜利") || msg.Contains("失败") || msg.Contains("对决");
         }
 
         private void HandleGameOver(Owner? winner)
@@ -430,23 +460,25 @@ namespace FWTCG.UI
 
             var root = canvas.transform;
 
+            // ── 背景底色 ──
+            var bgPanel = MakePanel(root, "Background", Vector2.zero, Vector2.one, C_Dark);
+            _ = bgPanel;
+
             // ── 敌方信息栏（顶部 8%）──
             var enemyInfoPanel = MakePanel(root, "EnemyInfoPanel",
-                new Vector2(0, 0.92f), new Vector2(0.75f, 1f),
-                new Color(0.1f, 0.1f, 0.2f, 0.85f));
+                new Vector2(0, 0.92f), new Vector2(0.75f, 1f), C_EnemyBg);
             _enemyInfoText = MakeText(enemyInfoPanel.transform, "EnemyInfoText", 13);
+            _enemyInfoText.color = C_Gold;
 
             // ── 敌方区域（86-92%）──
             var enemyZonePanel = MakePanel(root, "EnemyZonePanel",
-                new Vector2(0, 0.77f), new Vector2(0.75f, 0.92f),
-                new Color(0.2f, 0.05f, 0.05f, 0.7f));
+                new Vector2(0, 0.77f), new Vector2(0.75f, 0.92f), C_EnemyBg);
             _enemyZoneTrans = MakeScrollContent(enemyZonePanel.transform, "EnemyZoneContent",
                 horizontal: true);
 
             // ── 战场（44-77%）──
             var bfPanel = MakePanel(root, "BattlefieldPanel",
-                new Vector2(0, 0.34f), new Vector2(0.75f, 0.77f),
-                new Color(0.05f, 0.1f, 0.15f, 0.7f));
+                new Vector2(0, 0.34f), new Vector2(0.75f, 0.77f), C_BFBg);
             var bfLayout = bfPanel.gameObject.AddComponent<HorizontalLayoutGroup>();
             bfLayout.childControlWidth  = true;
             bfLayout.childControlHeight = true;
@@ -458,29 +490,25 @@ namespace FWTCG.UI
 
             // ── 玩家基地（25-34%）──
             var playerBasePanel = MakePanel(root, "PlayerBasePanel",
-                new Vector2(0, 0.25f), new Vector2(0.75f, 0.34f),
-                new Color(0.05f, 0.1f, 0.2f, 0.7f));
+                new Vector2(0, 0.25f), new Vector2(0.75f, 0.34f), C_PlayBg);
             _playerBaseTrans = MakeScrollContent(playerBasePanel.transform, "PlayerBaseContent",
                 horizontal: true);
 
             // ── 玩家符文（16-25%）──
             var playerRunePanel = MakePanel(root, "PlayerRunePanel",
-                new Vector2(0, 0.16f), new Vector2(0.75f, 0.25f),
-                new Color(0.1f, 0.15f, 0.05f, 0.7f));
+                new Vector2(0, 0.16f), new Vector2(0.75f, 0.25f), C_RuneBg);
             _playerRuneTrans = MakeScrollContent(playerRunePanel.transform, "PlayerRuneContent",
                 horizontal: true);
 
             // ── 玩家手牌（5-16%）──
             var playerHandPanel = MakePanel(root, "PlayerHandPanel",
-                new Vector2(0, 0.05f), new Vector2(0.75f, 0.16f),
-                new Color(0.05f, 0.05f, 0.15f, 0.7f));
+                new Vector2(0, 0.05f), new Vector2(0.75f, 0.16f), C_HandBg);
             _playerHandTrans = MakeScrollContent(playerHandPanel.transform, "PlayerHandContent",
                 horizontal: true);
 
             // ── 玩家信息 + 操作栏（0-5%）──
             var actionPanel = MakePanel(root, "ActionPanel",
-                new Vector2(0, 0f), new Vector2(0.75f, 0.05f),
-                new Color(0.1f, 0.1f, 0.1f, 0.9f));
+                new Vector2(0, 0f), new Vector2(0.75f, 0.05f), C_DarkBg);
             var actionLayout = actionPanel.gameObject.AddComponent<HorizontalLayoutGroup>();
             actionLayout.childControlWidth  = false;
             actionLayout.childControlHeight = true;
@@ -488,21 +516,22 @@ namespace FWTCG.UI
             actionLayout.padding = new RectOffset(4, 4, 2, 2);
 
             _playerInfoText = MakeText(actionPanel.transform, "PlayerInfoText", 12);
+            _playerInfoText.color = C_Gold;
             var pInfoRt     = _playerInfoText.GetComponent<RectTransform>();
             pInfoRt.sizeDelta = new Vector2(600, 0);
 
             (_endTurnBtn, _endTurnBtnText) = MakeButton(actionPanel.transform, "结束回合", 14,
                 () => { _sel.Clear(); _gm.PlayerEndTurn(); });
+            _endTurnBtnText.color = C_Gold;
 
             (_legendBtn, _legendBtnText) = MakeButton(actionPanel.transform, "传奇技能", 12,
                 () => { _gm.ActivateLegendAbility("ability1"); });
 
             // ── 右侧日志面板（75-100%宽，全高）──
             var logPanel = MakePanel(root, "LogPanel",
-                new Vector2(0.75f, 0f), new Vector2(1f, 1f),
-                new Color(0.05f, 0.05f, 0.05f, 0.9f));
+                new Vector2(0.75f, 0f), new Vector2(1f, 1f), C_LogBg);
 
-            AddLabel(logPanel.transform, "=== 战斗日志 ===", Color.cyan);
+            AddLabel(logPanel.transform, "=== 战斗日志 ===", C_Cyan);
 
             var logScrollGo = new GameObject("LogScroll");
             logScrollGo.transform.SetParent(logPanel.transform, false);
