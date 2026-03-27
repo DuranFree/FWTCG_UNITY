@@ -17,6 +17,7 @@ namespace FWTCG.Core
         public readonly GameState G;
         private readonly TurnManager _tm;
         private LegendSystem _legendSystem;
+        private BattlefieldSystem _bfSystem;
 
         public CardDeployer(GameState g, TurnManager tm)
         {
@@ -26,6 +27,9 @@ namespace FWTCG.Core
 
         /// <summary>注入传奇系统（P8）。</summary>
         public void SetLegendSystem(LegendSystem ls) => _legendSystem = ls;
+
+        /// <summary>注入战场牌系统（P9）。</summary>
+        public void SetBattlefieldSystem(BattlefieldSystem bfs) => _bfSystem = bfs;
 
         // ── GetEffectiveCost: 计算有效费用 ──
         /// <summary>
@@ -106,6 +110,8 @@ namespace FWTCG.Core
                                        bool enterActive = false)
         {
             if (bfId < 1 || bfId > G.bf.Length) return null;
+            // P9：rockfall_path 禁止手牌直接出牌到此战场
+            if (_bfSystem != null && !_bfSystem.CanDeployToBF(bfId, owner)) return null;
             var bf = G.bf[bfId - 1];
 
             SpendCosts(card, owner);
@@ -138,6 +144,24 @@ namespace FWTCG.Core
             if (unit.type == CardType.Equipment && toLoc != "base")
                 toLoc = "base";
 
+            // P9：vile_throat_nest 禁止单位移回基地
+            if (toLoc == "base" && _bfSystem != null && !_bfSystem.CanMoveToBase(unit, owner))
+                return;
+
+            // P9：战场牌离开效果（back_alley_bar）
+            if (toLoc == "base" || int.TryParse(toLoc, out _))
+            {
+                foreach (var b in G.bf)
+                {
+                    var slots = owner == Owner.Player ? b.pU : b.eU;
+                    if (slots.Contains(unit))
+                    {
+                        _bfSystem?.OnUnitLeaveBF(b, unit, owner);
+                        break;
+                    }
+                }
+            }
+
             RemoveUnitFromField(unit, owner);
 
             if (toLoc == "base")
@@ -150,6 +174,8 @@ namespace FWTCG.Core
                 {
                     var bf = G.bf[bfId - 1];
                     (owner == Owner.Player ? bf.pU : bf.eU).Add(unit);
+                    // P9：战场牌进入效果（trifarian_warcamp）
+                    _bfSystem?.OnUnitEnterBF(bf, unit, owner);
                 }
             }
 

@@ -41,12 +41,28 @@ namespace FWTCG.Core
         /// <summary>对决结束后继续 AI 行动的回调（空战场征服后）。</summary>
         public Action<Owner> OnDuelEnded = _ => { };
 
+        private BattlefieldSystem _bfSystem;
+
         public SpellSystem(GameState g, TurnManager tm, CardDeployer cd, CombatResolver cr)
         {
             G   = g;
             _tm = tm;
             _cd = cd;
             _cr = cr;
+        }
+
+        /// <summary>注入战场牌系统（P9）。</summary>
+        public void SetBattlefieldSystem(BattlefieldSystem bfs) => _bfSystem = bfs;
+
+        /// <summary>
+        /// 法术/技能伤害包装：先经过 void_gate 加成，再调用 DealDamage。
+        /// isLegend=true 时跳过 bf 加成（传奇不在 bf 槽中）。
+        /// </summary>
+        private void DealSpellDmg(CardInstance target, int dmg, Owner targetOwner, bool isLegend = false)
+        {
+            if (!isLegend && _bfSystem != null)
+                dmg = _bfSystem.ModifySpellDamage(target, dmg);
+            _cd.DealDamage(target, dmg, targetOwner, isLegend);
         }
 
         // ─────────────────────────────────────────
@@ -250,6 +266,16 @@ namespace FWTCG.Core
                 }
             }
 
+            // ── P9：梦幻树触发（法术目标为己方战场单位时抽1张牌）──
+            if (_bfSystem != null && targetUid.HasValue)
+            {
+                var allyBfUnit = G.bf
+                    .SelectMany(b => owner == Owner.Player ? b.pU : b.eU)
+                    .FirstOrDefault(u => u.uid == targetUid.Value);
+                if (allyBfUnit != null)
+                    _bfSystem.OnSpellTargetAlly(allyBfUnit, owner);
+            }
+
             // ── 效果派发 ──
             DispatchEffect(spell, owner, targetUid);
 
@@ -371,7 +397,7 @@ namespace FWTCG.Core
                     var target = GetAllUnits(opp).FirstOrDefault(u => u.uid == targetUid.Value);
                     if (target == null) break;
                     if (opLeg != null && target.uid == opLeg.uid)
-                        _cd.DealDamage(target, 2, opp, isLegend: true);
+                        DealSpellDmg(target, 2, opp, isLegend: true);
                     else
                         target.tb.atk -= 2;
                     break;
@@ -384,7 +410,7 @@ namespace FWTCG.Core
                     var bfUnits = GetBfUnits(opp);
                     var target  = bfUnits.FirstOrDefault(u => u.uid == targetUid.Value);
                     if (target != null)
-                        _cd.DealDamage(target, 3, opp, opLeg != null && target.uid == opLeg.uid);
+                        DealSpellDmg(target, 3, opp, opLeg != null && target.uid == opLeg.uid);
                     break;
                 }
 
@@ -395,7 +421,7 @@ namespace FWTCG.Core
                     var target = GetAllUnits(opp).FirstOrDefault(u => u.uid == targetUid.Value);
                     if (target == null) break;
                     if (opLeg != null && target.uid == opLeg.uid)
-                        _cd.DealDamage(target, 4, opp, isLegend: true);
+                        DealSpellDmg(target, 4, opp, isLegend: true);
                     else
                         target.tb.atk -= 4;
                     break;
@@ -408,7 +434,7 @@ namespace FWTCG.Core
                     var target = GetAllUnits(opp).FirstOrDefault(u => u.uid == targetUid.Value);
                     if (target == null) break;
                     if (opLeg != null && target.uid == opLeg.uid)
-                        _cd.DealDamage(target, 1, opp, isLegend: true);
+                        DealSpellDmg(target, 1, opp, isLegend: true);
                     else
                         target.tb.atk -= 1;
                     if (deck.Count > 0) { hand.Add(deck[deck.Count - 1]); deck.RemoveAt(deck.Count - 1); }
@@ -462,11 +488,11 @@ namespace FWTCG.Core
                     var enemies = GetAllUnits(opp);
                     if (enemies.Count == 0) break;
                     var t1 = PromptTarget(enemies);
-                    if (t1 != null) _cd.DealDamage(t1, 3, opp, opLeg != null && t1.uid == opLeg.uid);
+                    if (t1 != null) DealSpellDmg(t1, 3, opp, opLeg != null && t1.uid == opLeg.uid);
                     var remaining = GetAllUnits(opp);
                     if (remaining.Count == 0) break;
                     var t2 = PromptTarget(remaining);
-                    if (t2 != null) _cd.DealDamage(t2, 3, opp, opLeg != null && t2.uid == opLeg.uid);
+                    if (t2 != null) DealSpellDmg(t2, 3, opp, opLeg != null && t2.uid == opLeg.uid);
                     break;
                 }
 
@@ -476,12 +502,12 @@ namespace FWTCG.Core
                     var enemies = GetAllUnits(opp);
                     if (enemies.Count == 0) break;
                     var t1 = PromptTarget(enemies);
-                    if (t1 != null) _cd.DealDamage(t1, 6, opp, opLeg != null && t1.uid == opLeg.uid);
+                    if (t1 != null) DealSpellDmg(t1, 6, opp, opLeg != null && t1.uid == opLeg.uid);
                     var remaining = GetAllUnits(opp);
                     if (remaining.Count > 0)
                     {
                         var t2 = PromptTarget(remaining);
-                        if (t2 != null) _cd.DealDamage(t2, 6, opp, opLeg != null && t2.uid == opLeg.uid);
+                        if (t2 != null) DealSpellDmg(t2, 6, opp, opLeg != null && t2.uid == opLeg.uid);
                     }
                     break;
                 }
@@ -494,7 +520,7 @@ namespace FWTCG.Core
                         var remaining = GetAllUnits(opp);
                         if (remaining.Count == 0) break;
                         var t = PromptTarget(remaining);
-                        if (t != null) _cd.DealDamage(t, 1, opp, opLeg != null && t.uid == opLeg.uid);
+                        if (t != null) DealSpellDmg(t, 1, opp, opLeg != null && t.uid == opLeg.uid);
                     }
                     break;
                 }
@@ -510,7 +536,7 @@ namespace FWTCG.Core
                                  (G.eLeg != null && target.uid == G.eLeg.uid);
                     Owner targetOwner = GetAllUnits(Owner.Player).Any(u => u.uid == target.uid)
                         ? Owner.Player : Owner.Enemy;
-                    _cd.DealDamage(target, 4, targetOwner, isLeg);
+                    DealSpellDmg(target, 4, targetOwner, isLeg);
                     if (deck.Count > 0) { hand.Add(deck[deck.Count - 1]); deck.RemoveAt(deck.Count - 1); }
                     break;
                 }
@@ -527,7 +553,7 @@ namespace FWTCG.Core
                                  (G.eLeg != null && target.uid == G.eLeg.uid);
                     Owner targetOwner = GetAllUnits(Owner.Player).Any(u => u.uid == target.uid)
                         ? Owner.Player : Owner.Enemy;
-                    _cd.DealDamage(target, dmg, targetOwner, isLeg);
+                    DealSpellDmg(target, dmg, targetOwner, isLeg);
                     break;
                 }
 
@@ -637,7 +663,7 @@ namespace FWTCG.Core
                     discard.Add(card);
                     var target = GetBfUnits(opp).FirstOrDefault(u => u.uid == targetUid.Value);
                     if (target != null)
-                        _cd.DealDamage(target, card.cost, opp, opLeg != null && target.uid == opLeg.uid);
+                        DealSpellDmg(target, card.cost, opp, opLeg != null && target.uid == opLeg.uid);
                     break;
                 }
 
@@ -649,12 +675,12 @@ namespace FWTCG.Core
                     var t1 = targetUid.HasValue
                         ? bfFirst.FirstOrDefault(u => u.uid == targetUid.Value) ?? PromptTarget(bfFirst)
                         : PromptTarget(bfFirst);
-                    if (t1 != null) _cd.DealDamage(t1, 2, opp, opLeg != null && t1.uid == opLeg.uid);
+                    if (t1 != null) DealSpellDmg(t1, 2, opp, opLeg != null && t1.uid == opLeg.uid);
                     var remaining = GetAllUnits(opp);
                     if (remaining.Count > 0)
                     {
                         var t2 = PromptTarget(remaining);
-                        if (t2 != null) _cd.DealDamage(t2, 2, opp, opLeg != null && t2.uid == opLeg.uid);
+                        if (t2 != null) DealSpellDmg(t2, 2, opp, opLeg != null && t2.uid == opLeg.uid);
                     }
                     break;
                 }
@@ -678,7 +704,7 @@ namespace FWTCG.Core
                     }
                     pool = pool.Take(3).ToList();
                     foreach (var u in pool)
-                        _cd.DealDamage(u, 1, opp, opLeg != null && u.uid == opLeg.uid);
+                        DealSpellDmg(u, 1, opp, opLeg != null && u.uid == opLeg.uid);
                     break;
                 }
 
@@ -691,7 +717,7 @@ namespace FWTCG.Core
                         var remaining = GetAllUnits(opp);
                         if (remaining.Count == 0) break;
                         var t = remaining[rng.Next(remaining.Count)];
-                        _cd.DealDamage(t, 2, opp, opLeg != null && t.uid == opLeg.uid);
+                        DealSpellDmg(t, 2, opp, opLeg != null && t.uid == opLeg.uid);
                     }
                     break;
                 }

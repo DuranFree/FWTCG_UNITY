@@ -52,7 +52,7 @@
 
 ---
 
-## Slice 4 — 传奇系统
+## Slice 4 — 传奇系统（P8 ✅ 已完成，263 tests）
 - ✅ 传奇牌独立 HP 系统（pLeg.currentHp / maxHp，与普通单位隔离）
 - ✅ 传奇被动检查（checkLegendPassives）
 - ✅ 传奇触发事件系统（triggerLegendEvent + 事件名匹配）
@@ -64,15 +64,15 @@
 
 ---
 
-## Slice 5 — 卡牌效果全集
+## Slice 5 — 卡牌效果全集（P9 ✅ 已完成，330 tests）
 
 ### 入场效果（onSummon）
 - ✅ 约德尔教官：入场摸1牌（`yordel_instructor_enter`）
 - ✅ 德莱厄斯：本回合≥2张出牌时+2/+2并回刷（`darius_second_card`，cardsPlayedThisTurn>1）
 - ✅ 熔岩巨兽：每名坚守盟友+1 ATK（`malph_enter`，统计 baseZone 中含"坚守"单位数）
 - ✅ 贾克斯：手牌装备获得【反应】（`jax_enter`，遍历 hand 添加关键词）
-- [ ] 缇亚娜·冕卫：对手本回合不得积据守分（addScore 中需扫描缇亚娜，P9 实现）
-- [ ] 先见机甲：预看牌堆顶，可选择回收（需 prompt UI，P9 实现）
+- ✅ 缇亚娜·冕卫：对手本回合不得积据守分（BattlefieldSystem.IsTiyanaBlockingHold，AddScore 调用）
+- [ ] 先见机甲：预看牌堆顶，可选择回收（需 prompt UI，P10 实现）
 
 ### 绝念效果（triggerDeathwish）
 - ✅ 虚空碎片：死亡时手牌生成「碎片」法术（`voidling`，手牌<7时）
@@ -81,22 +81,25 @@
 - ✅ 嚎叫波洛：仅该区无其他盟友时摸1牌（`wailing_poro`，CountAlliesExcluding==0）
 
 ### 战场牌效果（16张）
-- [ ] altar_unity — 统一祭坛
-- [ ] aspirant_climb — 征战阶梯
-- [ ] back_alley_bar — 暗巷酒吧
-- [ ] ascending_stairs — 晋升台阶
-- [ ] bandle_tree — 班德尔树
-- [ ] dreaming_tree — 梦境古树
-- [ ] forgotten_monument — 遗忘丰碑
-- [ ] reckoner_arena — 决斗竞技场
-- [ ] reaver_row — 掠夺者街
-- [ ] rockfall_path — 岩崩小路
-- [ ] star_peak — 星顶
-- [ ] strength_obelisk — 力量方尖碑
-- [ ] sunken_temple — 沉没神庙
-- [ ] trifarian_warcamp — 三法里战营
-- [ ] void_gate — 虚空通道
-- [ ] zaun_undercity — 赞恩地下城
+- ✅ altar_unity — 据守召唤新兵（BattlefieldSystem.OnHold）
+- ✅ aspirant_climb — 据守支付1法力强化基地单位（BattlefieldSystem.OnHold）
+- ✅ back_alley_bar — 单位离开时+1 tb.atk（BattlefieldSystem.OnUnitLeaveBF）
+- ✅ ascending_stairs — 据守/征服额外+1分（BattlefieldSystem.ModifyAddScore）
+- ✅ bandle_tree — 据守：≥3地域+1法力（BattlefieldSystem.OnHold）
+- ✅ dreaming_tree — 法术目标为此处盟友→抽1牌（BattlefieldSystem.OnSpellTargetAlly）
+- ✅ forgotten_monument — 第3回合前阻断据守分（BattlefieldSystem.ModifyAddScore）
+- ✅ reckoner_arena — 战斗开始atk≥5获强攻/坚守（BattlefieldSystem.OnCombatStart）
+- ✅ reaver_row — 征服：召回废牌≤2费单位（BattlefieldSystem.OnConquer）
+- ✅ rockfall_path — 禁止手牌直接出牌到此（BattlefieldSystem.CanDeployToBF）
+- ✅ star_peak — 据守：召出休眠符文+1法力（BattlefieldSystem.OnHold）
+- ✅ strength_obelisk — 据守/征服各+1符文（BattlefieldSystem.OnHold/OnConquer）
+- ✅ sunken_temple — 防守失败支付2法力抽1牌（BattlefieldSystem.OnDefenseFailure）
+- ✅ trifarian_warcamp — 进入时获得 buffToken（BattlefieldSystem.OnUnitEnterBF）
+- ✅ void_gate — 法术/技能伤害+1（BattlefieldSystem.ModifySpellDamage）
+- ✅ zaun_undercity — 征服：弃1手牌抽1牌（BattlefieldSystem.OnConquer）
+- ✅ vile_throat_nest — 禁止单位移回基地（BattlefieldSystem.CanMoveToBase）
+- ✅ hirana — 征服：消耗增益抽1牌（BattlefieldSystem.OnConquer）
+- ✅ thunder_rune — 征服：回收1枚符文（BattlefieldSystem.OnConquer）
 
 ---
 

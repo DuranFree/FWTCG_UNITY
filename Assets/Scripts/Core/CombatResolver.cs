@@ -19,6 +19,8 @@ namespace FWTCG.Core
         private readonly CardDeployer _deployer;
         private LegendSystem _legendSystem;
 
+        private BattlefieldSystem _bfSystem;
+
         public CombatResolver(GameState g, TurnManager tm, CardDeployer deployer)
         {
             G         = g;
@@ -28,6 +30,9 @@ namespace FWTCG.Core
 
         /// <summary>注入传奇系统（P8）。</summary>
         public void SetLegendSystem(LegendSystem ls) => _legendSystem = ls;
+
+        /// <summary>注入战场牌系统（P9）。</summary>
+        public void SetBattlefieldSystem(BattlefieldSystem bfs) => _bfSystem = bfs;
 
         // ── 有效战力 = max(1, currentAtk + tb.atk) ──
         public static int EffAtk(CardInstance u)
@@ -65,6 +70,9 @@ namespace FWTCG.Core
             var bf    = G.bf[bfId - 1];
             var atkUs = attacker == Owner.Player ? bf.pU : bf.eU;
             var defUs = attacker == Owner.Player ? bf.eU : bf.pU;
+
+            // ── P9：战场牌战斗开始效果（reckoner_arena）──
+            _bfSystem?.OnCombatStart(bf, attacker);
 
             // ── P8：防守方传奇触发被动（独影剑鸣：1名盟友独守时+2战力）──
             Owner defOwner = G.Opponent(attacker);
@@ -130,11 +138,16 @@ namespace FWTCG.Core
             else if (atkAlive && !defAlive)
             {
                 // 进攻方全歼防守方
+                Owner prevCtrl = bf.ctrl ?? attacker;
                 if (bf.ctrl != attacker && !bf.conqDone)
                 {
                     bf.ctrl     = attacker;
                     bf.conqDone = true;
                     _tm.AddScore(attacker, 1, "conquer", bfId);
+                    // P9：战场牌征服效果
+                    _bfSystem?.OnConquer(bf, attacker);
+                    // P9：防守方失守效果
+                    _bfSystem?.OnDefenseFailure(bf, G.Opponent(attacker));
                     result = CombatResult.Conquer;
                 }
                 else

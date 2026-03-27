@@ -12,11 +12,15 @@ namespace FWTCG.Core
     {
         public readonly GameState G;
         private LegendSystem _legendSystem;
+        private BattlefieldSystem _bfSystem;
 
         public TurnManager(GameState g) { G = g; }
 
         /// <summary>注入传奇系统（P8）。</summary>
         public void SetLegendSystem(LegendSystem ls) => _legendSystem = ls;
+
+        /// <summary>注入战场牌系统（P9）。</summary>
+        public void SetBattlefieldSystem(BattlefieldSystem bfs) => _bfSystem = bfs;
 
         // ── StartTurn: 每回合起点 ──
         /// <summary>
@@ -82,6 +86,9 @@ namespace FWTCG.Core
                         if (u.trinityEquipped)
                             AddScore(G.turn, 1, "hold", b.id);
                     }
+
+                    // P9：战场牌据守效果
+                    _bfSystem?.OnHold(b, G.turn);
                 }
             }
         }
@@ -206,6 +213,14 @@ namespace FWTCG.Core
         /// </summary>
         public bool AddScore(Owner who, int pts, string type, int? bfId)
         {
+            // P9：战场牌修改得分（ascending_stairs +1，forgotten_monument 阻断）
+            if (_bfSystem != null && !_bfSystem.ModifyAddScore(who, ref pts, type, bfId))
+                return false;
+
+            // P9：缇亚娜·冕卫阻断对手据守分
+            if (type == "hold" && _bfSystem != null && _bfSystem.IsTiyanaBlockingHold(who))
+                return false;
+
             // 追踪本回合得过分的战场
             if (bfId.HasValue && !G.bfScoredThisTurn.Contains(bfId.Value))
                 G.bfScoredThisTurn.Add(bfId.Value);
