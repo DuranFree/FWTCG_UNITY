@@ -2,6 +2,38 @@
 
 ---
 
+## P5（移植）: 基础 AI — 2026-03-27
+
+**Status**: ✅ Completed
+
+**What was done**:
+- 读取 ai.js 全文（aiAction / aiDecideMovement / aiCardValue / aiBoardScore / aiDuelAction）
+- Assets/Scripts/Core/AIController.cs — AI 决策核心：
+  - `AiCardValue(card)`：(atk/cost)×10 + 关键词加成（急速+4/壁垒+3/强攻+2/绝念+2）
+  - `AiBoardScore()`：scoreDiff×3 + handDiff×0.5 + bfControl×2 + unitPow×0.3
+  - `AiEvalBattlefield(i)` / `AiSimulateCombat(movers, i)`：局面评估
+  - `AiDecideMovement(active)`：8种情景评分（空战场征服/战斗胜负/紧迫感/分兵策略）
+  - `AiAction()`：横置符文→出随从（价值排序）→移动→结束回合；急速单位以活跃入场
+  - `Schedule` 委托：测试注入同步版本，Unity 注入协程版本
+  - P6/P8 存根：法术施放、传奇技能
+  - `AiDuelAction()`：P5 返回 false，P6 完整实现
+- `MoveDecision` / `BfEval` / `CombatSim` 辅助数据结构
+- Assets/Tests/EditMode/AIControllerTests.cs — 31 个行为验证测试
+- 🟢 [逻辑测试] 全部通过 (179/179，含 P1~P4 的 148 个)
+
+**Decisions made**:
+- Schedule 委托注入：与 Unity 协程解耦，测试时同步执行完整 AI 回合
+- 急速单位入场：AIController 传 `enterActive: hasHaste` 给 DeployToBase，与原版行为一致
+- 测试中同步调度器导致 DoEndPhase 在 AiAction 结束后立即执行，eMana 归零；测试只验证符文 tapped 状态
+
+**Technical debt**: 无
+
+**Problems encountered**:
+- 2 个测试初版写错预期值：TapsAllUntappedRunes 断言 eMana==2（DoEndPhase 已归零）；HasteUnit_EntersNonExhausted 未锁 BF 槽位（单位被移到战场后 eBase 为空）——均已修正
+- Unity "project already open" crash：kill 旧进程→删 lockfile→重新运行（P4 已知问题）
+
+---
+
 ## P4（移植）: 基础战斗结算 — 2026-03-27
 
 **Status**: ✅ Completed

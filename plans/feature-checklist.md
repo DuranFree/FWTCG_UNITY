@@ -21,7 +21,7 @@
 - ✅ 单位死亡清理（cleanDeadAll，含绝念触发、中娅沙漏、附着装备处理）
 - ✅ 积分系统（pScore/eScore，据守/征服得分，WIN_SCORE=8，第8分限制，燃尽）
 - ✅ 战场控制权（ctrl：player/enemy/null，征服条件，进攻方撤退）
-- [ ] 基础 AI 回合（点符文→出随从→移动→结束）
+- ✅ 基础 AI 回合（点符文→出随从→移动→结束）
 - ✅ 结束回合（playerEndTurn，doEndPhase）
 
 ---
