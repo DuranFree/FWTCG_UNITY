@@ -23,7 +23,7 @@
 ## 颜色
 - ✅ 主色调：金色 #c8aa6e、深黑 #010a13、青色 #0ac8b9 — P14 GameUI C_Gold/C_Dark/C_Cyan 常量，应用到全部面板
 - ✅ 6种符文专属配色（炽烈橙/灵光黄/翠意绿/摧破红/混沌紫/序理蓝）— P15 GameUI C_RuneBlazing/Radiant/Verdant/Crushing/Chaos/Order，符文面板按类型着色（横置变暗 ×0.38）
-- [ ] 状态色：可打绿 #40e88a、伤害红 #e84057、法术蓝 rgba(96,165,250)、装备青 #0ac8b9
+- ✅ 状态色：可打绿 #40e88a — P16 RefreshPlayerHand，canPlay → textCol (0.25,0.91,0.54) + bgCol 深绿；不可打灰色降暗；伤害红/法术蓝/装备青待后续 Phase
 
 ## 字体
 - [ ] Cinzel 字体（标题、UI 标签、强调文字，多尺寸）

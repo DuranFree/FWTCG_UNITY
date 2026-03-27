@@ -2,6 +2,26 @@
 
 ---
 
+## 2026-03-28 — P16: 状态色 + 积分轨道
+
+**Phase**: P16 State Colors & Score Track
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — 手牌可打状态色（textCol 绿/灰/青 + bgCol 深绿/暗/深青）；ScoreBar Unicode 轨道；RefreshPlayerInfo/EnemyInfo 嵌入积分轨道
+
+**New features**:
+- `ScoreBar(int score)` — 返回 "■■■□□□□□" 形式字符串，长度固定8，嵌入玩我/敌方信息栏
+- 可打出牌高亮：`_gm.CD.CanPlay(card, Owner.Player)` 检查，可打 → 绿文字(#40e88a)+深绿bg，不可打 → 灰色降暗，已选中 → 青色+深青bg
+- `AddButton` 新增 `Color? bgColor` 可选参数，允许覆盖按钮背景色
+
+**Test results**: 391/391（纯UI层，无新测试）
+
+**Design decisions**:
+- ScoreBar 嵌入现有文字栏而非新建面板，避免改动 Canvas 布局
+- `canPlay` 检查发生在 RefreshPlayerHand，非玩家回合时 canPlay=false → 所有手牌显示暗色
+
+---
+
 ## 2026-03-28 — P15: 视觉动画层（符文配色 + 战场光晕 + 手牌入场）
 
 **Phase**: P15 Visual Animation Layer

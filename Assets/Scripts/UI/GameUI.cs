@@ -182,7 +182,7 @@ namespace FWTCG.UI
                 ? $"传奇: {leg.data.cardName} HP:{leg.currentHp}/{leg.maxHp} ATK:{leg.currentAtk}"
                 : "传奇: -";
             _enemyInfoText.text =
-                $"[敌方]  积分:{G.eScore}/8  法力:{G.eMana}  手牌:{G.eHand.Count}  " +
+                $"[敌方]  {ScoreBar(G.eScore)} {G.eScore}/8  法力:{G.eMana}  手牌:{G.eHand.Count}  " +
                 $"符文:{G.eRunes.Count}  {legTxt}  " +
                 $"回合:{G.round}  阶段:{G.phase}";
         }
@@ -302,17 +302,27 @@ namespace FWTCG.UI
             foreach (var card in G.pHand)
             {
                 currentUids.Add(card.uid);
-                bool isSel = _sel.IsCardSelected && _sel.SelectedUid == card.uid;
-                Color col = isSel ? Color.cyan : Color.white;
+                bool isSel    = _sel.IsCardSelected && _sel.SelectedUid == card.uid;
+                bool canPlay  = _gm.IsPlayerTurn && _gm.CD.CanPlay(card, Owner.Player);
                 int capturedUid = card.uid;
 
+                // 文字色：选中=青，可出=绿，不可出=暗灰
+                Color textCol = isSel    ? Color.cyan
+                              : canPlay  ? new Color(0.25f, 0.91f, 0.54f)  // #40e88a
+                              : new Color(0.45f, 0.45f, 0.45f);
+
+                // 背景色：选中=深青，可出=深绿，不可出=默认暗
+                Color bgCol = isSel    ? new Color(0.10f, 0.28f, 0.32f)
+                            : canPlay  ? new Color(0.06f, 0.24f, 0.12f)
+                            : new Color(0.15f, 0.15f, 0.20f);
+
                 var btn = AddButton(_playerHandTrans,
-                    CardLabel(card), col,
+                    CardLabel(card), textCol,
                     () =>
                     {
                         _sel.ToggleCard(capturedUid);
                         Refresh();
-                    });
+                    }, bgCol);
 
                 // 仅对新进入手牌的卡播放入场动画
                 if (!_prevHandUids.Contains(card.uid))
@@ -335,7 +345,7 @@ namespace FWTCG.UI
             int timer = _gm.G.turnTimerSeconds;
 
             _playerInfoText.text =
-                $"[我方]  积分:{G.pScore}/8  法力:{G.pMana}  手牌:{G.pHand.Count}  " +
+                $"[我方]  {ScoreBar(G.pScore)} {G.pScore}/8  法力:{G.pMana}  手牌:{G.pHand.Count}  " +
                 $"符文:{G.pRunes.Count}  {legTxt}  剩余:{timer}s";
         }
 
@@ -803,10 +813,12 @@ namespace FWTCG.UI
         }
 
         private static Button AddButton(Transform parent, string label, Color col,
-            UnityEngine.Events.UnityAction onClick)
+            UnityEngine.Events.UnityAction onClick, Color? bgColor = null)
         {
             var (btn, lbl) = MakeButton(parent, label, 11, onClick);
             lbl.color = col;
+            if (bgColor.HasValue)
+                btn.GetComponent<Image>().color = bgColor.Value;
             return btn;
         }
 
@@ -917,6 +929,13 @@ namespace FWTCG.UI
                 }
                 yield return null;
             }
+        }
+
+        /// <summary>积分轨道文字表示，如 "■■■□□□□□"。</summary>
+        private static string ScoreBar(int score)
+        {
+            int clamped = Mathf.Clamp(score, 0, GameState.WIN_SCORE);
+            return new string('■', clamped) + new string('□', GameState.WIN_SCORE - clamped);
         }
 
         private static Color BFCtrlColor(Owner? ctrl) => ctrl switch
