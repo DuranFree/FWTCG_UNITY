@@ -437,17 +437,17 @@ namespace FWTCG.Tests
         // ─────────────────────────────────────────
 
         [Test]
-        public void AiDuelAction_ReturnsFalse_WhenNotInDuel()
+        public void AiDuelAction_NoOp_WhenNotInDuel()
         {
             _g.duelActive = false;
-            Assert.IsFalse(_ai.AiDuelAction());
+            Assert.DoesNotThrow(() => _ai.AiDuelAction());
         }
 
         [Test]
-        public void AiDuelAction_ReturnsFalse_P5Stub()
+        public void AiDuelAction_NoOp_WhenInDuelNoSpellSystem()
         {
             _g.duelActive = true;
-            Assert.IsFalse(_ai.AiDuelAction());
+            Assert.DoesNotThrow(() => _ai.AiDuelAction());
         }
     }
 }

@@ -31,6 +31,7 @@ namespace FWTCG.Core
         public RuneType schType2;
         public int echoSchCost;
         public RuneType echoSchType;
+        public int echoManaCost;
         public int equipSchCost;
         public RuneType equipSchType;
         public bool isHero;
@@ -79,6 +80,7 @@ namespace FWTCG.Core
             inst.schType2       = data.schType2;
             inst.echoSchCost    = data.echoSchCost;
             inst.echoSchType    = data.echoSchType;
+            inst.echoManaCost   = data.echoManaCost;
             inst.equipSchCost   = data.equipSchCost;
             inst.equipSchType   = data.equipSchType;
             inst.isHero         = data.isHero;
@@ -128,6 +130,7 @@ namespace FWTCG.Core
             inst.schType2       = schType2;
             inst.echoSchCost    = echoSchCost;
             inst.echoSchType    = echoSchType;
+            inst.echoManaCost   = echoManaCost;
             inst.equipSchCost   = equipSchCost;
             inst.equipSchType   = equipSchType;
             inst.isHero         = isHero;

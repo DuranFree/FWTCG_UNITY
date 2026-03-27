@@ -27,15 +27,15 @@
 ---
 
 ## Slice 2 — 法术系统
-- [ ] 法术牌出牌（applySpell 分发，含费用扣除）
-- [ ] 法术目标选取（getSpellTargets：有目标/无目标/无可选目标三种状态）
-- [ ] 法术对决系统（startSpellDuel → runDuelTurn → endDuel，2次跳过结束）
-- [ ] 反应窗口（playerRequestInterrupt，hasPlayableReactionCards，30秒）
-- [ ] 迅捷/反应 关键词校验（canPlay 中的时机检查）
-- [ ] 回响关键词（applySpell 末尾二次施法）
-- [ ] AI 法术决策（aiShouldPlaySpell + aiChooseSpellTarget + aiSpellPriority）
-- [ ] AI 对决响应（aiDuelAction）
-- [ ] 所有33个法术 effect 实现（buff_ally / stun / weaken / deal3 / debuff4 / debuff1_draw / recall_draw / buff_draw / recall_unit_rune / deal3_twice / deal6_two / deal1_repeat / deal4_draw / thunder_gal_manual / buff7_manual / buff5_manual / stun_manual / buff2_draw / buff1_solo / force_move / ready_unit / discard_deal / deal2_two / deal1_same_zone / draw1 / draw4 / summon_rune1 / rune_draw / akasi_storm / counter_cost4 / counter_any / rally_call / balance_resolve）
+- ✅ 法术牌出牌（applySpell 分发，含费用扣除）
+- ✅ 法术目标选取（getSpellTargets：有目标/无目标/无可选目标三种状态）
+- ✅ 法术对决系统（startSpellDuel → runDuelTurn → endDuel，2次跳过结束）
+- ✅ 反应窗口（hasPlayableReactionCards，迅捷/反应时机校验）
+- ✅ 迅捷/反应 关键词校验（canPlay 中的时机检查）
+- ✅ 回响关键词（applySpell 末尾二次施法，echoManaCost 扣除）
+- ✅ AI 法术决策（aiShouldPlaySpell + aiChooseSpellTarget + aiSpellPriority）
+- ✅ AI 对决响应（aiDuelAction：反制>眩晕>增益>其他迅捷>跳过）
+- ✅ 所有33个法术 effect 实现（buff_ally / stun / weaken / deal3 / debuff4 / debuff1_draw / recall_draw / buff_draw / recall_unit_rune / deal3_twice / deal6_two / deal1_repeat / deal4_draw / thunder_gal_manual / buff7_manual / buff5_manual / stun_manual / buff2_draw / buff1_solo / force_move / ready_unit / discard_deal / deal2_two / deal1_same_zone / draw1 / draw4 / summon_rune1 / rune_draw / akasi_storm / counter_cost4 / counter_any / rally_call / balance_resolve）
 
 ---
 

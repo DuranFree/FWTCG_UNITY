@@ -41,6 +41,7 @@ namespace FWTCG.Data
         [Header("Echo Cost (回响)")]
         [SerializeField] public int echoSchCost;
         [SerializeField] public RuneType echoSchType;
+        [SerializeField] public int echoManaCost;    // 回响额外法力费用（如扑咚！=2）
 
         [Header("Equipment Equip Cost (装备专用)")]
         [SerializeField] public int equipSchCost;

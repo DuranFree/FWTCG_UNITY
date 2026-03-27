@@ -198,3 +198,36 @@
 **Technical debt**: 无
 
 **Problems encountered**: 4 个测试初版写错期望值（MakeCard helper 的 atk 固定为 2 与 cost 不同；CleanDeadAll 后 HP 被 reset）——已修正测试逻辑
+
+---
+
+## 2026-03-27 — P6: 法术系统
+
+**Phase**: P6 法术系统 (SpellSystem)
+
+**New files**:
+- `Assets/Scripts/Core/SpellSystem.cs` — 完整法术系统：CanPlay / GetSpellTargets / ApplySpell（33 效果）/ 法术对决（StartSpellDuel / RunDuelTurn / SkipDuel / AiSkipDuel / EndDuel）/ HasPlayableReactionCards / GetEffectiveCost；提示委托注入（PromptTarget / PromptDiscard / PromptBattlefield / PromptEcho / OnAiDuelTurn）
+- `Assets/Tests/EditMode/SpellSystemTests.cs` — 45 项行为验证测试
+
+**Modified files**:
+- `Assets/Scripts/Data/CardData.cs` — 添加 `echoManaCost` 字段
+- `Assets/Scripts/Core/CardInstance.cs` — 添加 `echoManaCost` 字段（From + Mk 同步）
+- `Assets/Scripts/Core/GameState.cs` — `LegendInstance` 添加 `uid` 字段（含静态计数器）
+- `Assets/Scripts/Core/AIController.cs` — 注入 SetSpellSystem；实现 AiShouldPlaySpell / AiChooseSpellTarget / AiSpellPriority / AiDuelAction（5策略）/ AiCheckReactionPlay；AiAction 增加 rally_call（步骤3）/ balance_resolve（步骤4）/ 法术施放（步骤6）
+
+**Test results**: 242/242 passed (prior 197 + 45 new P6)
+
+**Design decisions**:
+- Prompt delegates 注入替代 async/await，使 EditMode 测试可同步运行
+- isEcho bool 参数防止回响无限递归
+- LegendInstance.uid 新增，供 SpellSystem 中 target.uid == opLeg.uid 对比
+- AiAction 递归调用 Schedule 同步时会触发完整 AI 回合（测试依此设计）
+
+**Technical debt**: 对决后 AI 继续行动链（OnDuelEnded 回调）由 UI 层 P10 接管
+
+**Problems encountered**:
+- LegendInstance 无 uid → 添加静态 UID 计数器解决
+- 旧 AIControllerTests 期望 AiDuelAction 返回 bool → 改为 void + DoesNotThrow
+- deal3_twice 测试初版单位 HP=5（两次3伤死亡）→ 改 HP=8
+- rally_call 测试检查 eRallyActive（DoEndPhase 重置）→ 改检查 eDiscard + unit.exhausted
+- balance_resolve 测试绘制的单位 cost=1 被后续 AiAction 递归部署 → 改 cost=4

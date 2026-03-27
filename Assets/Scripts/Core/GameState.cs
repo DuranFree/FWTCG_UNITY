@@ -211,6 +211,10 @@ namespace FWTCG.Core
     /// </summary>
     public class LegendInstance
     {
+        private static int _uidCounter = 0;
+        public static void ResetUidCounter() => _uidCounter = 0;
+
+        public int uid;
         public CardData data;
         public int currentHp;    // 运行期唯一操作此字段，不操作 data.hp
         public int currentAtk;
@@ -227,6 +231,7 @@ namespace FWTCG.Core
         {
             return new LegendInstance
             {
+                uid        = ++_uidCounter,
                 data       = data,
                 currentHp  = data.hp,    // 初始化时用 hp，之后只操作 currentHp
                 currentAtk = data.atk,
