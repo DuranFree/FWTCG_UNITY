@@ -91,3 +91,27 @@
 **Technical debt**: 无
 
 **Problems encountered**: UTF asmdef 首次运行0个测试——缺少 includePlatforms + defineConstraints，第二次修复后全绿
+
+---
+
+## P2（移植）: 回合流程 + 符文/费用系统 — 2026-03-27
+
+**Status**: ✅ Completed
+
+**What was done**:
+- 读取 engine.js（doAwaken/doSummon/doDraw/doEndPhase/addScore/checkWin）和 hint.js（符文两步确认系统）
+- GameState.cs 补充：PendingRune 类、PendingRuneAction 枚举、pendingRunes 改为 List<PendingRune>、LegendInstance 增加 stunned + tb 字段
+- Assets/Scripts/Core/TurnManager.cs — 回合阶段状态机：StartTurn / DoAwaken / DoStart / DoSummon / DoDraw / DoEndPhase / PlayerEndTurn / AddScore / CheckWin
+- Assets/Scripts/Core/RuneController.cs — 符文两步确认系统：TapRune / TapAllRunes / RecycleRune / CancelRunes / ConfirmRunes
+- Assets/Tests/EditMode/TurnManagerTests.cs — 25 个行为验证测试
+- Assets/Tests/EditMode/RuneControllerTests.cs — 25 个行为验证测试
+- 🟢 [逻辑测试] 全部通过 (66/66，含 P1 的 16 个)
+
+**Decisions made**:
+- TurnManager 纯 C# 类（无 MonoBehaviour），DoEndPhase 修改 G.turn 和 G.round 后由协程调用 StartTurn（P6 UI 层实现）
+- DoStart / DoDraw 的异步 prompt 部分（战场牌据守效果、先见机甲预知）留 P5 实现，P2 仅实现纯状态逻辑
+- AddScore 包含第8分征服限制逻辑；缇亚娜/攀圣长阶/遗忘丰碑修正留 P5
+
+**Technical debt**: 无
+
+**Problems encountered**: 首次运行 -quit 标志导致 TestResults.xml 未写入，移除 -quit 后正常（重现 P1 踩坑，需记住不加 -quit）

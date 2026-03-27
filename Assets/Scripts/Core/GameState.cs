@@ -73,7 +73,7 @@ namespace FWTCG.Core
         public int? selFailUid;
         public CardInstance pendingDeploy;
         public bool deployChoosing;
-        public List<RuneInstance> pendingRunes = new();
+        public List<PendingRune> pendingRunes = new();
         public PendingMove pendingMove;
 
         // ── 法术目标 ──
@@ -215,6 +215,8 @@ namespace FWTCG.Core
         public int currentHp;    // 运行期唯一操作此字段，不操作 data.hp
         public int currentAtk;
         public bool exhausted;
+        public bool stunned;
+        public TurnBuffs tb = new TurnBuffs();
         public int level = 1;
         public bool evolved;
 
@@ -239,6 +241,14 @@ namespace FWTCG.Core
     {
         public List<CardInstance> units = new();
         public int toBfId;
+    }
+
+    public enum PendingRuneAction { Tap, Recycle }
+
+    public class PendingRune
+    {
+        public int idx;
+        public PendingRuneAction action;
     }
 
     public class DamageDealt

@@ -7,22 +7,22 @@
 - ✅ 卡牌数据（CardData ScriptableObject：id、name、cost、atk、keywords、effect 等全字段）
 - ✅ 6种符文数据（RuneData SO：blazing/radiant/verdant/crushing/chaos/order）
 - ✅ 游戏状态单例（GameState：等价 G 对象，含所有字段）
-- [ ] 回合阶段状态机（awaken → start → summon → draw → action → end）
-- [ ] 摸牌系统（draw phase：从主牌堆抽1张到手牌）
+- ✅ 回合阶段状态机（awaken → start → summon → draw → action → end）
+- ✅ 摸牌系统（draw phase：从主牌堆抽1张到手牌；燃尽惩罚；洗牌）
 - [ ] 手牌展示（最多7张）
 - [ ] 符文区展示（玩家/AI 各自的已抽符文列表）
-- [ ] 点击符文 → 获得法力（tap rune：tapped=true，pMana+1）
-- [ ] 一键全点符文
-- [ ] 符文回收（recycle rune → 符能+1，符文从场上移除回符文堆）
+- ✅ 点击符文 → 获得法力（tap rune：tapped=true，pMana+1）
+- ✅ 一键全点符文
+- ✅ 符文回收（recycle rune → 符能+1，符文从场上移除回符文堆）
 - [ ] 随从牌出牌到基地（deployToBase：消耗法力，进行 onSummon）
 - [ ] 随从牌出牌到战场（deployToBF：消耗法力，exhausted=true 除非急速）
 - [ ] 单位从基地移动到战场（moveUnit）
 - [ ] 基础战斗结算（triggerCombat：atk vs atk，低atk单位死亡）
 - [ ] 单位死亡清理（cleanDeadAll，含绝念触发）
-- [ ] 积分系统（pScore/eScore，据守/征服得分，WIN_SCORE=8）
+- ✅ 积分系统（pScore/eScore，据守/征服得分，WIN_SCORE=8，第8分限制，燃尽）
 - [ ] 战场控制权（ctrl：player/enemy/null，征服条件）
 - [ ] 基础 AI 回合（点符文→出随从→移动→结束）
-- [ ] 结束回合（playerEndTurn，doEndPhase）
+- ✅ 结束回合（playerEndTurn，doEndPhase）
 
 ---
 
