@@ -101,6 +101,53 @@ namespace FWTCG.Core
 
         public bool IsPowerful => EffectiveAtk >= 5;
 
+        /// <summary>
+        /// 等价原版 mk(c)：以此实例为模板，创建新的部署实例（新 UID，重置运行时状态）。
+        /// 用于从手牌/模板部署单位到场上，不改变原始实例。
+        /// </summary>
+        public CardInstance Mk()
+        {
+            var inst = new CardInstance();
+            inst.uid            = ++_uidCounter;
+            inst.id             = id;
+            inst.cardName       = cardName;
+            inst.region         = region;
+            inst.type           = type;
+            inst.cost           = cost;
+            inst.atk            = atk;
+            inst.hp             = hp;
+            inst.keywords       = new List<string>(keywords ?? new List<string>());
+            inst.text           = text;
+            inst.emoji          = emoji;
+            inst.effect         = effect;
+            inst.schCost        = schCost;
+            inst.schType        = schType;
+            inst.schCost2       = schCost2;
+            inst.schType2       = schType2;
+            inst.echoSchCost    = echoSchCost;
+            inst.echoSchType    = echoSchType;
+            inst.equipSchCost   = equipSchCost;
+            inst.equipSchType   = equipSchType;
+            inst.isHero         = isHero;
+            inst.strongAtkBonus = strongAtkBonus > 0 ? strongAtkBonus : 1;
+            inst.canMoveToBase  = canMoveToBase;
+            inst.imgPath        = imgPath;
+            // 重置运行时状态（等价原版 mk() 追加字段）
+            inst.currentAtk = atk;
+            inst.currentHp  = atk;   // atk=HP for followers
+            inst.exhausted  = false;
+            inst.stunned    = false;
+            inst.tb         = new TurnBuffs { atk = 0 };
+            inst.buffToken  = false;
+            inst.attachedEquipments = new List<CardInstance>();
+            return inst;
+        }
+
+        /// <summary>
+        /// 分配一个新 UID（用于运行时临时创建不来自 CardData 的卡牌，如碎片法术）。
+        /// </summary>
+        public static int AllocUid() => ++_uidCounter;
+
         public override string ToString() => $"[{uid}]{cardName}({currentAtk}/{currentHp})";
     }
 

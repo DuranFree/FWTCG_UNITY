@@ -115,3 +115,25 @@
 **Technical debt**: 无
 
 **Problems encountered**: 首次运行 -quit 标志导致 TestResults.xml 未写入，移除 -quit 后正常（重现 P1 踩坑，需记住不加 -quit）
+
+---
+
+## P3（移植）: 手牌 & 出牌系统 — 2026-03-27
+
+**Status**: ✅ Completed
+
+**What was done**:
+- 读取 spell.js（canPlay / deployToBase / deployToBF / moveUnit / cleanDeadAll / onSummon / triggerDeathwish / tryDeathShield / dealDamage）
+- CardInstance.cs 补充：Mk() 实例方法（等价 mk(c)）、AllocUid() 静态方法（用于运行时创建临时牌如碎片）
+- Assets/Scripts/Core/CardDeployer.cs — 出牌核心逻辑：CanPlay / GetEffectiveCost / DeployToBase / DeployToBF / MoveUnit / RemoveUnitFromField / DealDamage / CleanDeadAll / TryDeathShield / OnSummon / TriggerDeathwish
+- Assets/Tests/EditMode/CardDeployerTests.cs — 54 个行为验证测试
+- 🟢 [逻辑测试] 全部通过 (120/120，含 P1+P2 的 66 个)
+
+**Decisions made**:
+- OnSummon 实现全部已知入场效果框架；先见机甲（foresight_mech_enter）需要 prompt 留 P5
+- DealDamage 内部调用 CleanDeadAll（与原版一致），清理后单位 HP 已重置；测试验证"单位进废牌堆"而非"HP==0"
+- 急速可选付费路径（deployToBase/ToBF 的 askPrompt）通过 enterActive bool 参数预留，P6 UI 层传入
+
+**Technical debt**: 无
+
+**Problems encountered**: 4 个测试初版写错期望值（MakeCard helper 的 atk 固定为 2 与 cost 不同；CleanDeadAll 后 HP 被 reset）——已修正测试逻辑
