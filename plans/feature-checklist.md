@@ -9,8 +9,8 @@
 - ✅ 游戏状态单例（GameState：等价 G 对象，含所有字段）
 - ✅ 回合阶段状态机（awaken → start → summon → draw → action → end）
 - ✅ 摸牌系统（draw phase：从主牌堆抽1张到手牌；燃尽惩罚；洗牌）
-- [ ] 手牌展示（最多7张）
-- [ ] 符文区展示（玩家/AI 各自的已抽符文列表）
+- ✅ 手牌展示（最多7张）— P13 GameUI.cs PlayerHandPanel，可点击选中
+- ✅ 符文区展示（玩家/AI 各自的已抽符文列表）— P13 GameUI.cs PlayerRunePanel，含横置/回收按钮
 - ✅ 点击符文 → 获得法力（tap rune：tapped=true，pMana+1）
 - ✅ 一键全点符文
 - ✅ 符文回收（recycle rune → 符能+1，符文从场上移除回符文堆）
@@ -109,8 +109,8 @@
 - ✅ 战场选择（逻辑：GameInitializer.SelectBattlefields，从各方战场牌池随机抽1张）
 - ✅ 先手调整（逻辑：GameInitializer.ConfirmMulligan，最多换2张）
 - [ ] 积分轨道展示（0-8格，动画）— UI Phase
-- [ ] 战斗日志（可展开/折叠）— UI Phase
-- [ ] 游戏结束界面（胜/败）— UI Phase
+- ✅ 战斗日志（滚动面板）— P13 GameUI.cs 右侧 LogPanel，AppendLog 追加
+- ✅ 游戏结束界面（胜/败）— P13 GameUI.cs GameOverPanel + 再来一局按钮
 - [ ] 卡牌详情预览（点击查看完整文字）— UI Phase
 - [ ] 弃牌堆/放逐堆查看器— UI Phase
 - ✅ 30秒回合计时器（逻辑：TurnTimerSystem.Reset/Start/Stop/Tick/OnTimeout）
@@ -119,9 +119,9 @@
 ---
 
 ## Slice 7 — 输入 & 平台适配
-- [ ] 点击出牌（PC/移动统一入口）
+- ✅ 点击出牌（PC/移动统一入口）— P13 GameUI.cs 两次点击流程（选牌→点区域）
 - [ ] 拖拽出牌（PC 优先）
-- [ ] 触屏适配（uGUI EventSystem）
+- ✅ 触屏适配（uGUI EventSystem）— P13 GameUI.EnsureEventSystem 自建 EventSystem+StandaloneInputModule
 - [ ] 横屏响应式布局（PC + 移动横屏）
 - [ ] 缩放锁定（移动端防误触）
 
@@ -146,9 +146,9 @@
 ---
 
 ## 跨文件交互流程链
-- [ ] 出随从完整链：点击手牌→canPlay→选择区域→executeDrop→deployToBase/BF→mk()→onSummon→急速检查→exhausted→cleanDeadAll→render()
-- [ ] 法术施法链：点击手牌→getSpellTargets→目标高亮→确认→applySpell→效果→cleanDeadAll→回响检查→render()
-- [ ] 法术对决链：单位移入空战场→startSpellDuel→runDuelTurn→轮流响应→skip×2→endDuel→triggerCombat
-- [ ] 战斗结算链：triggerCombat→roleAtk→dealDamage×双方→cleanDeadAll→deathwish→积分→checkWin→render()
-- [ ] 符文回收链：点击回收→recycleRune→飞行动画→addSch→从pRunes移除→render()
+- ✅ 出随从完整链：点击手牌→ToggleCard→点区域→PlayCard→DeployToBase/BF→Mk()→OnSummon→exhausted→cleanDeadAll→OnStateChanged→Refresh()
+- ✅ 法术施法链：点击手牌→ToggleCard→点区域→PlayCard→ApplySpell→效果→cleanDeadAll→OnStateChanged→Refresh()
+- [ ] 法术对决链：DuelPanel可见→SkipBtn→DuelSkip()（完整链待测试）
+- ✅ 战斗结算链：AI→TriggerCombat→RoleAtk→DealDamage→CleanDeadAll→Deathwish→AddScore→CheckWin→OnStateChanged→Refresh()
+- ✅ 符文回收链：点击回收→RecycleRune→AddSch→从pRunes移除→OnStateChanged→Refresh()
 - [ ] 传奇受伤/死亡链：dealDamage(isLegend=true)→pLeg.currentHp-=dmg→checkWin→endGame

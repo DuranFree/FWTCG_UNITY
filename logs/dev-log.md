@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-03-28 — P13: 主游戏 UI（自建 Canvas）
+
+**Phase**: P13 Main Game UI
+
+**New files**:
+- `Assets/Scripts/UI/UISelectionState.cs` — 纯 C# 选牌/选单位状态机（UIPhase：Idle/CardSelected/UnitSelected）
+- `Assets/Scripts/UI/DeckFactory.cs` — 运行时牌组配置工厂，无需 .asset 文件，含卡莎 vs 易大师全套 40 张卡
+- `Assets/Scripts/UI/GameUI.cs` — 自建 uGUI Canvas 的 MonoBehaviour；Awake 构建 9 个面板，订阅 GameManager.OnStateChanged → Refresh()
+- `Assets/Tests/EditMode/UISelectionStateTests.cs` — 14 个行为测试，覆盖状态机全转换路径
+
+**Test results**: 391/391 passed（P12 377 → P13 391，+14 新测试）
+
+**Design decisions**:
+- 采用运行时全量构建方案（无 Unity Editor 场景依赖），DeckFactory 用 `ScriptableObject.CreateInstance<CardData>()` 代替 .asset 文件
+- GameUI.Refresh() 全量重建面板子节点（简洁正确，避免增量更新复杂度）
+- 两次点击出牌流：点击手牌 → ToggleCard → 点击区域按钮 → PlayCard/MoveUnit → Clear
+- 对决、游戏结束、换牌三个 overlay 面板，通过 SetActive(bool) 切换可见性
+
+**Problems encountered**:
+- `DeckFactory.cs` 编译错误：`new[]{"..."}` 不能赋给 `List<string>`，`"blazing"` 不能赋给 `RuneType` enum → 全部改为 `new List<string>{...}` 和 `RuneType.Blazing`
+- `GameUI.cs` 编译错误：`MakePanel()` 返回 `Image`，对其调用 `AddComponent<>()` 报错 → 改为 `.gameObject.AddComponent<>()`
+
+---
+
 ## 2026-03-27 — P12: TDD 规范修复（测试重构）
 
 **Phase**: P12 TDD 规范合规修复
