@@ -657,24 +657,34 @@ namespace FWTCG.UI
             var root = canvas.transform;
             _rootCanvasRt = canvasGo.GetComponent<RectTransform>();
 
-            // ── 背景底色 ──
+            // ── 背景底色（全屏，不受 SafeArea 限制）──
             var bgPanel = MakePanel(root, "Background", Vector2.zero, Vector2.one, C_Dark);
             _ = bgPanel;
 
+            // ── SafeArea 容器（刘海/圆角/底部条安全区域适配）──
+            var safeAreaGo = new GameObject("SafeArea");
+            safeAreaGo.transform.SetParent(root, false);
+            var safeAreaRt = safeAreaGo.AddComponent<RectTransform>();
+            safeAreaRt.anchorMin = Vector2.zero;
+            safeAreaRt.anchorMax = Vector2.one;
+            safeAreaRt.offsetMin = safeAreaRt.offsetMax = Vector2.zero;
+            safeAreaGo.AddComponent<SafeAreaFitter>();
+            var gameRoot = safeAreaGo.transform;
+
             // ── 敌方信息栏（顶部 8%）──
-            var enemyInfoPanel = MakePanel(root, "EnemyInfoPanel",
+            var enemyInfoPanel = MakePanel(gameRoot, "EnemyInfoPanel",
                 new Vector2(0, 0.92f), new Vector2(0.75f, 1f), C_EnemyBg);
             _enemyInfoText = MakeText(enemyInfoPanel.transform, "EnemyInfoText", 13);
             _enemyInfoText.color = C_Gold;
 
             // ── 敌方区域（86-92%）──
-            var enemyZonePanel = MakePanel(root, "EnemyZonePanel",
+            var enemyZonePanel = MakePanel(gameRoot, "EnemyZonePanel",
                 new Vector2(0, 0.77f), new Vector2(0.75f, 0.92f), C_EnemyBg);
             _enemyZoneTrans = MakeScrollContent(enemyZonePanel.transform, "EnemyZoneContent",
                 horizontal: true);
 
             // ── 战场（44-77%）──
-            var bfPanel = MakePanel(root, "BattlefieldPanel",
+            var bfPanel = MakePanel(gameRoot, "BattlefieldPanel",
                 new Vector2(0, 0.34f), new Vector2(0.75f, 0.77f), C_BFBg);
             var bfLayout = bfPanel.gameObject.AddComponent<HorizontalLayoutGroup>();
             bfLayout.childControlWidth  = true;
@@ -691,25 +701,25 @@ namespace FWTCG.UI
             _bf1PanelImg.color = C_BFBg;
 
             // ── 玩家基地（25-34%）──
-            var playerBasePanel = MakePanel(root, "PlayerBasePanel",
+            var playerBasePanel = MakePanel(gameRoot, "PlayerBasePanel",
                 new Vector2(0, 0.25f), new Vector2(0.75f, 0.34f), C_PlayBg);
             _playerBaseTrans = MakeScrollContent(playerBasePanel.transform, "PlayerBaseContent",
                 horizontal: true);
 
             // ── 玩家符文（16-25%）──
-            var playerRunePanel = MakePanel(root, "PlayerRunePanel",
+            var playerRunePanel = MakePanel(gameRoot, "PlayerRunePanel",
                 new Vector2(0, 0.16f), new Vector2(0.75f, 0.25f), C_RuneBg);
             _playerRuneTrans = MakeScrollContent(playerRunePanel.transform, "PlayerRuneContent",
                 horizontal: true);
 
             // ── 玩家手牌（5-16%）──
-            var playerHandPanel = MakePanel(root, "PlayerHandPanel",
+            var playerHandPanel = MakePanel(gameRoot, "PlayerHandPanel",
                 new Vector2(0, 0.05f), new Vector2(0.75f, 0.16f), C_HandBg);
             _playerHandTrans = MakeScrollContent(playerHandPanel.transform, "PlayerHandContent",
                 horizontal: true);
 
             // ── 玩家信息 + 操作栏（0-5%）──
-            var actionPanel = MakePanel(root, "ActionPanel",
+            var actionPanel = MakePanel(gameRoot, "ActionPanel",
                 new Vector2(0, 0f), new Vector2(0.75f, 0.05f), C_DarkBg);
             var actionLayout = actionPanel.gameObject.AddComponent<HorizontalLayoutGroup>();
             actionLayout.childControlWidth  = false;
@@ -733,7 +743,7 @@ namespace FWTCG.UI
                 () => ShowDiscardPile());
 
             // ── 右侧日志面板（75-100%宽，全高）──
-            var logPanel = MakePanel(root, "LogPanel",
+            var logPanel = MakePanel(gameRoot, "LogPanel",
                 new Vector2(0.75f, 0f), new Vector2(1f, 1f), C_LogBg);
 
             AddLabel(logPanel.transform, "=== 战斗日志 ===", C_Cyan);
@@ -777,7 +787,7 @@ namespace FWTCG.UI
             _logScroll.viewport = logViewportRt;
 
             // ── Mulligan 面板（全屏覆盖）──
-            _mulliganPanel = MakePanel(root, "MulliganPanel",
+            _mulliganPanel = MakePanel(gameRoot, "MulliganPanel",
                 Vector2.zero, Vector2.one,
                 new Color(0f, 0f, 0f, 0.88f)).gameObject;
             var mulLayout = _mulliganPanel.AddComponent<VerticalLayoutGroup>();
@@ -802,7 +812,7 @@ namespace FWTCG.UI
             _mulliganPanel.SetActive(false);
 
             // ── 对决面板（全屏覆盖）──
-            _duelPanel = MakePanel(root, "DuelPanel",
+            _duelPanel = MakePanel(gameRoot, "DuelPanel",
                 new Vector2(0.2f, 0.3f), new Vector2(0.8f, 0.7f),
                 new Color(0.05f, 0.05f, 0.2f, 0.95f)).gameObject;
             var duelLayout = _duelPanel.AddComponent<VerticalLayoutGroup>();
@@ -826,7 +836,7 @@ namespace FWTCG.UI
             _duelPanel.SetActive(false);
 
             // ── 游戏结束面板 ──
-            _gameOverPanel = MakePanel(root, "GameOverPanel",
+            _gameOverPanel = MakePanel(gameRoot, "GameOverPanel",
                 new Vector2(0.3f, 0.4f), new Vector2(0.7f, 0.6f),
                 new Color(0f, 0f, 0f, 0.9f)).gameObject;
             _gameOverText = MakeText(_gameOverPanel.transform, "GameOverText", 24);
@@ -845,7 +855,7 @@ namespace FWTCG.UI
             _gameOverPanel.SetActive(false);
 
             // ── 弃牌堆查看面板 ──
-            _discardPanel = MakePanel(root, "DiscardPanel",
+            _discardPanel = MakePanel(gameRoot, "DiscardPanel",
                 new Vector2(0.12f, 0.08f), new Vector2(0.75f, 0.92f),
                 new Color(0.05f, 0.03f, 0.12f, 0.97f)).gameObject;
             var discLayout = _discardPanel.AddComponent<VerticalLayoutGroup>();
@@ -864,7 +874,7 @@ namespace FWTCG.UI
             _discardPanel.SetActive(false);
 
             // ── 阶段切换横幅 ──
-            var bannerPanel = MakePanel(root, "PhaseBanner",
+            var bannerPanel = MakePanel(gameRoot, "PhaseBanner",
                 new Vector2(0.2f, 0.44f), new Vector2(0.8f, 0.56f),
                 new Color(0f, 0f, 0f, 0.82f));
             _phaseBanner = bannerPanel.gameObject;
@@ -875,7 +885,7 @@ namespace FWTCG.UI
             _phaseBanner.SetActive(false);
 
             // ── 卡牌详情预览面板（居中模态框）──
-            _cardDetailPanel = MakePanel(root, "CardDetailPanel",
+            _cardDetailPanel = MakePanel(gameRoot, "CardDetailPanel",
                 new Vector2(0.12f, 0.08f), new Vector2(0.75f, 0.92f),
                 new Color(0.03f, 0.06f, 0.14f, 0.97f)).gameObject;
             var detailLayout = _cardDetailPanel.AddComponent<VerticalLayoutGroup>();

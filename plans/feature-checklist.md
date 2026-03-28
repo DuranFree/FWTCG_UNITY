@@ -124,6 +124,7 @@
 - ✅ 触屏适配（uGUI EventSystem）— P13 GameUI.EnsureEventSystem 自建 EventSystem+StandaloneInputModule
 - ✅ 横屏锁定（Screen.orientation = LandscapeLeft）— P17 GameUI.Awake()
 - ✅ 缩放锁定（Input.multiTouchEnabled = false）— P17 GameUI.Awake()
+- ✅ Safe Area 适配（刘海屏/圆角/底部条）— P21 SafeAreaFitter.cs；BuildCanvas 中 SafeArea 容器包裹所有游戏面板，Background/TitlePanel 保持全屏
 
 ---
 

@@ -2,6 +2,29 @@
 
 ---
 
+## 2026-03-28 — P21: Safe Area 适配（刘海屏/圆角/底部条）
+
+**Phase**: P21 Safe Area Adaptation
+
+**Modified files**:
+- `Assets/Scripts/UI/SafeAreaFitter.cs` — 新文件，Start() 读取 Screen.safeArea 调整 RectTransform 锚点
+- `Assets/Scripts/UI/GameUI.cs` — BuildCanvas 中插入 SafeArea 容器；所有游戏面板（含弹窗/横幅）改为 SafeArea 子节点；Background 和 TitlePanel 保持 root 层级
+
+**New features**:
+- `SafeAreaFitter` — Start() 时将 RectTransform.anchorMin/Max 设为 Screen.safeArea 归一化坐标
+- `BuildCanvas` SafeArea 容器：root 层第二个子节点（Background 之后），添加 SafeAreaFitter；gameRoot 变量指向此容器
+- 层级关系：Background(root) → SafeArea/gameRoot(root) → 所有面板 → TitlePanel(root, 最高层)
+
+**Test results**: 391/391（纯UI层，无新测试）
+
+**Design decisions**:
+- TitlePanel 保持 root 子节点（全屏 0→1 覆盖，且后加保证最高 z-order）
+- Background 保持 root 子节点（全屏底色不应受 Safe Area 限制）
+- 弹窗/横幅（GameOver/Discard/CardDetail/PhaseBanner/Duel/Mulligan）改为 SafeArea 子节点，使弹窗内容自动避开刘海区域
+- Screen.width/height 为 0 时提前返回（编辑器初始化保护）
+
+---
+
 ## 2026-03-28 — P20: 拖拽出牌
 
 **Phase**: P20 Drag to Play
