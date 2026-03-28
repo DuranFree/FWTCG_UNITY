@@ -148,6 +148,9 @@ namespace FWTCG.UI
         private Text        _combatOverlayText;
         private bool        _combatFlashRunning;
 
+        // P35: 拖拽漩涡
+        private readonly List<GameObject> _dropVortices = new();
+
         // 拖拽出牌
         private GameObject   _dragGhost;
         private int          _dragUid = -1;
@@ -959,6 +962,7 @@ namespace FWTCG.UI
             var card = _gm.G.pHand.Find(c => c.uid == uid);
             t.text = card != null ? CardLabel(card) : "???";
 
+            SpawnDropVortices(); // P35: 放置区漩涡
             UpdateCardDrag(screenPos);
         }
 
@@ -987,8 +991,9 @@ namespace FWTCG.UI
                 if (zone != null) { hitZone = zone.ZoneId; break; }
             }
 
-            // 清理幽灵
+            // 清理幽灵 + 放置区漩涡
             if (_dragGhost != null) { Destroy(_dragGhost); _dragGhost = null; }
+            DestroyDropVortices(); // P35
             _dragUid = -1;
 
             if (hitZone != null)
@@ -1023,6 +1028,10 @@ namespace FWTCG.UI
             // P32: 战斗触发 → 全屏闪光覆盖
             if (!_combatFlashRunning && msg.Contains("战斗") && _combatOverlay != null)
                 StartCoroutine(CombatFlash());
+
+            // P35: 法术施放 → 投射物动画
+            if (msg.Contains("法术") || msg.Contains("施放"))
+                StartCoroutine(SpellProjectile());
         }
 
         private static bool IsImportantLog(string msg)
@@ -1084,6 +1093,7 @@ namespace FWTCG.UI
                 new Vector2(0.045f, 0.91f), new Vector2(0.955f, 1f), C_EnemyBg);
             _enemyInfoText = MakeText(enemyInfoPanel.transform, "EnemyInfoText", 12);
             _enemyInfoText.color = C_Gold;
+            AddShadow(_enemyInfoText); // P35: 文字光晕
 
             // ── P31: 敌方区域（80-91%）— 左侧 13% 为传奇牌槽，其余为单位区 ──
             var enemyZonePanel = MakePanel(gameRoot, "EnemyZonePanel",
@@ -1152,6 +1162,7 @@ namespace FWTCG.UI
 
             _playerInfoText = MakeText(actionPanel.transform, "PlayerInfoText", 11);
             _playerInfoText.color = C_Gold;
+            AddShadow(_playerInfoText); // P35: 文字光晕
             var pInfoRt     = _playerInfoText.GetComponent<RectTransform>();
             pInfoRt.sizeDelta = new Vector2(480, 0);
 
@@ -1449,6 +1460,7 @@ namespace FWTCG.UI
             titleText.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 70);
             if (_cinzelBold != null) titleText.font = _cinzelBold; // P30: Cinzel Bold
             _titleText = titleText; // P30: 标题光效引用
+            AddShadow(titleText); // P35: 文字光晕
 
             var subtitleText = MakeText(_titlePanel.transform, "SubtitleText", 18);
             subtitleText.text      = "Trading Card Game";
@@ -2546,6 +2558,134 @@ namespace FWTCG.UI
                 esGo.AddComponent<EventSystem>();
                 esGo.AddComponent<StandaloneInputModule>();
             }
+        }
+
+        // ─────────────────────────────────────────────
+        // P35 — 文字光晕 / 法术投射物 / 拖拽漩涡
+        // ─────────────────────────────────────────────
+
+        /// <summary>
+        /// P35 — 给 Text 元素添加 2 层金色 Shadow，模拟 text-shadow 光晕效果。
+        /// </summary>
+        private static void AddShadow(Text t)
+        {
+            var s1 = t.gameObject.AddComponent<Shadow>();
+            s1.effectColor    = new Color(0.78f, 0.67f, 0.43f, 0.60f);
+            s1.effectDistance = new Vector2(1f, -1f);
+            var s2 = t.gameObject.AddComponent<Shadow>();
+            s2.effectColor    = new Color(0.78f, 0.67f, 0.43f, 0.60f);
+            s2.effectDistance = new Vector2(2f, -2f);
+        }
+
+        /// <summary>
+        /// P35 — 在所有 ZoneDropTarget 中央生成 DropVortex 漩涡 GO（父节点为 rootCanvas）。
+        /// BeginCardDrag 调用。
+        /// </summary>
+        private void SpawnDropVortices()
+        {
+            var zones = _rootCanvasRt.GetComponentsInChildren<ZoneDropTarget>(false);
+            var canvas = _rootCanvasRt.GetComponent<Canvas>();
+            var cam    = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+            foreach (var zone in zones)
+            {
+                var rt = zone.GetComponent<RectTransform>();
+                if (rt == null) continue;
+                Vector3[] corners = new Vector3[4];
+                rt.GetWorldCorners(corners);
+                var worldCenter = (corners[0] + corners[2]) * 0.5f;
+                var screenPt = RectTransformUtility.WorldToScreenPoint(cam, worldCenter);
+                if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                        _rootCanvasRt, screenPt, cam, out var localPos)) continue;
+                var go = new GameObject("DropVortex");
+                go.transform.SetParent(_rootCanvasRt, false);
+                var vRt = go.AddComponent<RectTransform>();
+                vRt.anchorMin = new Vector2(0.5f, 0.5f);
+                vRt.anchorMax = new Vector2(0.5f, 0.5f);
+                vRt.pivot     = new Vector2(0.5f, 0.5f);
+                vRt.anchoredPosition = localPos;
+                go.AddComponent<DropVortex>();
+                _dropVortices.Add(go);
+            }
+        }
+
+        /// <summary>P35 — 销毁所有拖拽漩涡 GO。EndCardDrag 调用。</summary>
+        private void DestroyDropVortices()
+        {
+            foreach (var go in _dropVortices)
+                if (go != null) Destroy(go);
+            _dropVortices.Clear();
+        }
+
+        /// <summary>
+        /// P35 — 法术施放投射物：24px 青色圆点从手牌区飞向敌方区域（0.45s OutQuad），
+        /// 到达后触发目标区域高亮脉冲 + 0.05s 后全屏震动（0.38s），然后淡出销毁。
+        /// </summary>
+        private IEnumerator SpellProjectile()
+        {
+            var handRt  = _playerHandTrans?.GetComponent<RectTransform>();
+            var enemyRt = _enemyZoneTrans?.GetComponent<RectTransform>();
+            if (handRt == null || enemyRt == null) yield break;
+
+            Vector2 startLocal = RtToRootLocal(handRt);
+            Vector2 endLocal   = RtToRootLocal(enemyRt);
+
+            var proj = new GameObject("SpellProj");
+            proj.transform.SetParent(_rootCanvasRt, false);
+            var rt = proj.AddComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot     = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(24f, 24f);
+            rt.anchoredPosition = startLocal;
+
+            var img = proj.AddComponent<Image>();
+            img.color = C_Cyan;
+            img.raycastTarget = false;
+            var sh = proj.AddComponent<Shadow>();
+            sh.effectColor    = new Color(0.04f, 0.78f, 0.73f, 0.80f);
+            sh.effectDistance = new Vector2(0f, 0f);
+
+            var cg = proj.AddComponent<CanvasGroup>();
+            cg.blocksRaycasts = false;
+            cg.interactable   = false;
+
+            // 飞行 0.45s OutQuad
+            const float dur = 0.45f;
+            float t = 0f;
+            while (t < dur)
+            {
+                t += Time.deltaTime;
+                float p = Mathf.Clamp01(t / dur);
+                float e = 1f - (1f - p) * (1f - p); // OutQuad
+                rt.anchoredPosition = Vector2.Lerp(startLocal, endLocal, e);
+                yield return null;
+            }
+
+            // 目标区域高亮脉冲（0.35s）
+            if (_enemyZonePanelImg != null)
+                StartCoroutine(UITween.PulseColor(_enemyZonePanelImg, C_Cyan, 0.35f));
+
+            // 延迟 0.05s 后冲击震动
+            yield return new WaitForSeconds(0.05f);
+            StartCoroutine(UITween.Shake(_rootCanvasRt, 3.5f, 0.38f, 10));
+
+            // 淡出 0.15s
+            yield return UITween.FadeOut(cg, 0.15f);
+            Destroy(proj);
+        }
+
+        /// <summary>P35 — 将 RectTransform 的世界中心点转换为 rootCanvas 本地坐标。</summary>
+        private Vector2 RtToRootLocal(RectTransform rt)
+        {
+            Vector3[] corners = new Vector3[4];
+            rt.GetWorldCorners(corners);
+            var worldCenter = (corners[0] + corners[2]) * 0.5f;
+            var canvas = _rootCanvasRt.GetComponent<Canvas>();
+            var cam    = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+            var screenPt = RectTransformUtility.WorldToScreenPoint(cam, worldCenter);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                _rootCanvasRt, screenPt, cam, out var localPos);
+            return localPos;
         }
     }
 }

@@ -28,7 +28,7 @@
 ## 字体
 - ✅ Cinzel 字体（标题、UI 标签、强调文字）— P30 Resources/Fonts/Cinzel-Regular.ttf + Cinzel-Bold.ttf；标题用 Bold，副标题/按钮用 Regular
 - ✅ 等宽字体（战斗日志 Courier New 13px）— P30 Font.CreateDynamicFontFromOSFont("Courier New", 13)；_logText.font 应用
-- [ ] 文字光晕效果（金色 text-shadow 0 0 12~40px rgba(200,170,110)）
+- ✅ 文字光晕效果（金色 text-shadow 0 0 12~40px rgba(200,170,110)）— P35 AddShadow()；2层Shadow组件(effectDistance 1/-1 和 2/-2)，effectColor 金色 0.6a；应用于标题/敌方信息/玩家信息 Text
 
 ## 动画
 - ✅ 手牌入场动画（PopIn 0.28s OutBack）— P15 GameUI.RefreshPlayerHand，新 uid 检测，StartCoroutine UITween.PopIn
@@ -44,7 +44,7 @@
 - ✅ 标题界面（简版：金色标题 + 青色副标题 + 开始按钮 + 标题脉冲光效）— P19 TitlePanel，BuildCanvas 最后添加（保证最高层级）；P30 新增 TitlePulse 协程（C_Gold↔亮金 2.2s 循环 PulseColor，"开始游戏"时停止，"再来一局"时重启）
 - ✅ Toast 浮入/浮出（0.35s/0.25s）— P14 ToastSystem.cs，Coroutine 缓动
 - ✅ 漩涡旋转（3 层不同转速 8/10/12s，10 个轨道粒子）— P34 VortexRings.cs MonoBehaviour；直径 400/600/800px 弧形 Image（Radial360，fillAmount 0.6/0.55/0.5），青/金交替，45/36/30°/s；6 个符文 emoji 沿 310px 轨道 18°/s 公转；全屏背景 alpha 0.04-0.06
-- [ ] 法术施法动画（目标高亮 + 投射物 + 冲击波）
+- ✅ 法术施法动画（目标高亮 + 投射物 + 冲击波）— P35 SpellProjectile 协程；24px 青色圆点手牌区→敌方区 OutQuad 0.45s；到达后 PulseColor(敌方面板,青色,0.35s)；延迟0.05s Shake(3.5f,0.38s)；FadeOut 0.15s；AppendLog "法术"/"施放" 触发
 - ✅ 单位死亡飞出 — P28 DetectDeathsAndAnimate + UnitDeathFly；红色"✕ 单位名"ghost MoveY(+80px) + FadeOut 0.65s；玩家基地+玩家战场侧触发
 - ✅ Buff/Debuff 光晕（绿/红 0.6s）— P29 AddUnitButton _prevUnitAtk 追踪；ATK↑→绿 PulseColor，ATK↓→红 PulseColor，RebuildUnitTracking 每帧更新基准
 - ✅ 眩晕光晕（0.6s）— P29 AddUnitButton _prevStunnedUids；新晕→橙黄 PulseColor(1f,0.8f,0.2f)
@@ -57,7 +57,7 @@
 
 ## 特效
 - [ ] Canvas 粒子系统（75 基础粒子：主粒子+符文字形+萤火虫，含星座连线）
-- [ ] 拖拽放置漩涡（3 环旋转 + 螺旋粒子）
+- ✅ 拖拽放置漩涡（2 环旋转，螺旋粒子待后续）— P35 DropVortex.cs MonoBehaviour；80/120px 弧形 Image Radial360，青色(0.04,0.78,0.73)，60/90°/s；SpawnDropVortices 在每个 ZoneDropTarget 中央生成；EndCardDrag 后 DestroyDropVortices 清理
 - [ ] 爆炸粒子（散射 12 粒子）
 - [ ] URP Bloom（替代所有 box-shadow glow）
 - [ ] 卡牌 3D 真实翻转（替代 CSS rotateY hack）

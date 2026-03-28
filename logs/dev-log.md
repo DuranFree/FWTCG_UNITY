@@ -2,6 +2,25 @@
 
 ---
 
+## 2026-03-28 — P35: 文字光晕 + 法术投射物 + 拖拽漩涡
+
+**Phase**: P35 Text Glow + Spell Projectile + Drag Drop Vortex
+
+**Modified files**:
+- `Assets/Scripts/UI/DropVortex.cs` — 新建（拖拽放置区漩涡 MonoBehaviour）
+- `Assets/Scripts/UI/GameUI.cs` — AddShadow helper + SpellProjectile 协程 + SpawnDropVortices/DestroyDropVortices + RtToRootLocal 辅助
+
+**实现内容**:
+1. **文字光晕（AddShadow）**: 静态辅助方法，为 Text GO 添加 2 层 `Shadow` 组件（effectDistance 1/-1 和 2/-2，金色 0.6a）。应用于 `titleText`、`_enemyInfoText`、`_playerInfoText`。
+2. **法术施放投射物（SpellProjectile）**: AppendLog 检测"法术"/"施放"触发。24px 青色圆点从手牌区中心（`_playerHandTrans`）飞向敌方区域（`_enemyZoneTrans`），OutQuad 0.45s。到达后：敌方面板 PulseColor（青色，0.35s）+ 延迟 0.05s Shake(3.5f, 0.38s) + FadeOut(0.15s)。新增 `RtToRootLocal` 坐标转换辅助。
+3. **拖拽放置漩涡（DropVortex.cs）**: 2 环弧形 Image（80/120px，60/90°/s，青色）。`BeginCardDrag` 调用 `SpawnDropVortices` 在每个 `ZoneDropTarget` 中央生成 GO；`EndCardDrag` 调用 `DestroyDropVortices` 清理。
+
+**决策**:
+- Unity `Shadow` 组件（2层叠加）代替 CSS text-shadow，无额外 Draw Call。
+- 螺旋粒子跳过，列入待后续 Phase 专项处理。
+
+---
+
 ## 2026-03-28 — P34: 径向环境光 + 漩涡旋转 + 全息扫光
 
 **Phase**: P34 Ambient Radial Light + Vortex Rings + Foil Sweep
