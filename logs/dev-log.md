@@ -2,6 +2,29 @@
 
 ---
 
+## 2026-03-28 — P28: 翻币界面 + Mulligan PopIn + 单位死亡飞出
+
+**Phase**: P28 Coin Flip UI + Mulligan PopIn + Unit Death Fly
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — 新增字段/面板/协程/检测方法
+
+**实现内容**:
+
+- **翻币界面** (`_coinPanel`)：点击"开始游戏"后触发 `ShowCoinFlipResult()` 协程，PopIn(0.4s) 显示翻币结果（先手绿色/后手红色），1.8s 后 ClosePanel(0.25s) 自动关闭，期间 `_coinPanelShowing=true` 阻止 Mulligan 面板提前弹出
+- **Mulligan PopIn**：`_mulliganPanel` 首次激活时 `UITween.PopIn(0.4f)`；`_mulliganPopInDone` 防止 Refresh() 每帧重复触发；"再来一局"重置该标记
+- **单位死亡飞出** (`DetectDeathsAndAnimate` + `UnitDeathFly`)：在 `RefreshPlayerBase` / `RefreshBF` 的 `ClearChildren` 之前调用；遍历容器内 `UnitBtn_{uid}` 子节点，对比当前存活集合，为消失的 uid 在 root canvas 生成红色 ghost（`✕ 单位名`），`MoveY(+80px, 0.65s) + FadeOut(0.65s)` 并行后 `Destroy`；`_unitNames` 字典缓存 uid→名称
+
+**Design decisions**:
+- CoinPanel 放在 gameRoot 内（受 SafeArea 约束）确保在各设备安全区域内居中
+- `_coinPanelShowing` 作门控而非改变 Refresh 触发时机：避免改动事件流
+- DetectDeathsAndAnimate 仅检测玩家侧（AddUnitButton 命名 UnitBtn_*）；敌方用 AddLabel，后续可扩展
+- `using System.Linq` 新增于文件顶部（DetectDeathsAndAnimate 使用 .Select/.HashSet）
+
+**Test results**: 395（无新测试，纯视觉层；静态分析逻辑正确）
+
+---
+
 ## 2026-03-28 — P27: 符文回收飞行动画
 
 **Phase**: P27 Rune Recycle Fly Animation

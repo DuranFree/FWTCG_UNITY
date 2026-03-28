@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -92,6 +93,17 @@ namespace FWTCG.UI
         private CanvasGroup   _gameRootCg;            // 标题→游戏淡入
         private string        _prevBF0CardId = "";    // 战场名称飞入追踪
         private string        _prevBF1CardId = "";
+
+        // P28: 翻币界面
+        private GameObject _coinPanel;
+        private Text       _coinResultText;
+        private bool       _coinPanelShowing;         // 翻币面板显示期间阻止 Mulligan 弹出
+
+        // P28: Mulligan 首次弹入追踪
+        private bool _mulliganPopInDone;
+
+        // P28: 单位死亡飞出（uid→名称 映射）
+        private readonly Dictionary<int, string> _unitNames = new();
 
         // 拖拽出牌
         private GameObject   _dragGhost;
@@ -201,10 +213,15 @@ namespace FWTCG.UI
                 _lastTurn  = G.turn;
             }
 
-            // 模拟换牌阶段：只显示 mulligan 面板
-            if (G.phase == GamePhase.Init && G.pHand.Count > 0)
+            // 模拟换牌阶段：只显示 mulligan 面板（翻币面板显示期间跳过）
+            if (G.phase == GamePhase.Init && G.pHand.Count > 0 && !_coinPanelShowing)
             {
                 _mulliganPanel.SetActive(true);
+                if (!_mulliganPopInDone)
+                {
+                    _mulliganPopInDone = true;
+                    StartCoroutine(UITween.PopIn(_mulliganPanel.GetComponent<RectTransform>(), 0.4f));
+                }
                 RefreshMulligan();
                 return;
             }
@@ -276,6 +293,7 @@ namespace FWTCG.UI
 
         private void RefreshBF(int bfIdx, Transform trans, BattlefieldState bf)
         {
+            DetectDeathsAndAnimate(trans, bf.pU); // P28: 玩家侧死亡飞出
             ClearChildren(trans);
             var G = _gm.G;
 
@@ -316,8 +334,9 @@ namespace FWTCG.UI
 
         private void RefreshPlayerBase()
         {
-            ClearChildren(_playerBaseTrans);
             var G = _gm.G;
+            DetectDeathsAndAnimate(_playerBaseTrans, G.pBase); // P28: 死亡飞出
+            ClearChildren(_playerBaseTrans);
 
             AddLabel(_playerBaseTrans, "--- 我方基地 ---", Color.white);
 
@@ -869,6 +888,28 @@ namespace FWTCG.UI
             mulRt.sizeDelta = new Vector2(0, 120);
             _mulliganPanel.SetActive(false);
 
+            // ── 翻币结果面板（P28）──
+            _coinPanel = MakePanel(gameRoot, "CoinPanel",
+                new Vector2(0.3f, 0.35f), new Vector2(0.7f, 0.65f),
+                new Color(0.02f, 0.02f, 0.08f, 0.95f)).gameObject;
+            var coinLayout = _coinPanel.AddComponent<VerticalLayoutGroup>();
+            coinLayout.childControlWidth  = true;
+            coinLayout.childControlHeight = false;
+            coinLayout.childAlignment     = TextAnchor.MiddleCenter;
+            coinLayout.spacing            = 14;
+            coinLayout.padding            = new RectOffset(20, 20, 24, 20);
+
+            var coinTitle = MakeText(_coinPanel.transform, "CoinTitle", 16);
+            coinTitle.text      = "⚙ 翻币决定先手";
+            coinTitle.alignment = TextAnchor.MiddleCenter;
+            coinTitle.color     = C_Gold;
+            coinTitle.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 28);
+
+            _coinResultText = MakeText(_coinPanel.transform, "CoinResult", 28);
+            _coinResultText.alignment = TextAnchor.MiddleCenter;
+            _coinResultText.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 80);
+            _coinPanel.SetActive(false);
+
             // ── 对决面板（全屏覆盖）──
             _duelPanel = MakePanel(gameRoot, "DuelPanel",
                 new Vector2(0.2f, 0.3f), new Vector2(0.8f, 0.7f),
@@ -910,8 +951,10 @@ namespace FWTCG.UI
                     _prevEScore    = 0;
                     _prevPBaseUids.Clear();
                     _prevPBFUids.Clear();
-                    _prevBF0CardId = "";
-                    _prevBF1CardId = "";
+                    _prevBF0CardId    = "";
+                    _prevBF1CardId    = "";
+                    _mulliganPopInDone = false;
+                    _coinPanelShowing  = false;
                     _lastPhase = GamePhase.Init;
                     _lastTurn  = Owner.Player;
                     _titlePanel.SetActive(true);
@@ -1006,6 +1049,7 @@ namespace FWTCG.UI
                     _gameRootCg.alpha = 0f;
                     _gm.StartGame(DeckFactory.MakeKaisaVsMasterYi());
                     StartCoroutine(UITween.FadeIn(_gameRootCg, 0.7f));
+                    StartCoroutine(ShowCoinFlipResult());
                 });
             startBtn.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 48);
             startBtnLbl.color = C_Gold;
@@ -1140,6 +1184,8 @@ namespace FWTCG.UI
 
             var (btn, lbl) = MakeButton(parent, UnitLabel(u), 11,
                 () => OnPlayerUnitClicked(capturedUid));
+            btn.gameObject.name = $"UnitBtn_{u.uid}"; // P28: 死亡检测用
+            _unitNames[u.uid]   = u.cardName;          // P28: 死亡飞出动画用
             _ = btn;
             lbl.color = col;
 
@@ -1318,6 +1364,22 @@ namespace FWTCG.UI
             rt.localScale = Vector3.one;
         }
 
+        /// <summary>P28 — 翻币结果面板：PopIn 0.4s → 显示 1.5s → ClosePanel 0.25s。</summary>
+        private IEnumerator ShowCoinFlipResult()
+        {
+            bool playerFirst       = _gm.G.first == Owner.Player;
+            _coinResultText.text   = playerFirst ? "正面\n玩家先手！" : "反面\n对手先手！";
+            _coinResultText.color  = playerFirst
+                ? new Color(0.25f, 0.91f, 0.54f)
+                : new Color(1f,    0.45f, 0.45f);
+            _coinPanelShowing = true;
+            _coinPanel.SetActive(true);
+            StartCoroutine(UITween.PopIn(_coinPanel.GetComponent<RectTransform>(), 0.4f));
+            yield return new WaitForSeconds(1.8f);
+            yield return StartCoroutine(ClosePanel(_coinPanel, 0.25f));
+            _coinPanelShowing = false;
+        }
+
         private static IEnumerator DelayedPopIn(RectTransform rt, float duration, float delay)
         {
             if (delay > 0f) yield return new WaitForSeconds(delay);
@@ -1348,6 +1410,59 @@ namespace FWTCG.UI
             StartCoroutine(UITween.MoveY(ghostRt, 60f, 0.7f, UITween.Ease.OutQuad));
             yield return UITween.FadeOut(cg, 0.7f, UITween.Ease.OutQuad);
             Destroy(ghost);
+        }
+
+        /// <summary>
+        /// P28 — 单位死亡飞出检测：遍历容器内 UnitBtn_* 子节点，
+        /// 对比当前存活单位列表，为已消失的单位启动死亡飞出动画。
+        /// 必须在 ClearChildren 之前调用（此时 RectTransform 仍有效）。
+        /// </summary>
+        private void DetectDeathsAndAnimate(Transform container, IEnumerable<CardInstance> survivors)
+        {
+            var survSet = new HashSet<int>(survivors.Select(u => u.uid));
+            var canvas  = _rootCanvasRt.GetComponent<Canvas>();
+            var cam     = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+            for (int i = 0; i < container.childCount; i++)
+            {
+                var child = container.GetChild(i);
+                if (!child.name.StartsWith("UnitBtn_")) continue;
+                if (!int.TryParse(child.name.Substring(8), out int uid)) continue;
+                if (survSet.Contains(uid)) continue;
+                var rt = child.GetComponent<RectTransform>();
+                if (rt == null) continue;
+                Vector3[] corners = new Vector3[4];
+                rt.GetWorldCorners(corners);
+                Vector2 worldCenter = (corners[0] + corners[2]) * 0.5f;
+                Vector2 screenPt    = RectTransformUtility.WorldToScreenPoint(cam, worldCenter);
+                if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                        _rootCanvasRt, screenPt, cam, out Vector2 localPos))
+                {
+                    string n = _unitNames.TryGetValue(uid, out var saved) ? saved : "单位";
+                    StartCoroutine(UnitDeathFly(localPos, n));
+                }
+            }
+        }
+
+        /// <summary>P28 — 单位死亡飞出：红色文字向上 +80px + 淡出 0.65s。</summary>
+        private IEnumerator UnitDeathFly(Vector2 localPos, string label)
+        {
+            var ghost   = new GameObject("UnitDeathGhost");
+            ghost.transform.SetParent(_rootCanvasRt, false);
+            var ghostRt = ghost.AddComponent<RectTransform>();
+            ghostRt.sizeDelta        = new Vector2(130f, 26f);
+            ghostRt.anchoredPosition = localPos;
+            var ghostTxt = ghost.AddComponent<Text>();
+            ghostTxt.font      = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            ghostTxt.fontSize  = 14;
+            ghostTxt.color     = new Color(1f, 0.35f, 0.35f);
+            ghostTxt.text      = $"\u2715 {label}";
+            ghostTxt.alignment = TextAnchor.MiddleCenter;
+            var ghostCg = ghost.AddComponent<CanvasGroup>();
+            ghostCg.blocksRaycasts = false;
+            ghostCg.interactable   = false;
+            StartCoroutine(UITween.MoveY(ghostRt, 80f, 0.65f, UITween.Ease.OutQuad));
+            yield return UITween.FadeOut(ghostCg, 0.65f);
+            if (ghost != null) Destroy(ghost);
         }
 
         private void ShowCardDetail(CardInstance card)

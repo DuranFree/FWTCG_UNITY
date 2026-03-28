@@ -14,8 +14,8 @@
 - [ ] 战斗覆盖层（全屏战斗结算 overlay）
 - ✅ 卡牌详情预览模态框 — P17 CardDetailPanel，居中深蓝底，显示全部文字字段，关闭按钮
 - [ ] 标题界面（品牌标志 + 开始按钮 + 光效）
-- [ ] 翻币界面（旋转动画 + 结果）
-- [ ] 调整手牌界面（Mulligan）
+- ✅ 翻币界面（旋转动画 + 结果）— P28 CoinPanel；PopIn 0.4s + 显示 1.8s + ClosePanel 0.25s；先手用绿色，后手用红色文字
+- ✅ 调整手牌界面（Mulligan）— P28 首次激活时 PopIn(0.4s)；_mulliganPopInDone 防止重复动画
 - [ ] 战斗日志面板（右侧可折叠）
 - ✅ Toast 通知堆（浮动）— P14 ToastSystem.cs，淡入上滑+淡出，重要战斗事件触发
 - [ ] 法术提示弹窗（目标选取）
@@ -45,7 +45,7 @@
 - ✅ Toast 浮入/浮出（0.35s/0.25s）— P14 ToastSystem.cs，Coroutine 缓动
 - [ ] 漩涡旋转（3 层不同转速 8/10/12s，10 个轨道粒子）
 - [ ] 法术施法动画（目标高亮 + 投射物 + 冲击波）
-- [ ] 单位死亡飞出
+- ✅ 单位死亡飞出 — P28 DetectDeathsAndAnimate + UnitDeathFly；红色"✕ 单位名"ghost MoveY(+80px) + FadeOut 0.65s；玩家基地+玩家战场侧触发
 - [ ] Buff/Debuff 光晕（绿/红 0.6s）
 - [ ] 眩晕光晕（0.6s）
 - [ ] 传奇技能激活环（0.8s）
