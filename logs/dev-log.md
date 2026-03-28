@@ -2,6 +2,28 @@
 
 ---
 
+## 2026-03-28 — P17: 卡牌详情预览 + 平台适配基础
+
+**Phase**: P17 Card Detail Preview & Platform Adaptation
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — 横屏锁定 + multiTouch 禁用；CardDetailPanel 模态框；手牌/敌方基地"详"按钮；ShowCardDetail/FormatCardDetail 方法
+
+**New features**:
+- `Screen.orientation = LandscapeLeft` + `Input.multiTouchEnabled = false` — Awake() 最先执行，确保移动端横屏且无缩放误触
+- `CardDetailPanel` — 居中模态框（0.12-0.75 × 0.08-0.92），深蓝背景，VerticalLayoutGroup；含 CardDetailText（14px）+ 关闭按钮
+- `ShowCardDetail(CardInstance)` + `FormatCardDetail` — 显示：卡名、类型/地域/费用、符能费、战力、关键词、效果文字
+- 手牌每行改为 HorizontalGroup（[牌按钮]+[详按钮]），入场 PopIn 移至 row RectTransform
+- 敌方基地单位也加"详"按钮
+
+**Test results**: 391/391（纯UI层，无新测试）
+
+**Design decisions**:
+- `lore` 字段只在 CardData 不在 CardInstance，FormatCardDetail 不显示 lore
+- 详情面板宽度限于主游戏区（0.75以内），不覆盖日志面板
+
+---
+
 ## 2026-03-28 — P16: 状态色 + 积分轨道
 
 **Phase**: P16 State Colors & Score Track

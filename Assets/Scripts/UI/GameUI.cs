@@ -60,6 +60,10 @@ namespace FWTCG.UI
         // 手牌入场动画追踪
         private readonly HashSet<int> _prevHandUids = new();
 
+        // 卡牌详情面板
+        private GameObject _cardDetailPanel;
+        private Text       _cardDetailText;
+
         // 日志面板
         private Text       _logText;
         private ScrollRect _logScroll;
@@ -102,6 +106,10 @@ namespace FWTCG.UI
 
         private void Awake()
         {
+            // 平台适配：横屏锁定 + 禁止多点触控缩放误触
+            Screen.orientation     = ScreenOrientation.LandscapeLeft;
+            Input.multiTouchEnabled = false;
+
             EnsureEventSystem();
             BuildCanvas();
         }
@@ -191,9 +199,14 @@ namespace FWTCG.UI
         {
             ClearChildren(_enemyZoneTrans);
             var G = _gm.G;
-            // 显示敌方基地单位（不可交互，仅显示）
+            // 显示敌方基地单位（不可交互，仅显示；可点详情）
             foreach (var u in G.eBase)
-                AddLabel(_enemyZoneTrans, UnitLabel(u), Color.red);
+            {
+                var capturedU = u;
+                var row = AddHorizontalGroup(_enemyZoneTrans);
+                AddLabel(row, UnitLabel(u), Color.red);
+                AddSmallButton(row, "详", C_Gold, () => ShowCardDetail(capturedU));
+            }
         }
 
         private void RefreshBattlefields()
@@ -305,6 +318,7 @@ namespace FWTCG.UI
                 bool isSel    = _sel.IsCardSelected && _sel.SelectedUid == card.uid;
                 bool canPlay  = _gm.IsPlayerTurn && _gm.CD.CanPlay(card, Owner.Player);
                 int capturedUid = card.uid;
+                var capturedCard = card;
 
                 // 文字色：选中=青，可出=绿，不可出=暗灰
                 Color textCol = isSel    ? Color.cyan
@@ -316,19 +330,24 @@ namespace FWTCG.UI
                             : canPlay  ? new Color(0.06f, 0.24f, 0.12f)
                             : new Color(0.15f, 0.15f, 0.20f);
 
-                var btn = AddButton(_playerHandTrans,
-                    CardLabel(card), textCol,
+                // 每张手牌 = [牌按钮] + [详按钮] 横向排列
+                var row = AddHorizontalGroup(_playerHandTrans);
+
+                var btn = AddButton(row, CardLabel(card), textCol,
                     () =>
                     {
                         _sel.ToggleCard(capturedUid);
                         Refresh();
                     }, bgCol);
 
+                AddSmallButton(row, "详", C_Gold,
+                    () => ShowCardDetail(capturedCard));
+
                 // 仅对新进入手牌的卡播放入场动画
                 if (!_prevHandUids.Contains(card.uid))
                 {
-                    var rt = btn.GetComponent<RectTransform>();
-                    if (rt != null) StartCoroutine(UITween.PopIn(rt, 0.28f));
+                    var rowRt = row.GetComponent<RectTransform>();
+                    if (rowRt != null) StartCoroutine(UITween.PopIn(rowRt, 0.28f));
                 }
             }
             _prevHandUids.Clear();
@@ -679,6 +698,26 @@ namespace FWTCG.UI
                     _gm.StartGame(DeckFactory.MakeKaisaVsMasterYi());
                 });
             _gameOverPanel.SetActive(false);
+
+            // ── 卡牌详情预览面板（居中模态框）──
+            _cardDetailPanel = MakePanel(root, "CardDetailPanel",
+                new Vector2(0.12f, 0.08f), new Vector2(0.75f, 0.92f),
+                new Color(0.03f, 0.06f, 0.14f, 0.97f)).gameObject;
+            var detailLayout = _cardDetailPanel.AddComponent<VerticalLayoutGroup>();
+            detailLayout.childControlWidth   = true;
+            detailLayout.childControlHeight  = false;
+            detailLayout.spacing             = 8;
+            detailLayout.padding             = new RectOffset(18, 18, 14, 14);
+
+            _cardDetailText = MakeText(_cardDetailPanel.transform, "CardDetailText", 14);
+            _cardDetailText.alignment = TextAnchor.UpperLeft;
+            _cardDetailText.color     = Color.white;
+            var detTextRt = _cardDetailText.GetComponent<RectTransform>();
+            detTextRt.sizeDelta = new Vector2(0, 400);
+
+            MakeButton(_cardDetailPanel.transform, "关闭", 14,
+                () => _cardDetailPanel.SetActive(false));
+            _cardDetailPanel.SetActive(false);
         }
 
         // ─────────────────────────────────────────────
@@ -929,6 +968,31 @@ namespace FWTCG.UI
                 }
                 yield return null;
             }
+        }
+
+        private void ShowCardDetail(CardInstance card)
+        {
+            _cardDetailText.text = FormatCardDetail(card);
+            _cardDetailPanel.SetActive(true);
+        }
+
+        private static string FormatCardDetail(CardInstance c)
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"【{c.cardName}】");
+            sb.AppendLine($"类型: {c.type}  地域: {c.region}  费用: {c.cost}");
+            if (c.schCost > 0)
+                sb.AppendLine($"符能费: {c.schCost} {c.schType}");
+            if (c.type == CardType.Follower || c.type == CardType.Champion)
+                sb.AppendLine($"战力: {c.currentAtk}/{c.currentHp}");
+            if (c.keywords != null && c.keywords.Count > 0)
+                sb.AppendLine($"关键词: {string.Join(" · ", c.keywords)}");
+            if (!string.IsNullOrEmpty(c.text))
+            {
+                sb.AppendLine();
+                sb.AppendLine(c.text);
+            }
+            return sb.ToString();
         }
 
         /// <summary>积分轨道文字表示，如 "■■■□□□□□"。</summary>

@@ -111,7 +111,7 @@
 - ✅ 积分轨道展示（■□ 文字形式 0-8格）— P16 GameUI.ScoreBar()，嵌入玩家/敌方信息栏文字，如 "■■■□□□□□ 3/8"
 - ✅ 战斗日志（滚动面板）— P13 GameUI.cs 右侧 LogPanel，AppendLog 追加；P14 重要事件触发 Toast
 - ✅ 游戏结束界面（胜/败）— P13 GameUI.cs GameOverPanel + 再来一局按钮
-- [ ] 卡牌详情预览（点击查看完整文字）— UI Phase
+- ✅ 卡牌详情预览（点击查看完整文字）— P17 CardDetailPanel 模态框，手牌/敌方基地均有"详"按钮，显示名称/类型/费用/关键词/效果文字
 - [ ] 弃牌堆/放逐堆查看器— UI Phase
 - ✅ 30秒回合计时器（逻辑：TurnTimerSystem.Reset/Start/Stop/Tick/OnTimeout）
 - ✅ 本地化字符串表（LocalizationTable，中文全套，Format 支持占位符）
@@ -122,8 +122,8 @@
 - ✅ 点击出牌（PC/移动统一入口）— P13 GameUI.cs 两次点击流程（选牌→点区域）
 - [ ] 拖拽出牌（PC 优先）
 - ✅ 触屏适配（uGUI EventSystem）— P13 GameUI.EnsureEventSystem 自建 EventSystem+StandaloneInputModule
-- [ ] 横屏响应式布局（PC + 移动横屏）
-- [ ] 缩放锁定（移动端防误触）
+- ✅ 横屏锁定（Screen.orientation = LandscapeLeft）— P17 GameUI.Awake()
+- ✅ 缩放锁定（Input.multiTouchEnabled = false）— P17 GameUI.Awake()
 
 ---
 
