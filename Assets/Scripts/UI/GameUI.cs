@@ -633,6 +633,23 @@ namespace FWTCG.UI
                 glowGo.transform.SetAsFirstSibling(); // 渲染在卡背景之上、其余内容之下
             }
 
+            // ── P34: 全息扫光（可打出时）──
+            if (canPlay)
+            {
+                var sweepGo  = new GameObject("FoilSweep");
+                sweepGo.transform.SetParent(go.transform, false);
+                var sweepRt  = sweepGo.AddComponent<RectTransform>();
+                sweepRt.anchorMin        = new Vector2(0.5f, 0f);
+                sweepRt.anchorMax        = new Vector2(0.5f, 1f);
+                sweepRt.pivot            = new Vector2(0.5f, 0.5f);
+                sweepRt.sizeDelta        = new Vector2(28f, 0f);
+                sweepRt.localEulerAngles = new Vector3(0f, 0f, 20f); // 斜向 20°
+                var sweepImg = sweepGo.AddComponent<Image>();
+                sweepImg.color        = new Color(1f, 1f, 1f, 0.18f);
+                sweepImg.raycastTarget = false;
+                sweepGo.AddComponent<FoilSweep>();
+            }
+
             // ── 详情按钮（右上角小覆盖）──
             var detGo     = new GameObject("DetailBtn");
             detGo.transform.SetParent(go.transform, false);
@@ -670,6 +687,62 @@ namespace FWTCG.UI
             t.font      = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (bold) t.fontStyle = FontStyle.Bold;
             return t;
+        }
+
+        // ─────────────────────────────────────────────
+        // P34 — 背景环境光辅助方法
+        // ─────────────────────────────────────────────
+
+        /// <summary>P34 — 在指定父级添加 3 层径向渐变环境光（青/金双色，极低 alpha）。</summary>
+        private static void BuildAmbientLights(Transform parent)
+        {
+            var spr = MakeRadialGradientSprite(256);
+            // 青色：右上角，直径 900px
+            MakeAmbientCircle(parent, "AmbLight0", spr,
+                new Color(0.04f, 0.78f, 0.73f, 0.04f),
+                new Vector2(0.75f, 0.75f), new Vector2(900f, 900f));
+            // 金色：左下角，直径 700px
+            MakeAmbientCircle(parent, "AmbLight1", spr,
+                new Color(0.78f, 0.67f, 0.43f, 0.03f),
+                new Vector2(0.25f, 0.25f), new Vector2(700f, 700f));
+            // 青色：屏幕中央，直径 1200px（超出屏边营造晕染感）
+            MakeAmbientCircle(parent, "AmbLight2", spr,
+                new Color(0.04f, 0.78f, 0.73f, 0.025f),
+                new Vector2(0.5f, 0.5f), new Vector2(1200f, 1200f));
+        }
+
+        private static void MakeAmbientCircle(Transform parent, string name, Sprite sprite,
+            Color col, Vector2 anchorPos, Vector2 size)
+        {
+            var go  = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            var rt  = go.AddComponent<RectTransform>();
+            rt.anchorMin        = anchorPos;
+            rt.anchorMax        = anchorPos;
+            rt.pivot            = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = Vector2.zero;
+            rt.sizeDelta        = size;
+            var img = go.AddComponent<Image>();
+            img.sprite          = sprite;
+            img.color           = col;
+            img.raycastTarget   = false;
+        }
+
+        /// <summary>P34 — 生成 size×size 径向渐变 Sprite（中心 alpha=1 → 边缘 alpha=0）。</summary>
+        private static Sprite MakeRadialGradientSprite(int size)
+        {
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Bilinear;
+            float center = size * 0.5f;
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float dist  = Vector2.Distance(new Vector2(x, y), new Vector2(center, center));
+                float alpha = Mathf.Clamp01(1f - dist / center);
+                tex.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+            }
+            tex.Apply();
+            return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
         }
 
         private void RefreshPlayerInfo()
@@ -992,7 +1065,8 @@ namespace FWTCG.UI
 
             // ── 背景底色（全屏，不受 SafeArea 限制）──
             var bgPanel = MakePanel(root, "Background", Vector2.zero, Vector2.one, C_Dark);
-            _ = bgPanel;
+            BuildAmbientLights(bgPanel.transform);           // P34: 径向环境光（3 层渐变圆）
+            bgPanel.gameObject.AddComponent<VortexRings>();  // P34: 漩涡旋转（3 弧 + 6 符文）
 
             // ── SafeArea 容器（刘海/圆角/底部条安全区域适配）──
             var safeAreaGo = new GameObject("SafeArea");

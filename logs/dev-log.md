@@ -2,6 +2,25 @@
 
 ---
 
+## 2026-03-28 — P34: 径向环境光 + 漩涡旋转 + 全息扫光
+
+**Phase**: P34 Ambient Radial Light + Vortex Rings + Foil Sweep
+
+**Modified files**:
+- `Assets/Scripts/UI/FoilSweep.cs` — 新建（全息扫光 MonoBehaviour）
+- `Assets/Scripts/UI/VortexRings.cs` — 新建（漩涡旋转 MonoBehaviour）
+- `Assets/Scripts/UI/GameUI.cs` — BuildCanvas 背景扩展 + MkHandCard 扫光 + 3 个静态辅助方法
+
+**实现内容**:
+
+- **径向环境光（Feature A）**：`MakeRadialGradientSprite(256)` 程序化生成 256×256 径向渐变 Texture2D（中心 alpha=1 → 边缘 0），`Sprite.Create` 封装；`BuildAmbientLights` 用同一 Sprite 创建 3 个 Image：青色 900px 右上角（alpha=0.04）、金色 700px 左下角（0.03）、青色 1200px 中央（0.025）；挂在 Background 面板，游戏全程可见
+- **漩涡旋转（Feature C）**：`VortexRings.cs` — Awake 创建 3 个 `Image.Filled+Radial360` 环（直径 400/600/800px，fillAmount 0.60/0.55/0.50，青/金交替，alpha 0.04-0.05）+ 6 个符文 emoji Text 沿 310px 轨道；Update 各环独立 Z 旋转（45/36/30°/s = 8/10/12s 一圈），符文公转 18°/s；AddComponent 到 Background 面板 GO
+- **全息扫光（Feature B）**：`FoilSweep.cs` — Start() 启动无限循环：重置 x=-90 → 等待 2.5s → OutQuad 0.8s 扫到 x=+90；28px 宽白色 Image 旋转 20°（斜向）alpha=0.18；MkHandCard canPlay 时作为子 GO 挂载，随卡片 Refresh 自动销毁
+
+**Test results**: N/A（纯视觉层）
+
+---
+
 ## 2026-03-28 — P33: 法术目标高亮 + 旋转光环 + 落地涟漪
 
 **Phase**: P33 Spell Target Highlight + CanPlay Glow + Landing Ripple

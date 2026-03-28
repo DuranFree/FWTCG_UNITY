@@ -34,7 +34,7 @@
 - ✅ 手牌入场动画（PopIn 0.28s OutBack）— P15 GameUI.RefreshPlayerHand，新 uid 检测，StartCoroutine UITween.PopIn
 - ✅ 卡牌可打出旋转光环（3s 线性，绿色彗星边框）— P33 CanPlayGlow.cs MonoBehaviour；Image.Filled + Radial360 + fillAmount=0.22（彗星弧）；120°/s Update 旋转；MkHandCard canPlay 时挂载
 - ✅ 悬停缩放（手牌 1→1.07，0.1s OutQuad）— P30 HoverScale.cs；IPointerEnterHandler/IPointerExitHandler + UITween.ScaleTo（Unity 无 CSS perspective，用 2D scale 替代）
-- [ ] 全息闪光扫过（foil-sweep 0.8s）
+- ✅ 全息闪光扫过（foil-sweep 0.8s）— P34 FoilSweep.cs MonoBehaviour；28px 白色斜向 Image（20°），StartX=-90→EndX=+90 OutQuad 0.8s；等待 2.5s 后循环；canPlay 手牌卡片挂载
 - ✅ 战场区域呼吸动画（约 4.2s 循环）— P15 BFGlowLoop Coroutine，Sin 波 × InOutQuad，BF0/BF1 面板背景持续呼吸
 - ✅ 战场控制光晕（player 青色 / enemy 红色 / neutral 灰色）— P15 BFGlowLoop + BFCtrlColor 静态方法
 - ✅ 积分轨道得分脉冲（绿/红 0.5s）— P22 RefreshPlayerInfo/RefreshEnemyInfo，分数增加时 UITween.PulseColor(Text, 0.5s)；我方绿色(0.25,0.91,0.54)，敌方红色(1,0.27,0.27)
@@ -43,7 +43,7 @@
 - ✅ 翻币旋转（1.2s linear）— P29 ShowCoinFlipResult Y-scale 1→0(0.22s InQuad) + 换文字 + 0→1(0.3s OutBack)；总时长约 0.52s
 - ✅ 标题界面（简版：金色标题 + 青色副标题 + 开始按钮 + 标题脉冲光效）— P19 TitlePanel，BuildCanvas 最后添加（保证最高层级）；P30 新增 TitlePulse 协程（C_Gold↔亮金 2.2s 循环 PulseColor，"开始游戏"时停止，"再来一局"时重启）
 - ✅ Toast 浮入/浮出（0.35s/0.25s）— P14 ToastSystem.cs，Coroutine 缓动
-- [ ] 漩涡旋转（3 层不同转速 8/10/12s，10 个轨道粒子）
+- ✅ 漩涡旋转（3 层不同转速 8/10/12s，10 个轨道粒子）— P34 VortexRings.cs MonoBehaviour；直径 400/600/800px 弧形 Image（Radial360，fillAmount 0.6/0.55/0.5），青/金交替，45/36/30°/s；6 个符文 emoji 沿 310px 轨道 18°/s 公转；全屏背景 alpha 0.04-0.06
 - [ ] 法术施法动画（目标高亮 + 投射物 + 冲击波）
 - ✅ 单位死亡飞出 — P28 DetectDeathsAndAnimate + UnitDeathFly；红色"✕ 单位名"ghost MoveY(+80px) + FadeOut 0.65s；玩家基地+玩家战场侧触发
 - ✅ Buff/Debuff 光晕（绿/红 0.6s）— P29 AddUnitButton _prevUnitAtk 追踪；ATK↑→绿 PulseColor，ATK↓→红 PulseColor，RebuildUnitTracking 每帧更新基准
@@ -67,7 +67,7 @@
 - [ ] 六边形网格纹理（SVG pattern，28×49px，0.04 alpha）
 - [ ] 拉丝金属条纹（repeating-linear-gradient）
 - [ ] 噪点叠加（fractal turbulence，0.035 opacity）
-- [ ] 径向环境光（多层 radial-gradient，青/金双色）
+- ✅ 径向环境光（多层 radial-gradient，青/金双色）— P34 BuildAmbientLights；MakeRadialGradientSprite(256) 程序化生成径向渐变 Sprite；3 层：青900px右上(0.04a)、金700px左下(0.03a)、青1200px中央(0.025a)；挂在 Background 面板
 
 ## 过渡效果
 - ✅ 界面淡入淡出（标题→游戏，0.7-1s）— P24 safeAreaGo._gameRootCg；"开始游戏"按钮 alpha=0→FadeIn(0.7f)
