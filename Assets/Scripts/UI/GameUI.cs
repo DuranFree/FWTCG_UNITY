@@ -87,6 +87,8 @@ namespace FWTCG.UI
         private int           _prevRuneCount = 0;  // 符文入场动画追踪
         private int           _prevPScore    = 0;  // 积分脉冲追踪（我方）
         private int           _prevEScore    = 0;  // 积分脉冲追踪（敌方）
+        private HashSet<int>  _prevPBaseUids = new(); // 落地震动追踪（玩家基地）
+        private HashSet<int>  _prevPBFUids   = new(); // 落地震动追踪（玩家战场）
 
         // 拖拽出牌
         private GameObject   _dragGhost;
@@ -261,6 +263,12 @@ namespace FWTCG.UI
             var G = _gm.G;
             RefreshBF(0, _bf0Trans, G.bf[0]);
             RefreshBF(1, _bf1Trans, G.bf[1]);
+
+            // 战场 pU 追踪更新（两个战场都跑完后统一更新）
+            _prevPBFUids.Clear();
+            foreach (var b in G.bf)
+                foreach (var u in b.pU)
+                    _prevPBFUids.Add(u.uid);
         }
 
         private void RefreshBF(int bfIdx, Transform trans, BattlefieldState bf)
@@ -282,7 +290,8 @@ namespace FWTCG.UI
             foreach (var u in bf.pU)
             {
                 bool isSel = _sel.IsUnitSelected && _sel.SelectedUid == u.uid;
-                AddUnitButton(trans, u, Owner.Player, isSel);
+                bool isNew = !_prevPBFUids.Contains(u.uid);
+                AddUnitButton(trans, u, Owner.Player, isSel, isNew);
             }
 
             // 空战场区域：可作为出牌目标 / 移动目标
@@ -304,7 +313,8 @@ namespace FWTCG.UI
             foreach (var u in G.pBase)
             {
                 bool isSel = _sel.IsUnitSelected && _sel.SelectedUid == u.uid;
-                AddUnitButton(_playerBaseTrans, u, Owner.Player, isSel);
+                bool isNew = !_prevPBaseUids.Contains(u.uid);
+                AddUnitButton(_playerBaseTrans, u, Owner.Player, isSel, isNew);
             }
 
             if (_gm.IsPlayerTurn)
@@ -312,6 +322,10 @@ namespace FWTCG.UI
                 bool isTarget = _sel.IsCardSelected || _sel.IsUnitSelected;
                 AddZoneButton(_playerBaseTrans, "[部署到基地]", "base", isTarget ? Color.cyan : Color.gray);
             }
+
+            // 更新追踪集合
+            _prevPBaseUids.Clear();
+            foreach (var u in G.pBase) _prevPBaseUids.Add(u.uid);
         }
 
         private void RefreshPlayerRunes()
@@ -864,6 +878,8 @@ namespace FWTCG.UI
                     _prevRuneCount = 0;
                     _prevPScore    = 0;
                     _prevEScore    = 0;
+                    _prevPBaseUids.Clear();
+                    _prevPBFUids.Clear();
                     _lastPhase = GamePhase.Init;
                     _lastTurn  = Owner.Player;
                     _titlePanel.SetActive(true);
@@ -1075,7 +1091,8 @@ namespace FWTCG.UI
             t.text      = text;
         }
 
-        private void AddUnitButton(Transform parent, CardInstance u, Owner owner, bool selected)
+        private void AddUnitButton(Transform parent, CardInstance u, Owner owner, bool selected,
+            bool isNew = false)
         {
             int capturedUid = u.uid;
             Color col = selected ? Color.cyan : Color.white;
@@ -1084,6 +1101,10 @@ namespace FWTCG.UI
                 () => OnPlayerUnitClicked(capturedUid));
             _ = btn;
             lbl.color = col;
+
+            // 新入场单位：0.3s 落地震动
+            if (isNew)
+                StartCoroutine(UITween.Shake(btn.GetComponent<RectTransform>(), 4f, 0.3f));
         }
 
         private void AddZoneButton(Transform parent, string label, string zone, Color col)

@@ -2,6 +2,28 @@
 
 ---
 
+## 2026-03-28 — P23: 卡牌落地震动
+
+**Phase**: P23 Card Landing Shake
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — `_prevPBaseUids`/`_prevPBFUids` 追踪字段；`AddUnitButton` 新增 `isNew` 参数；`RefreshPlayerBase` 检测新 UID 传入 isNew；`RefreshBF` 同理；`RefreshBattlefields` 末尾统一更新 `_prevPBFUids`；"再来一局"清空两集合
+
+**New features**:
+- 玩家单位新入场时（基地或战场）触发 0.3s 落地震动（UITween.Shake 强度 4f）
+- `_prevPBaseUids` — 记录上一帧玩家基地 UID；新 UID → isNew=true → Shake
+- `_prevPBFUids` — 记录上一帧玩家战场 UID（bf[0]+bf[1] 合并）；新 UID → Shake
+- `AddUnitButton` 新增 `isNew = false` 可选参数，保持向下兼容
+
+**Test results**: 391/391（纯UI层，无新测试）
+
+**Design decisions**:
+- 战场 pU 追踪在 `RefreshBattlefields` 末尾统一更新（两个战场都重建后），避免 bf[1] 把 bf[0] 的新 UID 误判为旧 UID
+- 只追踪玩家单位（pBase + bf.pU），敌方单位用 AddLabel 构建，暂不接入震动
+- Shake 强度 4f、时长 0.3f——与全屏震动（3.5f, 0.42f）区分：局部震动更小更短
+
+---
+
 ## 2026-03-28 — P22: 积分得分脉冲动画
 
 **Phase**: P22 Score Pulse Animation
