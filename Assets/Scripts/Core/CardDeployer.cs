@@ -217,6 +217,8 @@ namespace FWTCG.Core
                 var leg = G.GetLeg(targetOwner);
                 if (leg != null)
                     leg.currentHp = System.Math.Max(0, leg.currentHp - dmg);
+                // 传奇死亡触发胜负判定（CleanDeadAll 不处理传奇 HP）
+                _tm.CheckWin();
             }
             else
             {

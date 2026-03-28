@@ -392,6 +392,37 @@ namespace FWTCG.Tests
             Assert.AreEqual(10, _g.eLeg.currentHp);
         }
 
+        /// <summary>
+        /// 传奇受伤/死亡链集成测试：
+        /// DealDamage(isLegend=true) → pLeg.currentHp=0 → CheckWin → gameOver=true
+        /// 验证法术/技能致命伤害能正确触发游戏结束，修复前 CheckWin 未被调用的 Bug。
+        /// </summary>
+        [Test]
+        public void DealDamage_LegendLethalDamage_TriggersGameOver()
+        {
+            var legData = UnityEngine.ScriptableObject.CreateInstance<CardData>();
+            legData.atk = 5; legData.hp = 14;
+            _g.pLeg = LegendInstance.From(legData);   // 玩家传奇 HP=14
+
+            _cd.DealDamage(null, 14, Owner.Player, isLegend: true); // 致命伤害
+
+            Assert.AreEqual(0, _g.pLeg.currentHp, "传奇 HP 应降至 0");
+            Assert.IsTrue(_g.gameOver,             "游戏应在传奇死亡后立即结束");
+        }
+
+        [Test]
+        public void DealDamage_LegendNonLethal_DoesNotEndGame()
+        {
+            var legData = UnityEngine.ScriptableObject.CreateInstance<CardData>();
+            legData.atk = 5; legData.hp = 14;
+            _g.eLeg = LegendInstance.From(legData);   // 敌方传奇 HP=14
+
+            _cd.DealDamage(null, 5, Owner.Enemy, isLegend: true);   // 非致命
+
+            Assert.AreEqual(9, _g.eLeg.currentHp, "传奇 HP 应为 14-5=9");
+            Assert.IsFalse(_g.gameOver,            "非致命伤害不应结束游戏");
+        }
+
         // ─────────────────────────────────────────
         // CleanDeadAll
         // ─────────────────────────────────────────

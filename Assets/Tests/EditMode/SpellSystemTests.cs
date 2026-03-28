@@ -865,5 +865,48 @@ namespace FWTCG.Tests
             Assert.AreEqual(1, _g.eHand.Count);   // drew 1 card
             Assert.AreEqual(1, _g.eRunes.Count);  // summoned 1 rune
         }
+
+        // ─────────────────────────────────────────
+        // 法术对决链集成测试
+        // 对照原版链：startSpellDuel → SkipDuel(×2) → EndDuel → 战斗/征服
+        // GameManager.DuelSkip() 调用 SS.SkipDuel()，本测试验证核心逻辑层完整链
+        // ─────────────────────────────────────────
+
+        /// <summary>
+        /// 法术对决链集成测试：
+        /// StartSpellDuel → 双方均跳过 → duelActive=false → 战场控制权归进攻方
+        /// 模拟 GameManager.DuelSkip() 所调用的 SpellSystem.SkipDuel() 完整路径。
+        /// </summary>
+        [Test]
+        public void DuelChain_BothSkip_DuelEndsAndAttackerConquers()
+        {
+            // 空战场，进攻方为玩家
+            _ss.StartSpellDuel(1, Owner.Player);
+            Assert.IsTrue(_g.duelActive, "StartSpellDuel 后对决应激活");
+            Assert.AreEqual(Owner.Player, _g.duelTurn, "首先轮到玩家行动");
+
+            // 玩家跳过（等同 GameManager.DuelSkip() 调用 SS.SkipDuel()）
+            _ss.OnAiDuelTurn = _ai.AiDuelAction; // AI 无反应牌 → 自动跳过
+            _ss.SkipDuel();
+
+            Assert.IsFalse(_g.duelActive, "双方均跳过后对决应结束");
+            Assert.AreEqual(Owner.Player, _g.bf[0].ctrl, "空战场进攻方应征服");
+        }
+
+        [Test]
+        public void DuelChain_EnemyOnBF_AfterBothSkip_CombatResolved()
+        {
+            // 敌方战场有单位，玩家基地无单位
+            var enemy = MakeUnit("e", 3);
+            _g.bf[0].eU.Add(enemy);
+
+            _ss.StartSpellDuel(1, Owner.Player);
+            _ss.OnAiDuelTurn = _ai.AiDuelAction;
+            _ss.SkipDuel();
+
+            Assert.IsFalse(_g.duelActive, "对决结束");
+            // 无玩家单位 → 敌方无阻拦征服战场
+            Assert.AreEqual(Owner.Enemy, _g.bf[0].ctrl, "敌方应控制战场");
+        }
     }
 }

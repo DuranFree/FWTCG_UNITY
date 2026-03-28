@@ -149,7 +149,7 @@
 ## 跨文件交互流程链
 - ✅ 出随从完整链：点击手牌→ToggleCard→点区域→PlayCard→DeployToBase/BF→Mk()→OnSummon→exhausted→cleanDeadAll→OnStateChanged→Refresh()
 - ✅ 法术施法链：点击手牌→ToggleCard→点区域→PlayCard→ApplySpell→效果→cleanDeadAll→OnStateChanged→Refresh()
-- [ ] 法术对决链：DuelPanel可见→SkipBtn→DuelSkip()（完整链待测试）
+- ✅ 法术对决链：StartSpellDuel→SkipDuel×2→EndDuel→战斗/征服（P26 SpellSystemTests 集成测试；DuelPanel→SkipBtn→DuelSkip() UI桥接为 GameManager.DuelSkip()→SS.SkipDuel()，逻辑层已验证）
 - ✅ 战斗结算链：AI→TriggerCombat→RoleAtk→DealDamage→CleanDeadAll→Deathwish→AddScore→CheckWin→OnStateChanged→Refresh()
 - ✅ 符文回收链：点击回收→RecycleRune→AddSch→从pRunes移除→OnStateChanged→Refresh()
-- [ ] 传奇受伤/死亡链：dealDamage(isLegend=true)→pLeg.currentHp-=dmg→checkWin→endGame
+- ✅ 传奇受伤/死亡链：DealDamage(isLegend=true)→pLeg.currentHp-=dmg→CheckWin→gameOver（P26 修复 Bug：CardDeployer.DealDamage isLegend 路径新增 _tm.CheckWin() 调用；集成测试 DealDamage_LegendLethalDamage_TriggersGameOver 验证）

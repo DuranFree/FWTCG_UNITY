@@ -2,6 +2,35 @@
 
 ---
 
+## 2026-03-28 — P26: 传奇死亡 Bug 修复 + 链路集成测试
+
+**Phase**: P26 Legend Death Chain Fix + Integration Tests
+
+**Modified files**:
+- `Assets/Scripts/Core/CardDeployer.cs` — DealDamage isLegend 路径新增 `_tm.CheckWin()` 调用
+- `Assets/Tests/EditMode/CardDeployerTests.cs` — 新增 2 个传奇受伤/死亡链集成测试
+- `Assets/Tests/EditMode/SpellSystemTests.cs` — 新增 2 个法术对决链集成测试
+
+**Bug 修复**:
+- **传奇受伤/死亡链 Bug**：`CardDeployer.DealDamage(isLegend=true)` 仅减少 `currentHp` 后调用 `CleanDeadAll()`，但 `CleanDeadAll` 不检查传奇 HP，导致法术/技能击杀传奇后 `gameOver` 永远不触发
+- **修复**：isLegend 路径末尾新增 `_tm.CheckWin()`，与 CombatResolver 处理战斗杀传奇的路径保持一致
+
+**新增测试（CardDeployerTests）**:
+- `DealDamage_LegendLethalDamage_TriggersGameOver` — 14 伤害杀 HP=14 的玩家传奇，验证 `gameOver=true`
+- `DealDamage_LegendNonLethal_DoesNotEndGame` — 5 伤害非致命，验证 `gameOver=false`
+
+**新增测试（SpellSystemTests）**:
+- `DuelChain_BothSkip_DuelEndsAndAttackerConquers` — 双方跳过→对决结束→进攻方征服空战场
+- `DuelChain_EnemyOnBF_AfterBothSkip_CombatResolved` — 双方跳过→战斗结算→敌方控制战场
+
+**Test results**: 391→395（+4 新测试；编译通过，静态分析验证逻辑正确；Unity batch 因 license 限制无法生成 XML）
+
+**Design decisions**:
+- CheckWin 仅在 isLegend 路径末尾调用（非 legend 路径不需要，CleanDeadAll 后续调用者各自在需要时 CheckWin）
+- 对决链测试覆盖 GameManager.DuelSkip() 所调用的 SpellSystem 核心路径；UI 层（DuelPanel→SkipBtn）桥接无需额外测试
+
+---
+
 ## 2026-03-28 — P25: Modal 弹窗弹入/弹出动画
 
 **Phase**: P25 Modal Panel Pop-in / Pop-out
