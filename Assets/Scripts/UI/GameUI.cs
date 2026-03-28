@@ -64,6 +64,9 @@ namespace FWTCG.UI
         private GameObject _cardDetailPanel;
         private Text       _cardDetailText;
 
+        // 标题界面
+        private GameObject _titlePanel;
+
         // 弃牌堆面板
         private GameObject _discardPanel;
         private Text       _discardText;
@@ -74,8 +77,9 @@ namespace FWTCG.UI
 
         // 震动 + 阶段追踪
         private RectTransform _rootCanvasRt;
-        private GamePhase     _lastPhase = GamePhase.Init;
-        private Owner         _lastTurn  = Owner.Player;
+        private GamePhase     _lastPhase   = GamePhase.Init;
+        private Owner         _lastTurn    = Owner.Player;
+        private int           _prevRuneCount = 0;  // 符文入场动画追踪
 
         // 日志面板
         private Text       _logText;
@@ -149,7 +153,7 @@ namespace FWTCG.UI
             // 战场控制光晕持续循环
             StartCoroutine(BFGlowLoop());
 
-            _gm.StartGame(DeckFactory.MakeKaisaVsMasterYi());
+            // 显示标题界面，由玩家点击"开始游戏"触发 StartGame
         }
 
         private void OnDestroy()
@@ -297,6 +301,7 @@ namespace FWTCG.UI
         {
             ClearChildren(_playerRuneTrans);
             var G = _gm.G;
+            int oldCount = _prevRuneCount;
 
             for (int i = 0; i < G.pRunes.Count; i++)
             {
@@ -322,7 +327,17 @@ namespace FWTCG.UI
                     AddSmallButton(row, "回收", Color.yellow,
                         () => { _gm.RecycleRune(capturedIdx); Refresh(); });
                 }
+
+                // 新抽到的符文播放错落入场动画（每张间隔 50ms）
+                if (i >= oldCount)
+                {
+                    float delay = (i - oldCount) * 0.05f;
+                    var rowRt = row.GetComponent<RectTransform>();
+                    StartCoroutine(DelayedPopIn(rowRt, 0.25f, delay));
+                }
             }
+
+            _prevRuneCount = G.pRunes.Count;
 
             // 符能计数
             var sch = G.pSch;
@@ -729,7 +744,11 @@ namespace FWTCG.UI
                 {
                     _gameOverPanel.SetActive(false);
                     _sel.Clear();
-                    _gm.StartGame(DeckFactory.MakeKaisaVsMasterYi());
+                    _prevHandUids.Clear();
+                    _prevRuneCount = 0;
+                    _lastPhase = GamePhase.Init;
+                    _lastTurn  = Owner.Player;
+                    _titlePanel.SetActive(true);
                 });
             _gameOverPanel.SetActive(false);
 
@@ -760,6 +779,7 @@ namespace FWTCG.UI
             _phaseBannerText = MakeText(_phaseBanner.transform, "PhaseBannerText", 20);
             _phaseBannerText.alignment = TextAnchor.MiddleCenter;
             _phaseBannerText.color     = C_Gold;
+            _phaseBanner.AddComponent<CanvasGroup>();  // 预先添加，避免懒加载重复 AddComponent
             _phaseBanner.SetActive(false);
 
             // ── 卡牌详情预览面板（居中模态框）──
@@ -781,6 +801,47 @@ namespace FWTCG.UI
             MakeButton(_cardDetailPanel.transform, "关闭", 14,
                 () => _cardDetailPanel.SetActive(false));
             _cardDetailPanel.SetActive(false);
+
+            // ── 标题界面（全屏覆盖，最后添加 = 最高层）──
+            _titlePanel = MakePanel(root, "TitlePanel",
+                Vector2.zero, Vector2.one,
+                C_Dark).gameObject;
+            var titleLayout = _titlePanel.AddComponent<VerticalLayoutGroup>();
+            titleLayout.childControlWidth   = true;
+            titleLayout.childControlHeight  = false;
+            titleLayout.childAlignment      = TextAnchor.MiddleCenter;
+            titleLayout.spacing             = 20;
+            titleLayout.padding             = new RectOffset(0, 0, 160, 0);
+
+            var titleText = MakeText(_titlePanel.transform, "TitleText", 48);
+            titleText.text      = "风舞天际";
+            titleText.color     = C_Gold;
+            titleText.alignment = TextAnchor.MiddleCenter;
+            titleText.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 70);
+
+            var subtitleText = MakeText(_titlePanel.transform, "SubtitleText", 18);
+            subtitleText.text      = "Trading Card Game";
+            subtitleText.color     = C_Cyan;
+            subtitleText.alignment = TextAnchor.MiddleCenter;
+            subtitleText.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 30);
+
+            var startBtnGo = new GameObject("StartBtnRow");
+            startBtnGo.transform.SetParent(_titlePanel.transform, false);
+            startBtnGo.AddComponent<RectTransform>().sizeDelta = new Vector2(0, 52);
+            var startRowLayout = startBtnGo.AddComponent<HorizontalLayoutGroup>();
+            startRowLayout.childAlignment     = TextAnchor.MiddleCenter;
+            startRowLayout.childControlWidth  = false;
+            startRowLayout.childControlHeight = true;
+
+            var (startBtn, startBtnLbl) = MakeButton(startBtnGo.transform, "开始游戏", 20,
+                () =>
+                {
+                    _titlePanel.SetActive(false);
+                    _gm.StartGame(DeckFactory.MakeKaisaVsMasterYi());
+                });
+            startBtn.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 48);
+            startBtnLbl.color = C_Gold;
+            _ = startBtn;
         }
 
         // ─────────────────────────────────────────────
@@ -1060,12 +1121,17 @@ namespace FWTCG.UI
 
         private IEnumerator BannerSequence()
         {
-            var cg = _phaseBanner.GetComponent<CanvasGroup>()
-                     ?? _phaseBanner.AddComponent<CanvasGroup>();
+            var cg = _phaseBanner.GetComponent<CanvasGroup>();
             yield return UITween.FadeIn(cg, 0.25f);
             yield return new WaitForSeconds(1.1f);
             yield return UITween.FadeOut(cg, 0.30f, UITween.Ease.OutQuad,
                 () => _phaseBanner.SetActive(false));
+        }
+
+        private static IEnumerator DelayedPopIn(RectTransform rt, float duration, float delay)
+        {
+            if (delay > 0f) yield return new WaitForSeconds(delay);
+            yield return UITween.PopIn(rt, duration);
         }
 
         private void ShowCardDetail(CardInstance card)

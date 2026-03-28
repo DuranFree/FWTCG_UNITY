@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-03-28 — P19: 标题界面 + 符文入场动画 + 技术债清理
+
+**Phase**: P19 Title Screen, Rune Stagger Animation, Tech Debt
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — TitlePanel；Start() 改为显示标题界面；游戏结束回到标题；符文入场错落动画；PhaseBanner CanvasGroup 预创建修复
+
+**New features**:
+- `TitlePanel` — 全屏深黑覆盖层，金色48px标题"风舞天际"+ 青色18px副标题 + "开始游戏"按钮；BuildCanvas最后添加确保最高层级
+- `Start()` 不再自动 StartGame，改为直接显示 TitlePanel
+- 游戏结束"再来一局"→ 重置 `_prevHandUids`/`_prevRuneCount`/`_lastPhase`/`_lastTurn` 后显示 TitlePanel
+- `RefreshPlayerRunes` — 检测 i >= oldCount，每张新符文延迟 i*50ms 触发 `DelayedPopIn(0.25s)`
+- `DelayedPopIn(rt, duration, delay)` — 静态 IEnumerator，等待 delay 后调用 UITween.PopIn
+- 技术债清理：BannerSequence CanvasGroup 懒加载改为 BuildCanvas 预创建；传奇初始HP条目已确认存在于 DeckFactory，删除
+
+**Test results**: 391/391（纯UI层，无新测试）
+
+**Design decisions**:
+- `_prevRuneCount` 用 int 而非 HashSet，因为符文无 UID，用索引范围判断新符文
+- TitlePanel 在 BuildCanvas 最后添加，利用 uGUI 后建兄弟节点在上层的特性实现覆盖效果
+- 重新开始时主动清零所有动画追踪状态，防止残留旧 UID 导致新游戏动画不播放
+
+---
+
 ## 2026-03-28 — P18: 弃牌堆查看器 + 战斗震动 + 阶段横幅
 
 **Phase**: P18 Discard Viewer, Combat Shake, Phase Banner

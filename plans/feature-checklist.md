@@ -104,7 +104,7 @@
 ---
 
 ## Slice 6 — 游戏流程 & Meta（P10 ✅ 逻辑层，P11 ✅ GameManager 桥接，384 tests）
-- [ ] 标题界面（开始按钮）— UI Phase
+- ✅ 标题界面（开始按钮）— P19 TitlePanel 全屏覆盖，"开始游戏"按钮触发 StartGame；游戏结束后"再来一局"回到标题
 - ✅ 硬币决定先后手（逻辑：GameInitializer.CoinFlip）
 - ✅ 战场选择（逻辑：GameInitializer.SelectBattlefields，从各方战场牌池随机抽1张）
 - ✅ 先手调整（逻辑：GameInitializer.ConfirmMulligan，最多换2张）

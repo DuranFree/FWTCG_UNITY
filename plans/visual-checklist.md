@@ -41,7 +41,7 @@
 - ✅ 伤害数字浮起（1.2s ease-out，向上 60px）— P14 DamageFloatText.cs，5色分类（伤害/治疗/增益/减益/金色）
 - ✅ 全屏震动（0.42s）— P14 UITween.Shake()，Coroutine 实现
 - [ ] 翻币旋转（1.2s linear）
-- [ ] 标题界面多层入场（9 层错落，0.2~1.7s 延迟序列）
+- ✅ 标题界面（简版：金色标题 + 青色副标题 + 开始按钮）— P19 TitlePanel，BuildCanvas 最后添加（保证最高层级）
 - ✅ Toast 浮入/浮出（0.35s/0.25s）— P14 ToastSystem.cs，Coroutine 缓动
 - [ ] 漩涡旋转（3 层不同转速 8/10/12s，10 个轨道粒子）
 - [ ] 法术施法动画（目标高亮 + 投射物 + 冲击波）
@@ -49,7 +49,7 @@
 - [ ] Buff/Debuff 光晕（绿/红 0.6s）
 - [ ] 眩晕光晕（0.6s）
 - [ ] 传奇技能激活环（0.8s）
-- [ ] 符文入场错落（每张 50ms 间隔）
+- ✅ 符文入场错落（每张 50ms 间隔）— P19 RefreshPlayerRunes，i >= oldCount 时 DelayedPopIn(0.25s, i*50ms)
 - [ ] 符文回收飞行（弧线到计数器）
 - [ ] 卡牌落地震动（0.3s）
 - [ ] 落地涟漪波（0.55s）
