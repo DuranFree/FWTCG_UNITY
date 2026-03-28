@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-03-28 — P25: Modal 弹窗弹入/弹出动画
+
+**Phase**: P25 Modal Panel Pop-in / Pop-out
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — `ClosePanel` 协程；CardDetailPanel/DiscardPanel/GameOverPanel 弹入；关闭按钮改为 ClosePanel
+
+**New features**:
+- `ClosePanel(panel, duration)` — ScaleTo(0, InQuad) → SetActive(false) → localScale reset
+- `ShowCardDetail`：SetActive(true) 后 PopIn(0.4f)
+- `ShowDiscardPile`：SetActive(true) 后 PopIn(0.4f)
+- `HandleGameOver`：SetActive(true) 后 PopIn(0.4f)
+- CardDetailPanel / DiscardPanel 关闭按钮：由直接 SetActive(false) 改为 StartCoroutine(ClosePanel(0.25f))
+
+**Test results**: 391/391（纯UI层，无新测试）
+
+**Design decisions**:
+- ClosePanel 末尾重置 localScale = Vector3.one，确保下次 PopIn 从正常比例开始而非从 0
+- 弹入 0.4s (OutBack)，弹出 0.25s (InQuad)——弹出比弹入快，符合 UI 动效习惯
+- GameOverPanel 只弹入，"再来一局"直接 SetActive(false)（不做弹出，因为紧接着状态重置）
+- blur 效果依赖 Shader，暂缓，记录在清单注释中
+
+---
+
 ## 2026-03-28 — P24: 界面淡入 + 战场名称飞入
 
 **Phase**: P24 Title Fade-in & Battlefield Name Pop-in

@@ -673,6 +673,7 @@ namespace FWTCG.UI
                        : "平局！";
             _gameOverText.text  = msg;
             _gameOverPanel.SetActive(true);
+            StartCoroutine(UITween.PopIn(_gameOverPanel.GetComponent<RectTransform>(), 0.4f));
         }
 
         // ─────────────────────────────────────────────
@@ -916,7 +917,7 @@ namespace FWTCG.UI
             _discardText.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 600);
 
             MakeButton(_discardPanel.transform, "关闭", 14,
-                () => _discardPanel.SetActive(false));
+                () => StartCoroutine(ClosePanel(_discardPanel, 0.25f)));
             _discardPanel.SetActive(false);
 
             // ── 阶段切换横幅 ──
@@ -947,7 +948,7 @@ namespace FWTCG.UI
             detTextRt.sizeDelta = new Vector2(0, 400);
 
             MakeButton(_cardDetailPanel.transform, "关闭", 14,
-                () => _cardDetailPanel.SetActive(false));
+                () => StartCoroutine(ClosePanel(_cardDetailPanel, 0.25f)));
             _cardDetailPanel.SetActive(false);
 
             // ── 标题界面（全屏覆盖，最后添加 = 最高层）──
@@ -1272,6 +1273,7 @@ namespace FWTCG.UI
 
             _discardText.text = sb.ToString();
             _discardPanel.SetActive(true);
+            StartCoroutine(UITween.PopIn(_discardPanel.GetComponent<RectTransform>(), 0.4f));
         }
 
         private void ShowPhaseBanner(string text)
@@ -1290,6 +1292,15 @@ namespace FWTCG.UI
                 () => _phaseBanner.SetActive(false));
         }
 
+        /// <summary>缩小到 0 后隐藏面板，并重置 localScale 供下次弹入使用。</summary>
+        private IEnumerator ClosePanel(GameObject panel, float duration)
+        {
+            var rt = panel.GetComponent<RectTransform>();
+            yield return UITween.ScaleTo(rt, Vector3.zero, duration, UITween.Ease.InQuad);
+            panel.SetActive(false);
+            rt.localScale = Vector3.one;
+        }
+
         private static IEnumerator DelayedPopIn(RectTransform rt, float duration, float delay)
         {
             if (delay > 0f) yield return new WaitForSeconds(delay);
@@ -1300,6 +1311,7 @@ namespace FWTCG.UI
         {
             _cardDetailText.text = FormatCardDetail(card);
             _cardDetailPanel.SetActive(true);
+            StartCoroutine(UITween.PopIn(_cardDetailPanel.GetComponent<RectTransform>(), 0.4f));
         }
 
         private static string FormatCardDetail(CardInstance c)
