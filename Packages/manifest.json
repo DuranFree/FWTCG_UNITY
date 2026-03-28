@@ -6,16 +6,6 @@
     "com.unity.modules.audio": "1.0.0",
     "com.unity.modules.jsonserialize": "1.0.0",
     "com.unity.modules.ui": "1.0.0",
-    "com.unity.modules.uielements": "1.0.0",
-    "com.demigiant.dotween": "1.2.765"
-  },
-  "scopedRegistries": [
-    {
-      "name": "OpenUPM",
-      "url": "https://package.openupm.com",
-      "scopes": [
-        "com.demigiant"
-      ]
-    }
-  ]
+    "com.unity.modules.uielements": "1.0.0"
+  }
 }
