@@ -1302,7 +1302,7 @@ namespace FWTCG.UI
             mulCardsLayout.spacing = 8;
             mulCardsLayout.childAlignment = TextAnchor.MiddleCenter;
             _mulliganCardsTrans = mulCardsGo.transform;
-            var mulRt = mulCardsGo.AddComponent<RectTransform>();
+            var mulRt = mulCardsGo.GetComponent<RectTransform>();
             mulRt.sizeDelta = new Vector2(0, 120);
             _mulliganPanel.SetActive(false);
 
