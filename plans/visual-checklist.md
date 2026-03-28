@@ -37,7 +37,7 @@
 - [ ] 全息闪光扫过（foil-sweep 0.8s）
 - ✅ 战场区域呼吸动画（约 4.2s 循环）— P15 BFGlowLoop Coroutine，Sin 波 × InOutQuad，BF0/BF1 面板背景持续呼吸
 - ✅ 战场控制光晕（player 青色 / enemy 红色 / neutral 灰色）— P15 BFGlowLoop + BFCtrlColor 静态方法
-- [ ] 积分轨道得分脉冲（绿/红 0.5s）
+- ✅ 积分轨道得分脉冲（绿/红 0.5s）— P22 RefreshPlayerInfo/RefreshEnemyInfo，分数增加时 UITween.PulseColor(Text, 0.5s)；我方绿色(0.25,0.91,0.54)，敌方红色(1,0.27,0.27)
 - ✅ 伤害数字浮起（1.2s ease-out，向上 60px）— P14 DamageFloatText.cs，5色分类（伤害/治疗/增益/减益/金色）
 - ✅ 全屏震动（0.42s）— P14 UITween.Shake()，Coroutine 实现
 - [ ] 翻币旋转（1.2s linear）

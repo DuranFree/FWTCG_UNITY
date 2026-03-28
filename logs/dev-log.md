@@ -2,6 +2,29 @@
 
 ---
 
+## 2026-03-28 — P22: 积分得分脉冲动画
+
+**Phase**: P22 Score Pulse Animation
+
+**Modified files**:
+- `Assets/Scripts/UI/UITween.cs` — 新增 `PulseColor(Text, Color, float)` 重载
+- `Assets/Scripts/UI/GameUI.cs` — `_prevPScore`/`_prevEScore` 追踪字段；`RefreshPlayerInfo`/`RefreshEnemyInfo` 检测分数增加触发脉冲；"再来一局"重置两字段
+
+**New features**:
+- 我方得分时 `_playerInfoText` 绿色脉冲（0.25, 0.91, 0.54），持续 0.5s
+- 敌方得分时 `_enemyInfoText` 红色脉冲（1, 0.27, 0.27），持续 0.5s
+- `UITween.PulseColor(Text)` — 复用 Lerp01 逻辑，闪入(30%)→淡回(70%)，无需额外 Image 组件
+- `feature-checklist` 传奇初始HP 标记 ✅（DeckFactory 早已配置，清单遗漏）
+
+**Test results**: 391/391（纯UI层，无新测试）
+
+**Design decisions**:
+- Text 版 PulseColor 手写 Lerp 循环（不调用 TintTo，TintTo 仅适用于 Image）
+- `_prevPScore` 仅在 Refresh 期间比较，不监听事件，与现有渲染模式一致
+- 重置在"再来一局"按钮 lambda 内，与其他追踪字段保持统一位置
+
+---
+
 ## 2026-03-28 — P21: Safe Area 适配（刘海屏/圆角/底部条）
 
 **Phase**: P21 Safe Area Adaptation

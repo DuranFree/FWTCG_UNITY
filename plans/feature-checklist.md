@@ -133,7 +133,7 @@
 - ✅ 手牌上限 = 7（GameState.MAX_HAND，所有摸牌/绝念/法术效果均守卫）
 - ✅ 战场数量 = 2，每侧最多 2 个单位（bf[2] + MAX_BF_UNITS，AIController 引用）
 - ✅ 符文牌堆：卡莎 炽烈×7+灵光×5，易 翠意×6+摧破×6（GameInitializer.KaisaRuneTypes/MasterYiRuneTypes，P10）
-- [ ] 传奇初始HP：卡莎14，易12；初始ATK=5，费用=5（CardData ScriptableObject 尚未配置，UI Phase）
+- ✅ 传奇初始HP：卡莎14，易12；初始ATK=5，费用=5（DeckFactory KaisaLegend hp=14 / MasterYiLegend hp=12，均已配置）
 - ✅ 对决跳过阈值 = 2次（SpellSystem duelSkips >= 2，两处均守卫）
 - ✅ 回合计时器 = 30秒（GameState.TIMER_SECONDS，TurnTimerSystem，P10）
 - ✅ 每副主牌堆 = 40张，符文堆 = 12张（GameInitializer.SetupDecks DeckConfig 约束，P10）

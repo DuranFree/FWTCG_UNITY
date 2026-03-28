@@ -68,6 +68,32 @@ namespace FWTCG.UI
             yield return TintTo(img, orig,  duration * 0.7f, Ease.OutQuad);
         }
 
+        /// <summary>Text 版积分脉冲：快速闪入目标色，再缓慢回原色。</summary>
+        public static IEnumerator PulseColor(Text txt, Color flash, float duration)
+        {
+            Color orig = txt.color;
+            float elapsed = 0f;
+            // 闪入
+            float inDur = duration * 0.3f;
+            while (elapsed < inDur)
+            {
+                elapsed += Time.deltaTime;
+                txt.color = Color.Lerp(orig, flash, ApplyEase(Mathf.Clamp01(elapsed / inDur), Ease.OutQuad));
+                yield return null;
+            }
+            txt.color = flash;
+            elapsed = 0f;
+            // 淡回
+            float outDur = duration * 0.7f;
+            while (elapsed < outDur)
+            {
+                elapsed += Time.deltaTime;
+                txt.color = Color.Lerp(flash, orig, ApplyEase(Mathf.Clamp01(elapsed / outDur), Ease.OutQuad));
+                yield return null;
+            }
+            txt.color = orig;
+        }
+
         // ─────────────────────────────────────────────
         // RectTransform Move
         // ─────────────────────────────────────────────

@@ -85,6 +85,8 @@ namespace FWTCG.UI
         private GamePhase     _lastPhase   = GamePhase.Init;
         private Owner         _lastTurn    = Owner.Player;
         private int           _prevRuneCount = 0;  // 符文入场动画追踪
+        private int           _prevPScore    = 0;  // 积分脉冲追踪（我方）
+        private int           _prevEScore    = 0;  // 积分脉冲追踪（敌方）
 
         // 拖拽出牌
         private GameObject   _dragGhost;
@@ -232,6 +234,12 @@ namespace FWTCG.UI
                 $"[敌方]  {ScoreBar(G.eScore)} {G.eScore}/8  法力:{G.eMana}  手牌:{G.eHand.Count}  " +
                 $"符文:{G.eRunes.Count}  {legTxt}  " +
                 $"回合:{G.round}  阶段:{G.phase}";
+
+            // 积分增加时红色脉冲
+            if (G.eScore > _prevEScore)
+                StartCoroutine(UITween.PulseColor(_enemyInfoText,
+                    new Color(1f, 0.27f, 0.27f), 0.5f));
+            _prevEScore = G.eScore;
         }
 
         private void RefreshEnemyZone()
@@ -426,6 +434,12 @@ namespace FWTCG.UI
             _playerInfoText.text =
                 $"[我方]  {ScoreBar(G.pScore)} {G.pScore}/8  法力:{G.pMana}  手牌:{G.pHand.Count}  " +
                 $"符文:{G.pRunes.Count}  {legTxt}  剩余:{timer}s";
+
+            // 积分增加时绿色脉冲
+            if (G.pScore > _prevPScore)
+                StartCoroutine(UITween.PulseColor(_playerInfoText,
+                    new Color(0.25f, 0.91f, 0.54f), 0.5f));
+            _prevPScore = G.pScore;
         }
 
         private void RefreshActionButtons()
@@ -848,6 +862,8 @@ namespace FWTCG.UI
                     _sel.Clear();
                     _prevHandUids.Clear();
                     _prevRuneCount = 0;
+                    _prevPScore    = 0;
+                    _prevEScore    = 0;
                     _lastPhase = GamePhase.Init;
                     _lastTurn  = Owner.Player;
                     _titlePanel.SetActive(true);
