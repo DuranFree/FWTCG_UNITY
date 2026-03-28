@@ -68,6 +68,7 @@ namespace FWTCG.UI
             text     = "被动：盟友拥有4种不同关键词时进化+3/+3。主动：消耗本体，给法术+1炽烈符能。",
             emoji    = "🌌",
             effect   = "kaisa_active",
+            imgPath  = "CardArt/OGN-247",
         });
 
         static CardData MasterYiLegend() => Make(new CardData
@@ -80,6 +81,7 @@ namespace FWTCG.UI
             text     = "被动：1名盟友独自防守时该单位本回合+2攻击力。",
             emoji    = "⚔️",
             effect   = "masteryi_defend_buff",
+            imgPath  = "CardArt/OGS-019",
         });
 
         // ─────────────────────────────────────────────
@@ -93,12 +95,12 @@ namespace FWTCG.UI
             // ── 随从 ──
             Add(d, 3, new CardData { id = "voidling",          cardName = "虚空碎片",   type = CardType.Follower,   cost = 1, atk = 1, keywords = new List<string>{"绝念"}, emoji = "💠", effect = "voidling",          text = "绝念：在手牌中生成1张「碎片」。" });
             Add(d, 3, new CardData { id = "void_sentinel",     cardName = "虚空哨兵",   type = CardType.Follower,   cost = 2, atk = 2, keywords = new List<string>{"绝念"}, emoji = "👁️", effect = "void_sentinel",     text = "绝念：你的下一个盟友入场时获得+1/+1。" });
-            Add(d, 3, new CardData { id = "alert_sentinel",    cardName = "警觉哨兵",   type = CardType.Follower,   cost = 2, atk = 2, keywords = new List<string>{"绝念"}, emoji = "🔔", effect = "alert_sentinel",    text = "绝念：摸1张牌。" });
-            Add(d, 2, new CardData { id = "yordel_instructor", cardName = "约德尔教官", type = CardType.Follower,   cost = 3, atk = 3, emoji = "📚", effect = "yordel_instructor_enter", text = "入场：摸1张牌。" });
-            Add(d, 2, new CardData { id = "darius",            cardName = "德莱厄斯",   type = CardType.Follower,   cost = 4, atk = 4, keywords = new List<string>{"坚守"}, emoji = "🪓", effect = "darius_second_card",  text = "入场：本回合已出牌≥2时获得+2/+2并重置疲惫。" });
-            Add(d, 2, new CardData { id = "thousand_tail",     cardName = "千尾监视者", type = CardType.Follower,   cost = 5, atk = 5, keywords = new List<string>{"压制"}, emoji = "🐙", effect = "thousand_tail_enter", text = "入场：所有敌方单位本回合-3攻击力。" });
+            Add(d, 3, new CardData { id = "alert_sentinel",    cardName = "警觉哨兵",   type = CardType.Follower,   cost = 2, atk = 2, keywords = new List<string>{"绝念"}, emoji = "🔔", effect = "alert_sentinel",    text = "绝念：摸1张牌。", imgPath = "CardArt/OGN-096" });
+            Add(d, 2, new CardData { id = "yordel_instructor", cardName = "约德尔教官", type = CardType.Follower,   cost = 3, atk = 3, emoji = "📚", effect = "yordel_instructor_enter", text = "入场：摸1张牌。", imgPath = "CardArt/63ed0654ba38d470c09a5588e9acfd7d" });
+            Add(d, 2, new CardData { id = "darius",            cardName = "德莱厄斯",   type = CardType.Follower,   cost = 4, atk = 4, keywords = new List<string>{"坚守"}, emoji = "🪓", effect = "darius_second_card",  text = "入场：本回合已出牌≥2时获得+2/+2并重置疲惫。", imgPath = "CardArt/OGN-027a" });
+            Add(d, 2, new CardData { id = "thousand_tail",     cardName = "千尾监视者", type = CardType.Follower,   cost = 5, atk = 5, keywords = new List<string>{"压制"}, emoji = "🐙", effect = "thousand_tail_enter", text = "入场：所有敌方单位本回合-3攻击力。", imgPath = "CardArt/OGN-116" });
             Add(d, 2, new CardData { id = "tiyana",            cardName = "缇亚娜·冕卫",type = CardType.Follower,   cost = 3, atk = 3, emoji = "👑", effect = "tiyana_enter",           text = "入场：对手本回合不得获得据守分。" });
-            Add(d, 1, new CardData { id = "wailing_poro",      cardName = "嚎叫波洛",   type = CardType.Follower,   cost = 1, atk = 1, keywords = new List<string>{"绝念"}, emoji = "🐾", effect = "wailing_poro",       text = "绝念：该区无其他盟友时摸1张牌。" });
+            Add(d, 1, new CardData { id = "wailing_poro",      cardName = "嚎叫波洛",   type = CardType.Follower,   cost = 1, atk = 1, keywords = new List<string>{"绝念"}, emoji = "🐾", effect = "wailing_poro",       text = "绝念：该区无其他盟友时摸1张牌。", imgPath = "CardArt/dd5eaf315bcfef1d67ccda6e8a1d7f52" });
 
             // ── 法术 ──
             Add(d, 3, new CardData { id = "buff_ally_card",    cardName = "虚空增幅",   type = CardType.Spell,      cost = 2, emoji = "⬆️", effect = "buff_ally",   text = "给1名盟友永久+1/+1。", keywords = new List<string>{"迅捷"} });
@@ -127,13 +129,13 @@ namespace FWTCG.UI
             var d = new List<CardData>();
 
             // ── 随从 ──
-            Add(d, 3, new CardData { id = "wailing_poro",      cardName = "嚎叫波洛",   type = CardType.Follower,   cost = 1, atk = 1, keywords = new List<string>{"绝念"}, emoji = "🐾", effect = "wailing_poro",       text = "绝念：该区无其他盟友时摸1张牌。" });
-            Add(d, 3, new CardData { id = "alert_sentinel",    cardName = "警觉哨兵",   type = CardType.Follower,   cost = 2, atk = 2, keywords = new List<string>{"绝念"}, emoji = "🔔", effect = "alert_sentinel",    text = "绝念：摸1张牌。" });
+            Add(d, 3, new CardData { id = "wailing_poro",      cardName = "嚎叫波洛",   type = CardType.Follower,   cost = 1, atk = 1, keywords = new List<string>{"绝念"}, emoji = "🐾", effect = "wailing_poro",       text = "绝念：该区无其他盟友时摸1张牌。", imgPath = "CardArt/dd5eaf315bcfef1d67ccda6e8a1d7f52" });
+            Add(d, 3, new CardData { id = "alert_sentinel",    cardName = "警觉哨兵",   type = CardType.Follower,   cost = 2, atk = 2, keywords = new List<string>{"绝念"}, emoji = "🔔", effect = "alert_sentinel",    text = "绝念：摸1张牌。", imgPath = "CardArt/OGN-096" });
             Add(d, 3, new CardData { id = "malphite",          cardName = "熔岩巨兽",   type = CardType.Follower,   cost = 4, atk = 4, keywords = new List<string>{"坚守"}, emoji = "⛰️", effect = "malph_enter",        text = "入场：场上每有1名坚守盟友获得+1攻击力。" });
-            Add(d, 2, new CardData { id = "jax",               cardName = "贾克斯",     type = CardType.Follower,   cost = 4, atk = 4, keywords = new List<string>{"急速"}, emoji = "🏮", effect = "jax_enter",          text = "入场：手牌中所有装备获得【反应】。" });
-            Add(d, 2, new CardData { id = "darius",            cardName = "德莱厄斯",   type = CardType.Follower,   cost = 4, atk = 4, keywords = new List<string>{"坚守"}, emoji = "🪓", effect = "darius_second_card",  text = "入场：本回合已出牌≥2时获得+2/+2并重置疲惫。" });
-            Add(d, 2, new CardData { id = "yordel_instructor", cardName = "约德尔教官", type = CardType.Follower,   cost = 3, atk = 3, emoji = "📚", effect = "yordel_instructor_enter", text = "入场：摸1张牌。" });
-            Add(d, 2, new CardData { id = "foresight_mech",    cardName = "先见机甲",   type = CardType.Follower,   cost = 3, atk = 3, emoji = "🤖", effect = "foresight_enter",         text = "入场：查看牌堆顶，可选择回收至库底。" });
+            Add(d, 2, new CardData { id = "jax",               cardName = "贾克斯",     type = CardType.Follower,   cost = 4, atk = 4, keywords = new List<string>{"急速"}, emoji = "🏮", effect = "jax_enter",          text = "入场：手牌中所有装备获得【反应】。", imgPath = "CardArt/e519a7660073c27bdae3b95d442a85b3" });
+            Add(d, 2, new CardData { id = "darius",            cardName = "德莱厄斯",   type = CardType.Follower,   cost = 4, atk = 4, keywords = new List<string>{"坚守"}, emoji = "🪓", effect = "darius_second_card",  text = "入场：本回合已出牌≥2时获得+2/+2并重置疲惫。", imgPath = "CardArt/OGN-027a" });
+            Add(d, 2, new CardData { id = "yordel_instructor", cardName = "约德尔教官", type = CardType.Follower,   cost = 3, atk = 3, emoji = "📚", effect = "yordel_instructor_enter", text = "入场：摸1张牌。", imgPath = "CardArt/63ed0654ba38d470c09a5588e9acfd7d" });
+            Add(d, 2, new CardData { id = "foresight_mech",    cardName = "先见机甲",   type = CardType.Follower,   cost = 3, atk = 3, emoji = "🤖", effect = "foresight_enter",         text = "入场：查看牌堆顶，可选择回收至库底。", imgPath = "CardArt/6b3952eb842015548665beedb956616e" });
             Add(d, 1, new CardData { id = "tiyana",            cardName = "缇亚娜·冕卫",type = CardType.Follower,   cost = 3, atk = 3, emoji = "👑", effect = "tiyana_enter",            text = "入场：对手本回合不得获得据守分。" });
 
             // ── 法术 ──
@@ -159,12 +161,12 @@ namespace FWTCG.UI
 
         static List<CardData> SharedBFPool() => new List<CardData>
         {
-            Make(new CardData { id = "reckoner_arena",  cardName = "清算人竞技场", type = CardType.Battlefield, emoji = "🏟️", effect = "reckoner_arena",  text = "战斗开始时攻击力≥5的单位获得【强攻】/【坚守】。" }),
-            Make(new CardData { id = "void_gate",       cardName = "虚空之门",     type = CardType.Battlefield, emoji = "🌌", effect = "void_gate",       text = "法术/技能伤害+1。" }),
-            Make(new CardData { id = "altar_unity",     cardName = "统御祭坛",     type = CardType.Battlefield, emoji = "⛩️", effect = "altar_unity",     text = "据守：召唤1名2/2新兵。" }),
-            Make(new CardData { id = "strength_obelisk",cardName = "力量方尖碑",   type = CardType.Battlefield, emoji = "🗿", effect = "strength_obelisk", text = "据守/征服：各获得1枚翠意符文。" }),
+            Make(new CardData { id = "reckoner_arena",  cardName = "清算人竞技场", type = CardType.Battlefield, emoji = "🏟️", effect = "reckoner_arena",  text = "战斗开始时攻击力≥5的单位获得【强攻】/【坚守】。", imgPath = "CardArt/OGN-022" }),
+            Make(new CardData { id = "void_gate",       cardName = "虚空之门",     type = CardType.Battlefield, emoji = "🌌", effect = "void_gate",       text = "法术/技能伤害+1。", imgPath = "CardArt/OGN-296" }),
+            Make(new CardData { id = "altar_unity",     cardName = "统御祭坛",     type = CardType.Battlefield, emoji = "⛩️", effect = "altar_unity",     text = "据守：召唤1名2/2新兵。", imgPath = "CardArt/OGN-123" }),
+            Make(new CardData { id = "strength_obelisk",cardName = "力量方尖碑",   type = CardType.Battlefield, emoji = "🗿", effect = "strength_obelisk", text = "据守/征服：各获得1枚翠意符文。", imgPath = "CardArt/OGN-284" }),
             Make(new CardData { id = "dreaming_tree",   cardName = "梦境之树",     type = CardType.Battlefield, emoji = "🌳", effect = "dreaming_tree",   text = "法术目标为此处盟友时：摸1张牌。" }),
-            Make(new CardData { id = "reaver_row",      cardName = "掠夺者走廊",   type = CardType.Battlefield, emoji = "⚔️", effect = "reaver_row",      text = "征服：召回废牌堆中费用≤2的1个单位。" }),
+            Make(new CardData { id = "reaver_row",      cardName = "掠夺者走廊",   type = CardType.Battlefield, emoji = "⚔️", effect = "reaver_row",      text = "征服：召回废牌堆中费用≤2的1个单位。", imgPath = "CardArt/48a3eb5c3f6ef4a03252800ab3a42878" }),
         };
 
         // ─────────────────────────────────────────────
@@ -200,6 +202,7 @@ namespace FWTCG.UI
             so.schType       = template.schType;
             so.equipSchCost  = template.equipSchCost;
             so.equipSchType  = template.equipSchType;
+            so.imgPath       = template.imgPath;
             return so;
         }
     }

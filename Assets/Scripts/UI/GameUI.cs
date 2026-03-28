@@ -99,6 +99,13 @@ namespace FWTCG.UI
         private Font _cinzelBold;
         private Font _courierFont;
 
+        /// <summary>从 Resources 加载卡牌贴图（imgPath 为 "CardArt/filename" 不含扩展名）。</summary>
+        private static Sprite LoadCardSprite(string imgPath)
+        {
+            if (string.IsNullOrEmpty(imgPath)) return null;
+            return Resources.Load<Sprite>(imgPath);
+        }
+
         // P30: 标题光效追踪
         private Text      _titleText;
         private Coroutine _titlePulseRoutine;
@@ -106,6 +113,7 @@ namespace FWTCG.UI
         // P28: 翻币界面
         private GameObject _coinPanel;
         private Text       _coinResultText;
+        private Image      _coinImg;           // 硬币贴图（先手/后手）
         private bool       _coinPanelShowing;         // 翻币面板显示期间阻止 Mulligan 弹出
 
         // P28: Mulligan 首次弹入追踪
@@ -1323,6 +1331,15 @@ namespace FWTCG.UI
             coinTitle.color     = C_Gold;
             coinTitle.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 28);
 
+            // 硬币贴图（先手=正面/后手=背面，在 ShowCoinFlipResult 里替换）
+            var coinImgGo = new GameObject("CoinImage");
+            coinImgGo.transform.SetParent(_coinPanel.transform, false);
+            coinImgGo.AddComponent<RectTransform>().sizeDelta = new Vector2(120, 120);
+            _coinImg = coinImgGo.AddComponent<Image>();
+            _coinImg.preserveAspect = true;
+            _coinImg.raycastTarget  = false;
+            _coinImg.color          = new Color(1f, 1f, 1f, 0.85f);
+
             _coinResultText = MakeText(_coinPanel.transform, "CoinResult", 28);
             _coinResultText.alignment = TextAnchor.MiddleCenter;
             _coinResultText.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 80);
@@ -1990,7 +2007,20 @@ namespace FWTCG.UI
             artRt.anchorMin = new Vector2(emojiLeft,  emojiAnchorY);
             artRt.anchorMax = new Vector2(emojiRight, 1f);
             artRt.offsetMin = artRt.offsetMax = Vector2.zero;
-            artGo.AddComponent<Image>().color = new Color(0.1f, 0.1f, 0.14f, 0.5f);
+            var artImg = artGo.AddComponent<Image>();
+            var cardSpr = LoadCardSprite(u.imgPath);
+            if (cardSpr != null)
+            {
+                artImg.sprite              = cardSpr;
+                artImg.type                = Image.Type.Simple;
+                artImg.preserveAspect      = true;
+                artImg.color               = Color.white;
+            }
+            else
+            {
+                artImg.color = new Color(0.1f, 0.1f, 0.14f, 0.5f);
+            }
+            artImg.raycastTarget = false;
 
             var eGo = new GameObject("Emoji");
             eGo.transform.SetParent(artGo.transform, false);
@@ -2002,7 +2032,7 @@ namespace FWTCG.UI
             emojiTxt.font          = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             emojiTxt.fontSize      = compact ? 16 : 20;
             emojiTxt.alignment     = TextAnchor.MiddleCenter;
-            emojiTxt.color         = Color.white;
+            emojiTxt.color         = cardSpr != null ? Color.clear : Color.white;  // 有贴图时隐藏 emoji
             emojiTxt.text          = u.emoji ?? "?";
             emojiTxt.raycastTarget = false;
 
@@ -2442,6 +2472,11 @@ namespace FWTCG.UI
             _coinPanel.SetActive(true);
             yield return UITween.PopIn(_coinPanel.GetComponent<RectTransform>(), 0.4f);
 
+            // 初始显示硬币背面（未翻）
+            var coinFrontSpr = Resources.Load<Sprite>("Coins/xianshou");
+            var coinBackSpr  = Resources.Load<Sprite>("Coins/houshou");
+            if (_coinImg != null && coinBackSpr != null) _coinImg.sprite = coinBackSpr;
+
             // P37: 真实 Y 轴翻转（替代 Y-scale hack）
             var coinTxtRt    = _coinResultText.GetComponent<RectTransform>();
             bool playerFirst = _gm.G.first == Owner.Player;
@@ -2451,6 +2486,9 @@ namespace FWTCG.UI
                 _coinResultText.color = playerFirst
                     ? new Color(0.25f, 0.91f, 0.54f)
                     : new Color(1f,    0.45f, 0.45f);
+                // 翻转同步替换硬币贴图
+                if (_coinImg != null)
+                    _coinImg.sprite = playerFirst ? coinFrontSpr : coinBackSpr;
             });
 
             yield return new WaitForSeconds(1.3f);
