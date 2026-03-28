@@ -2,6 +2,33 @@
 
 ---
 
+## 2026-03-28 — P38: Canvas 粒子系统 + 粒子物理
+
+**Phase**: P38 Canvas Particle System + Particle Physics
+
+**Modified files**:
+- `Assets/Scripts/UI/CanvasParticles.cs` — 新建（40粒子系统 + 粒子物理 MonoBehaviour）
+- `Assets/Scripts/UI/GameUI.cs` — BuildCanvas 挂载 CanvasParticles
+
+**实现内容**:
+1. **CanvasParticles.cs**（40 粒子）:
+   - 20 主粒子（4-6px Image，白/青/金交替）：匀速向上漂移，超出边界循环重置
+   - 10 萤火虫（6px Image，黄绿色）：Sin 曲线横向摆动，alpha 1.2-2.2s 脉冲
+   - 10 符文字形（Text 11px，六种符文表情）：极慢漂移，低 alpha(0.04-0.07)
+2. **粒子物理**（CanvasParticles.Update 内联）:
+   - 重力：-8 px/s²（主粒子 100%，萤火虫 30%，符文字形 0%）
+   - 风力：6 px/s 正弦波（频率 0.5 rad/s），各粒子系数 0.15-0.4
+   - 萤火虫额外正弦 x 摆动（幅值 3 px/s，频率 1.2 rad/s）
+   - 边界：主粒子垂直循环+横向弹射，萤火虫/符文硬边界弹射速度衰减 0.6
+   - 速度上限：主/萤火虫 65px/s，符文 15px/s
+3. **URP Bloom 跳过**：切换渲染管线风险高，软 Bloom 近似由 P34 BuildAmbientLights 提供。
+
+**决策**:
+- 星座连线跳过（需继承 MaskableGraphic 重写 OnPopulateMesh），列入 tech-debt。
+- 并行 float/Vector2/Color 数组代替对象数组，避免 GC 压力。
+
+---
+
 ## 2026-03-28 — P37: 标题界面完整版 + 卡牌 3D 翻转
 
 **Phase**: P37 Title Screen Complete + Card 3D Flip

@@ -5,3 +5,5 @@
 - [ ] 装备"optional target"提示弹窗 — 原因：PromptTarget 返回 null 时装备留在基地，玩家手动激活路径需要 UI 层 Prompt，P10 实现 — Phase P7
 - [ ] ascending_stairs 实现与 text 字段描述不一致（text：WIN_SCORE+1；实现：据守/征服额外+1分）— 等待规则确认再同步 text — Phase P9
 - [ ] 拖拽放置漩涡螺旋粒子未实现（checklist 原文"3 环旋转 + 螺旋粒子"，目前只有 2 环旋转）— 原因：uGUI 粒子复杂，P35 跳过 — Phase P35
+- [ ] Canvas 粒子星座连线（需继承 MaskableGraphic 重写 OnPopulateMesh 绘制线段）— 原因：uGUI 无原生 Line，P38 跳过 — Phase P38
+- [ ] URP Bloom（替代 box-shadow glow 近似）— 原因：切换 URP 渲染管线风险高，P38 跳过，现有 BuildAmbientLights 径向渐变作为软 Bloom 近似 — Phase P38

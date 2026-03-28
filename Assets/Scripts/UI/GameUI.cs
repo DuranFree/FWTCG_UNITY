@@ -1077,6 +1077,7 @@ namespace FWTCG.UI
             BuildAmbientLights(bgPanel.transform);           // P34: 径向环境光（3 层渐变圆）
             bgPanel.gameObject.AddComponent<VortexRings>();  // P34: 漩涡旋转（3 弧 + 6 符文）
             BuildBackgroundTextures(bgPanel.transform);      // P36: 六边形网格 + 拉丝条纹 + 噪点
+            bgPanel.gameObject.AddComponent<CanvasParticles>(); // P38: 40粒子系统（含粒子物理）
 
             // ── SafeArea 容器（刘海/圆角/底部条安全区域适配）──
             var safeAreaGo = new GameObject("SafeArea");

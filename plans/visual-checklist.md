@@ -56,12 +56,12 @@
 - ✅ 战斗冲击波（0.38s）— P18 AppendLog 检测"死亡"触发 UITween.Shake(rootCanvasRt, 3.5f)
 
 ## 特效
-- [ ] Canvas 粒子系统（75 基础粒子：主粒子+符文字形+萤火虫，含星座连线）
+- ✅ Canvas 粒子系统（40粒子：主粒子+萤火虫+符文字形，星座连线待后续）— P38 CanvasParticles.cs；20主粒子(4-6px白/青/金)+10萤火虫(6px黄绿)+10符文字形(Text 11px)；并行数组更新，Background面板挂载
 - ✅ 拖拽放置漩涡（2 环旋转，螺旋粒子待后续）— P35 DropVortex.cs MonoBehaviour；80/120px 弧形 Image Radial360，青色(0.04,0.78,0.73)，60/90°/s；SpawnDropVortices 在每个 ZoneDropTarget 中央生成；EndCardDrag 后 DestroyDropVortices 清理
 - ✅ 爆炸粒子（散射 12 粒子）— P36 ExplosionBurst + ExplosionParticle 协程；8×8px 圆形，12方向各30°，飞行60px OutQuad 0.5s，橙/青/金/白色；DetectDeathsAndAnimate 触发
-- [ ] URP Bloom（替代所有 box-shadow glow）
+- ⏭ URP Bloom（替代所有 box-shadow glow）— P38 跳过；切换 URP 管线风险高，现有 BuildAmbientLights 径向渐变已提供软 Bloom 近似效果；列入 tech-debt
 - ✅ 卡牌 3D 真实翻转（替代 CSS rotateY hack）— P37 CardFlip3D 协程；localEulerAngles.y 0°→90° InQuad(0.22s) + onMid回调 + 90°→0° OutBack(0.22s)；ShowCoinFlipResult 已替换
-- [ ] 粒子物理（重力/风/碰撞，替代线性运动）
+- ✅ 粒子物理（重力/风/碰撞，替代线性运动）— P38 CanvasParticles.Update；重力-8px/s²+正弦风力6px/s(freq=0.5rad/s)+边界弹射(衰减0.6)；主粒子垂直循环，萤火虫/符文字形弹射
 
 ## 背景与纹理
 - ✅ 六边形网格纹理（SVG pattern，28×49px，0.04 alpha）— P36 MakeHexGridSprite()；64×64 Texture2D，IQ SdHexagon SDF，R=9px，边线阈值0.6px，alpha=10；Image.Type.Tiled pixelsPerUnit=1
