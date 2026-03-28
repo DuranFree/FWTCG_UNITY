@@ -2,6 +2,33 @@
 
 ---
 
+## 2026-03-28 — P20: 拖拽出牌
+
+**Phase**: P20 Drag to Play
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — 拖拽字段、BeginCardDrag/UpdateCardDrag/EndCardDrag 方法；AddZoneButton 添加 ZoneDropTarget；RefreshPlayerHand 添加 CardDragHandler
+- `Assets/Scripts/UI/UISelectionState.cs` — 新增 SelectCard() 方法
+- `Assets/Scripts/UI/CardDragHandler.cs` — 新文件，IBeginDragHandler/IDragHandler/IEndDragHandler
+- `Assets/Scripts/UI/ZoneDropTarget.cs` — 新文件，记录 zone 字符串供 RaycastAll 查找
+
+**New features**:
+- 拖拽出牌：按住可出牌的手牌（canPlay=true）拖动，生成 DragGhost（深青底金色文字，挂在 Canvas 根）
+- DragGhost 随指针移动（ScreenPointToLocalPointInRectangle 转 Canvas 坐标）
+- 松手时 EventSystem.RaycastAll → 找 ZoneDropTarget → 触发 OnZoneClicked，等效点击出牌
+- 不可出牌的手牌不挂 CardDragHandler（无视拖拽）
+- UISelectionState.SelectCard() — 强制选中，不 toggle，拖拽放置时使用
+
+**Test results**: 391/391（纯UI层，无新测试）
+
+**Design decisions**:
+- DragGhost 的 Image 和 Text 均设 raycastTarget=false，避免遮挡 ZoneDropTarget 的 RaycastAll 检测
+- 只在 canPlay=true 时添加 CardDragHandler，防止玩家拖拽不可出的牌触发意外行为
+- Ghost 挂在 _rootCanvasRt，不在任何 LayoutGroup 内，确保自由定位
+- EndDrag 始终清理 ghost，即使未找到有效区域（防止 ghost 残留）
+
+---
+
 ## 2026-03-28 — P19: 标题界面 + 符文入场动画 + 技术债清理
 
 **Phase**: P19 Title Screen, Rune Stagger Animation, Tech Debt

@@ -67,6 +67,15 @@ namespace FWTCG.UI
         }
 
         /// <summary>
+        /// 强制选中手牌（不 toggle），用于拖拽放置前确保状态正确。
+        /// </summary>
+        public void SelectCard(int uid)
+        {
+            Phase       = UIPhase.CardSelected;
+            SelectedUid = uid;
+        }
+
+        /// <summary>
         /// 出牌或移动动作已提交（不论成功与否），清空选中状态。
         /// </summary>
         public void Clear()

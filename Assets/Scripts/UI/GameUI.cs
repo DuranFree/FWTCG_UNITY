@@ -17,6 +17,11 @@ namespace FWTCG.UI
     ///   1. 点击手牌 → ToggleCard(uid) → 高亮
     ///   2. 点击目标区域（base/0/1）→ PlayCard → Clear
     ///
+    /// 交互流程（拖拽出牌）：
+    ///   1. 按住手牌拖动 → CardDragHandler.OnBeginDrag → BeginCardDrag → 生成 DragGhost
+    ///   2. 拖动中 → UpdateCardDrag → Ghost 跟随指针
+    ///   3. 松手 → EndCardDrag → RaycastAll 找 ZoneDropTarget → OnZoneClicked
+    ///
     /// 单位移动：
     ///   1. 点击己方单位 → ToggleUnit(uid)
     ///   2. 点击目标战场/基地 → MoveUnit → Clear
@@ -80,6 +85,10 @@ namespace FWTCG.UI
         private GamePhase     _lastPhase   = GamePhase.Init;
         private Owner         _lastTurn    = Owner.Player;
         private int           _prevRuneCount = 0;  // 符文入场动画追踪
+
+        // 拖拽出牌
+        private GameObject   _dragGhost;
+        private int          _dragUid = -1;
 
         // 日志面板
         private Text       _logText;
@@ -381,6 +390,16 @@ namespace FWTCG.UI
                         Refresh();
                     }, bgCol);
 
+                // 拖拽出牌支持（与点击互斥：有拖动时 Button.onClick 不触发）
+                if (canPlay)
+                {
+                    var drag = btn.gameObject.AddComponent<CardDragHandler>();
+                    drag.CardUid       = capturedUid;
+                    drag.OnBeginDragCb = (id, pos) => BeginCardDrag(id, pos);
+                    drag.OnDragCb      = pos        => UpdateCardDrag(pos);
+                    drag.OnEndDragCb   = (id, pos)  => EndCardDrag(id, pos);
+                }
+
                 AddSmallButton(row, "详", C_Gold,
                     () => ShowCardDetail(capturedCard));
 
@@ -503,6 +522,79 @@ namespace FWTCG.UI
 
             _sel.ToggleUnit(uid);
             Refresh();
+        }
+
+        // ─────────────────────────────────────────────
+        // 拖拽出牌（CardDragHandler 回调）
+        // ─────────────────────────────────────────────
+
+        private void BeginCardDrag(int uid, Vector2 screenPos)
+        {
+            _dragUid = uid;
+
+            // 构建跟随指针的幽灵卡牌（挂在 Canvas 根，不受布局影响）
+            _dragGhost = new GameObject("DragGhost");
+            _dragGhost.transform.SetParent(_rootCanvasRt, false);
+            var rt = _dragGhost.AddComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(140, 34);
+            rt.pivot     = new Vector2(0.5f, 0.5f);
+
+            var img = _dragGhost.AddComponent<Image>();
+            img.color         = new Color(0.10f, 0.28f, 0.32f, 0.85f);
+            img.raycastTarget = false;
+
+            var textGo = new GameObject("GhostLabel");
+            textGo.transform.SetParent(_dragGhost.transform, false);
+            var textRt = textGo.AddComponent<RectTransform>();
+            textRt.anchorMin = Vector2.zero;
+            textRt.anchorMax = Vector2.one;
+            textRt.offsetMin = textRt.offsetMax = Vector2.zero;
+            var t = textGo.AddComponent<Text>();
+            t.font            = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            t.fontSize        = 11;
+            t.color           = C_Gold;
+            t.alignment       = TextAnchor.MiddleCenter;
+            t.raycastTarget   = false;
+            var card = _gm.G.pHand.Find(c => c.uid == uid);
+            t.text = card != null ? CardLabel(card) : "???";
+
+            UpdateCardDrag(screenPos);
+        }
+
+        private void UpdateCardDrag(Vector2 screenPos)
+        {
+            if (_dragGhost == null) return;
+            var canvas = _rootCanvasRt.GetComponent<Canvas>();
+            Camera cam = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : Camera.main;
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    _rootCanvasRt, screenPos, cam, out var localPos))
+                _dragGhost.GetComponent<RectTransform>().anchoredPosition = localPos;
+        }
+
+        private void EndCardDrag(int uid, Vector2 screenPos)
+        {
+            // 通过 RaycastAll 找落点区域
+            var eventData = new PointerEventData(EventSystem.current) { position = screenPos };
+            var results   = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(eventData, results);
+
+            string hitZone = null;
+            foreach (var r in results)
+            {
+                var zone = r.gameObject.GetComponent<ZoneDropTarget>()
+                        ?? r.gameObject.GetComponentInParent<ZoneDropTarget>();
+                if (zone != null) { hitZone = zone.ZoneId; break; }
+            }
+
+            // 清理幽灵
+            if (_dragGhost != null) { Destroy(_dragGhost); _dragGhost = null; }
+            _dragUid = -1;
+
+            if (hitZone != null)
+            {
+                _sel.SelectCard(uid);
+                OnZoneClicked(hitZone);
+            }
         }
 
         // ─────────────────────────────────────────────
@@ -972,7 +1064,7 @@ namespace FWTCG.UI
         {
             var (btn, lbl) = MakeButton(parent, label, 11, () => OnZoneClicked(zone));
             lbl.color = col;
-            _ = btn;
+            btn.gameObject.AddComponent<ZoneDropTarget>().ZoneId = zone;
         }
 
         private static Button AddButton(Transform parent, string label, Color col,

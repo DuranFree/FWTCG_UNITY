@@ -120,7 +120,7 @@
 
 ## Slice 7 — 输入 & 平台适配
 - ✅ 点击出牌（PC/移动统一入口）— P13 GameUI.cs 两次点击流程（选牌→点区域）
-- [ ] 拖拽出牌（PC 优先）
+- ✅ 拖拽出牌（PC 优先）— P20 CardDragHandler + ZoneDropTarget；BeginDrag 生成 DragGhost，EndDrag RaycastAll 找 ZoneDropTarget → OnZoneClicked
 - ✅ 触屏适配（uGUI EventSystem）— P13 GameUI.EnsureEventSystem 自建 EventSystem+StandaloneInputModule
 - ✅ 横屏锁定（Screen.orientation = LandscapeLeft）— P17 GameUI.Awake()
 - ✅ 缩放锁定（Input.multiTouchEnabled = false）— P17 GameUI.Awake()
