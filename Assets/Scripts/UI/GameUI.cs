@@ -138,6 +138,11 @@ namespace FWTCG.UI
         // P31: 日志浮动覆盖层
         private GameObject _logOverlayPanel;
 
+        // P32: 战斗闪光覆盖层
+        private GameObject _combatOverlay;
+        private Text        _combatOverlayText;
+        private bool        _combatFlashRunning;
+
         // 拖拽出牌
         private GameObject   _dragGhost;
         private int          _dragUid = -1;
@@ -464,59 +469,181 @@ namespace FWTCG.UI
         {
             ClearChildren(_playerHandTrans);
             var G = _gm.G;
+            int n = G.pHand.Count;
+            if (n == 0) return;
+
+            const float arcRadius  = 700f;
+            const float maxAngleDeg = 20f;
 
             var currentUids = new HashSet<int>();
-            foreach (var card in G.pHand)
+            for (int i = 0; i < n; i++)
             {
+                var card = G.pHand[i];
                 currentUids.Add(card.uid);
-                bool isSel    = _sel.IsCardSelected && _sel.SelectedUid == card.uid;
-                bool canPlay  = _gm.IsPlayerTurn && _gm.CD.CanPlay(card, Owner.Player);
-                int capturedUid = card.uid;
-                var capturedCard = card;
 
-                // 文字色：选中=青，可出=绿，不可出=暗灰
-                Color textCol = isSel    ? Color.cyan
-                              : canPlay  ? new Color(0.25f, 0.91f, 0.54f)  // #40e88a
-                              : new Color(0.45f, 0.45f, 0.45f);
+                // 弧线角度：-maxAngle（左）→ +maxAngle（右）线性插值
+                float t        = n == 1 ? 0f : (i / (float)(n - 1)) * 2f - 1f;
+                float angleDeg = t * maxAngleDeg;
+                float angleRad = angleDeg * Mathf.Deg2Rad;
 
-                // 背景色：选中=深青，可出=深绿，不可出=默认暗
-                Color bgCol = isSel    ? new Color(0.10f, 0.28f, 0.32f)
-                            : canPlay  ? new Color(0.06f, 0.24f, 0.12f)
-                            : new Color(0.15f, 0.15f, 0.20f);
+                // 弧线位置（圆心在容器底部以下 arcRadius 处）
+                float xPos = arcRadius * Mathf.Sin(angleRad);
+                float yPos = arcRadius * (Mathf.Cos(angleRad) - 1f); // 0 at center, negative at edges
 
-                // 每张手牌 = [牌按钮] + [详按钮] 横向排列
-                var row = AddHorizontalGroup(_playerHandTrans);
-                row.gameObject.AddComponent<HoverScale>(); // P30: 悬停缩放
-
-                var btn = AddButton(row, CardLabel(card), textCol,
-                    () =>
-                    {
-                        _sel.ToggleCard(capturedUid);
-                        Refresh();
-                    }, bgCol);
-
-                // 拖拽出牌支持（与点击互斥：有拖动时 Button.onClick 不触发）
-                if (canPlay)
-                {
-                    var drag = btn.gameObject.AddComponent<CardDragHandler>();
-                    drag.CardUid       = capturedUid;
-                    drag.OnBeginDragCb = (id, pos) => BeginCardDrag(id, pos);
-                    drag.OnDragCb      = pos        => UpdateCardDrag(pos);
-                    drag.OnEndDragCb   = (id, pos)  => EndCardDrag(id, pos);
-                }
-
-                AddSmallButton(row, "详", C_Gold,
-                    () => ShowCardDetail(capturedCard));
+                var cardRt = MkHandCard(_playerHandTrans, card);
+                // 以容器底部中心为锚点，手动放置
+                cardRt.anchorMin        = new Vector2(0.5f, 0f);
+                cardRt.anchorMax        = new Vector2(0.5f, 0f);
+                cardRt.pivot            = new Vector2(0.5f, 0f);
+                cardRt.anchoredPosition = new Vector2(xPos, yPos + 4f);
+                cardRt.localEulerAngles = new Vector3(0f, 0f, -angleDeg);
 
                 // 仅对新进入手牌的卡播放入场动画
                 if (!_prevHandUids.Contains(card.uid))
-                {
-                    var rowRt = row.GetComponent<RectTransform>();
-                    if (rowRt != null) StartCoroutine(UITween.PopIn(rowRt, 0.28f));
-                }
+                    StartCoroutine(UITween.PopIn(cardRt, 0.28f));
             }
             _prevHandUids.Clear();
             _prevHandUids.UnionWith(currentUids);
+        }
+
+        /// <summary>P32 — 构建单张手牌卡片（76×110px 竖版）：emoji / 名称 / 费用 / 数值。</summary>
+        private RectTransform MkHandCard(Transform parent, CardInstance card)
+        {
+            int  capturedUid  = card.uid;
+            var  capturedCard = card;
+            bool isSel        = _sel.IsCardSelected && _sel.SelectedUid == card.uid;
+            bool canPlay      = _gm.IsPlayerTurn && _gm.CD.CanPlay(card, Owner.Player);
+
+            Color bgCol     = isSel    ? new Color(0.10f, 0.28f, 0.32f, 0.97f)
+                            : canPlay  ? new Color(0.06f, 0.22f, 0.12f, 0.97f)
+                                       : new Color(0.10f, 0.12f, 0.18f, 0.97f);
+            Color borderCol = isSel    ? C_Cyan
+                            : canPlay  ? new Color(0.25f, 0.91f, 0.54f, 0.9f)
+                                       : new Color(C_Gold.r, C_Gold.g, C_Gold.b, 0.4f);
+
+            // ── 容器 ──
+            var go = new GameObject($"HandCard_{capturedUid}");
+            go.transform.SetParent(parent, false);
+            var rt        = go.AddComponent<RectTransform>();
+            rt.sizeDelta  = new Vector2(76f, 110f);
+
+            var bg        = go.AddComponent<Image>();
+            bg.color      = bgCol;
+
+            // 描边（1px 金/绿/青）
+            var bdrGo     = new GameObject("Border");
+            bdrGo.transform.SetParent(go.transform, false);
+            var bdrRt     = bdrGo.AddComponent<RectTransform>();
+            bdrRt.anchorMin = Vector2.zero; bdrRt.anchorMax = Vector2.one;
+            bdrRt.offsetMin = bdrRt.offsetMax = Vector2.zero;
+            var bdrImg    = bdrGo.AddComponent<Image>();
+            bdrImg.color  = borderCol; bdrImg.raycastTarget = false;
+
+            var fillGo    = new GameObject("Fill");
+            fillGo.transform.SetParent(go.transform, false);
+            var fillRt    = fillGo.AddComponent<RectTransform>();
+            fillRt.anchorMin = Vector2.zero; fillRt.anchorMax = Vector2.one;
+            fillRt.offsetMin = new Vector2(1f, 1f); fillRt.offsetMax = new Vector2(-1f, -1f);
+            var fillImg   = fillGo.AddComponent<Image>();
+            fillImg.color = bgCol; fillImg.raycastTarget = false;
+
+            // ── 费用（左上角圆形区）──
+            var costTxt   = MakeTextAt(go.transform, "Cost",
+                new Vector2(0f, 0.80f), new Vector2(0.38f, 1f),
+                card.cost.ToString(), 14, canPlay ? C_Cyan : Color.gray, bold: true);
+
+            // ── Emoji（中上）──
+            MakeTextAt(go.transform, "Emoji",
+                new Vector2(0.08f, 0.46f), new Vector2(0.92f, 0.80f),
+                card.emoji ?? "?", 22, Color.white);
+
+            // ── 卡名（中间）──
+            var nameTxt   = MakeTextAt(go.transform, "Name",
+                new Vector2(0f, 0.30f), new Vector2(1f, 0.46f),
+                card.cardName, 8,
+                isSel ? Color.cyan : canPlay ? new Color(0.25f, 0.91f, 0.54f) : Color.white);
+            nameTxt.resizeTextForBestFit = true;
+            nameTxt.resizeTextMinSize    = 6;
+            nameTxt.resizeTextMaxSize    = 9;
+            if (_cinzelFont != null) nameTxt.font = _cinzelFont;
+
+            // ── 底部：ATK/HP（单位）或 类型标签（法术/装备）──
+            bool isUnit = card.type == CardType.Follower || card.type == CardType.Champion;
+            if (isUnit)
+            {
+                MakeTextAt(go.transform, "Stats",
+                    new Vector2(0f, 0.02f), new Vector2(1f, 0.30f),
+                    $"{card.atk}/{card.atk}", 9, C_Gold);
+            }
+            else
+            {
+                Color typeCol = card.type == CardType.Spell
+                    ? new Color(0.4f, 0.6f, 1f) : C_Cyan;
+                string typeLabel = card.type == CardType.Spell ? "法术" : "装备";
+                MakeTextAt(go.transform, "TypeLabel",
+                    new Vector2(0f, 0.02f), new Vector2(1f, 0.30f),
+                    typeLabel, 9, typeCol);
+            }
+
+            // ── 点击按钮 ──
+            var btn        = go.AddComponent<Button>();
+            btn.targetGraphic = bg;
+            var btnCols    = btn.colors;
+            btnCols.highlightedColor = new Color(0.14f, 0.28f, 0.42f, 1f);
+            btnCols.pressedColor     = new Color(0.04f, 0.10f, 0.18f, 1f);
+            btn.colors     = btnCols;
+            btn.onClick.AddListener(() => { _sel.ToggleCard(capturedUid); Refresh(); });
+
+            // ── 悬停缩放 ──
+            go.AddComponent<HoverScale>();
+
+            // ── 拖拽出牌（可出时）──
+            if (canPlay)
+            {
+                var drag           = go.AddComponent<CardDragHandler>();
+                drag.CardUid       = capturedUid;
+                drag.OnBeginDragCb = (id, pos) => BeginCardDrag(id, pos);
+                drag.OnDragCb      = pos        => UpdateCardDrag(pos);
+                drag.OnEndDragCb   = (id, pos)  => EndCardDrag(id, pos);
+            }
+
+            // ── 详情按钮（右上角小覆盖）──
+            var detGo     = new GameObject("DetailBtn");
+            detGo.transform.SetParent(go.transform, false);
+            var detRt     = detGo.AddComponent<RectTransform>();
+            detRt.anchorMin = new Vector2(0.62f, 0.82f);
+            detRt.anchorMax = new Vector2(1f, 1f);
+            detRt.offsetMin = new Vector2(0f, -2f); detRt.offsetMax = new Vector2(-2f, 0f);
+            var detImg    = detGo.AddComponent<Image>();
+            detImg.color  = new Color(0.18f, 0.18f, 0.18f, 0.85f);
+            var detBtn    = detGo.AddComponent<Button>();
+            detBtn.targetGraphic = detImg;
+            detBtn.onClick.AddListener(() => ShowCardDetail(capturedCard));
+            var detTxt    = MakeTextAt(detGo.transform, "L",
+                Vector2.zero, Vector2.one, "详", 8, C_Gold);
+            _ = detTxt; // suppress unused warning
+
+            return rt;
+        }
+
+        /// <summary>P32 内部辅助 — 快速在指定锚点范围创建 Text 并返回。</summary>
+        private Text MakeTextAt(Transform parent, string name,
+            Vector2 anchorMin, Vector2 anchorMax,
+            string text, int fontSize, Color color, bool bold = false)
+        {
+            var go  = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            var rt  = go.AddComponent<RectTransform>();
+            rt.anchorMin = anchorMin; rt.anchorMax = anchorMax;
+            rt.offsetMin = new Vector2(2f, 1f); rt.offsetMax = new Vector2(-2f, -1f);
+            var t   = go.AddComponent<Text>();
+            t.text      = text;
+            t.fontSize  = fontSize;
+            t.color     = color;
+            t.alignment = TextAnchor.MiddleCenter;
+            t.font      = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (bold) t.fontStyle = FontStyle.Bold;
+            return t;
         }
 
         private void RefreshPlayerInfo()
@@ -581,6 +708,42 @@ namespace FWTCG.UI
             StartCoroutine(UITween.PulseColor(_legendBtnText, C_Gold, 0.5f));
             yield return UITween.ScaleTo(rt, new Vector3(1.18f, 1.18f, 1f), 0.15f, UITween.Ease.OutQuad);
             yield return UITween.ScaleTo(rt, Vector3.one,               0.20f, UITween.Ease.OutQuad);
+        }
+
+        /// <summary>P32 — 战斗闪光：全屏覆盖层 alpha 0→0.5→0，持续 0.6s。</summary>
+        private IEnumerator CombatFlash()
+        {
+            if (_combatOverlay == null) yield break;
+            _combatFlashRunning = true;
+            _combatOverlay.SetActive(true);
+            var cg = _combatOverlay.GetComponent<CanvasGroup>();
+            if (cg == null) cg = _combatOverlay.AddComponent<CanvasGroup>();
+            cg.alpha = 0f;
+
+            // 淡入 0.18s
+            float t = 0f;
+            while (t < 0.18f)
+            {
+                t += Time.unscaledDeltaTime;
+                cg.alpha = Mathf.Clamp01(t / 0.18f) * 0.5f;
+                yield return null;
+            }
+            cg.alpha = 0.5f;
+
+            // 停留 0.12s
+            yield return new WaitForSecondsRealtime(0.12f);
+
+            // 淡出 0.30s
+            t = 0f;
+            while (t < 0.30f)
+            {
+                t += Time.unscaledDeltaTime;
+                cg.alpha = (1f - Mathf.Clamp01(t / 0.30f)) * 0.5f;
+                yield return null;
+            }
+            cg.alpha = 0f;
+            _combatOverlay.SetActive(false);
+            _combatFlashRunning = false;
         }
 
         private void RefreshMulligan()
@@ -757,6 +920,10 @@ namespace FWTCG.UI
             // 单位死亡 → 轻微震动
             if (_rootCanvasRt != null && msg.Contains("死亡"))
                 StartCoroutine(UITween.Shake(_rootCanvasRt, 3.5f, 0.38f, 10));
+
+            // P32: 战斗触发 → 全屏闪光覆盖
+            if (!_combatFlashRunning && msg.Contains("战斗") && _combatOverlay != null)
+                StartCoroutine(CombatFlash());
         }
 
         private static bool IsImportantLog(string msg)
@@ -859,11 +1026,18 @@ namespace FWTCG.UI
             _playerRuneTrans = MakeScrollContent(playerRunePanel.transform, "PlayerRuneContent",
                 horizontal: true);
 
-            // ── P31: 玩家手牌（5-13%）──
+            // ── P32: 玩家手牌（2-16%，扩高容纳 110px 卡片）— 纯容器，弧线手动定位 ──
             var playerHandPanel = MakePanel(gameRoot, "PlayerHandPanel",
-                new Vector2(0.045f, 0.05f), new Vector2(0.955f, 0.15f), C_HandBg);
-            _playerHandTrans = MakeScrollContent(playerHandPanel.transform, "PlayerHandContent",
-                horizontal: true);
+                new Vector2(0.045f, 0.02f), new Vector2(0.955f, 0.16f), C_HandBg);
+            {
+                var handGo = new GameObject("PlayerHandContent");
+                handGo.transform.SetParent(playerHandPanel.transform, false);
+                var handRt = handGo.AddComponent<RectTransform>();
+                handRt.anchorMin = Vector2.zero;
+                handRt.anchorMax = Vector2.one;
+                handRt.offsetMin = handRt.offsetMax = Vector2.zero;
+                _playerHandTrans = handGo.transform;
+            }
 
             // ── P31: 玩家操作栏（0-5%）──
             var actionPanel = MakePanel(gameRoot, "ActionPanel",
@@ -1140,6 +1314,20 @@ namespace FWTCG.UI
             MakeButton(_cardDetailPanel.transform, "关闭", 14,
                 () => StartCoroutine(ClosePanel(_cardDetailPanel, 0.25f)));
             _cardDetailPanel.SetActive(false);
+
+            // ── P32: 战斗闪光覆盖层（全屏半透明，默认隐藏）──
+            _combatOverlay = MakePanel(root, "CombatOverlay",
+                Vector2.zero, Vector2.one,
+                new Color(0f, 0f, 0f, 0f)).gameObject;
+            _combatOverlay.AddComponent<CanvasGroup>().blocksRaycasts = false;
+            _combatOverlayText = MakeText(_combatOverlay.transform, "CombatText", 36);
+            _combatOverlayText.alignment = TextAnchor.MiddleCenter;
+            _combatOverlayText.color     = C_Gold;
+            _combatOverlayText.text      = "⚔ 战斗！";
+            _combatOverlayText.GetComponent<RectTransform>().anchorMin = Vector2.zero;
+            _combatOverlayText.GetComponent<RectTransform>().anchorMax = Vector2.one;
+            if (_cinzelBold != null) _combatOverlayText.font = _cinzelBold;
+            _combatOverlay.SetActive(false);
 
             // ── 标题界面（全屏覆盖，最后添加 = 最高层）──
             _titlePanel = MakePanel(root, "TitlePanel",

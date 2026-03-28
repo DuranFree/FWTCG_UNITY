@@ -9,9 +9,9 @@
 - ✅ 玩家信息栏（底部：法力/符文/积分/操作按钮条）— P31 ActionPanel 扩至全宽，日志改为浮动覆盖层
 - ✅ 两条战场区（横向双列，各含敌我两侧小卡片）— P31 BattlefieldPanel y:31-80%，BF单位从按钮升级为 70×95px 竖版小卡片
 - ✅ 积分轨道（左/右两侧 0-8 格竖向圆圈）— P31 PlayerScoreTrack(左)/EnemyScoreTrack(右)；空格灰色，已得分绿/红，8分金色
-- [ ] 玩家手牌区（底部居中扇形排列）— P32
+- ✅ 玩家手牌区（底部居中扇形排列）— P32 RefreshPlayerHand 弧线布局（arcRadius=700，±20°），MkHandCard 76×110px 竖版卡片；费用/emoji/名称/ATK+HP/拖拽+点击+悬停缩放
 - ✅ 传奇/英雄牌槽（两侧基地区）— P31 BuildLegendSlot；emoji+名称+ATK+HP填充条；玩家基地右侧/敌方区域左侧
-- [ ] 战斗覆盖层（全屏战斗结算 overlay）— P32
+- ✅ 战斗覆盖层（全屏战斗结算 overlay）— P32 CombatOverlay 全屏 CanvasGroup（blocksRaycasts=false）；CombatFlash 协程 0→0.5→0 alpha 共 0.6s；AppendLog "战斗" 触发
 - ✅ 卡牌详情预览模态框 — P17 CardDetailPanel，居中深蓝底，显示全部文字字段，关闭按钮
 - [ ] 标题界面（品牌标志 + 开始按钮 + 光效）
 - ✅ 翻币界面（旋转动画 + 结果）— P28 CoinPanel；PopIn 0.4s + 显示 1.8s + ClosePanel 0.25s；先手用绿色，后手用红色文字

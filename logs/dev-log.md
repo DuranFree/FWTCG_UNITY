@@ -2,6 +2,24 @@
 
 ---
 
+## 2026-03-28 — P32: 扇形手牌弧线布局 + 战斗闪光覆盖层
+
+**Phase**: P32 Fan Hand Arc + Combat Flash Overlay
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — RefreshPlayerHand 重写 + MkHandCard + MakeTextAt + CombatFlash 协程 + AppendLog 触发
+
+**实现内容**:
+
+- **扇形手牌弧线**：`RefreshPlayerHand` 完全重写；arcRadius=700，maxAngle=±20°；每张卡按 `sin/cos` 偏移 + Z 旋转实现扇形；手牌容器改为纯 RectTransform（无 LayoutGroup），卡片以容器底部中心为锚点手动定位
+- **手牌卡片（MkHandCard）**：76×110px 竖版；顶部费用（Cinzel Bold）+ 中上 emoji + 中间卡名（Cinzel Regular，resizeFit）+ 底部 ATK/HP 或法术/装备标签；可出时绿色描边，选中时青色描边；内嵌拖拽（CardDragHandler）+ 悬停缩放（HoverScale）+ 右上角"详"按钮
+- **工具方法（MakeTextAt）**：锚点范围内快速创建 Text，供 MkHandCard 内部复用
+- **战斗闪光覆盖层（CombatFlash）**：CanvasGroup alpha 0→0.5（0.18s）→ 停 0.12s → 0（0.30s）共 0.6s；`_combatFlashRunning` 防重入；AppendLog 检测 "战斗" 字样触发
+
+**Test results**: N/A（纯视觉层）
+
+---
+
 ## 2026-03-28 — P31: 主界面 Grid 骨架重构 + 积分轨道 + 传奇牌槽 + 单位卡片化
 
 **Phase**: P31 Layout Grid Skeleton — Score Track + Legend Slots + Unit Cards + Log Overlay
