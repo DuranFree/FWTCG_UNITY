@@ -105,6 +105,15 @@ namespace FWTCG.UI
         // P28: 单位死亡飞出（uid→名称 映射）
         private readonly Dictionary<int, string> _unitNames = new();
 
+        // P29: Buff/Debuff 光晕 + 眩晕光晕追踪
+        private readonly Dictionary<int, int> _prevUnitAtk    = new();
+        private readonly HashSet<int>         _prevStunnedUids = new();
+
+        // P29: 日志折叠
+        private GameObject _logScrollGo;
+        private bool       _logVisible    = true;
+        private Text       _logToggleText;          // 折叠按钮文字（▼/▶）
+
         // 拖拽出牌
         private GameObject   _dragGhost;
         private int          _dragUid = -1;
@@ -239,6 +248,7 @@ namespace FWTCG.UI
             RefreshPlayerHand();
             RefreshPlayerInfo();
             RefreshActionButtons();
+            RebuildUnitTracking(); // P29: 每帧末尾更新 Buff/眩晕追踪基准值
         }
 
         // ─────────────────────────────────────────────
@@ -517,6 +527,34 @@ namespace FWTCG.UI
                 ? $"传奇技能\n{leg.data.cardName}"
                 : "传奇技能";
             _legendBtnText.color = canLeg ? Color.yellow : Color.gray;
+        }
+
+        /// <summary>P29 — 每帧末尾重建 Buff/眩晕追踪基准值（供下一帧比较用）。</summary>
+        private void RebuildUnitTracking()
+        {
+            _prevUnitAtk.Clear();
+            _prevStunnedUids.Clear();
+            var G = _gm.G;
+            foreach (var u in G.pBase)
+            {
+                _prevUnitAtk[u.uid] = u.currentAtk;
+                if (u.stunned) _prevStunnedUids.Add(u.uid);
+            }
+            foreach (var b in G.bf)
+                foreach (var u in b.pU)
+                {
+                    _prevUnitAtk[u.uid] = u.currentAtk;
+                    if (u.stunned) _prevStunnedUids.Add(u.uid);
+                }
+        }
+
+        /// <summary>P29 — 传奇技能激活：金色脉冲 0.5s + 按钮 Scale 1→1.2→1（0.35s）。</summary>
+        private IEnumerator LegendActivateFlash()
+        {
+            var rt = _legendBtn.GetComponent<RectTransform>();
+            StartCoroutine(UITween.PulseColor(_legendBtnText, C_Gold, 0.5f));
+            yield return UITween.ScaleTo(rt, new Vector3(1.18f, 1.18f, 1f), 0.15f, UITween.Ease.OutQuad);
+            yield return UITween.ScaleTo(rt, Vector3.one,               0.20f, UITween.Ease.OutQuad);
         }
 
         private void RefreshMulligan()
@@ -814,7 +852,11 @@ namespace FWTCG.UI
             _endTurnBtnText.color = C_Gold;
 
             (_legendBtn, _legendBtnText) = MakeButton(actionPanel.transform, "传奇技能", 12,
-                () => { _gm.ActivateLegendAbility("ability1"); });
+                () =>
+                {
+                    _gm.ActivateLegendAbility("ability1");
+                    StartCoroutine(LegendActivateFlash()); // P29: 激活光环
+                });
 
             MakeButton(actionPanel.transform, "废牌堆", 11,
                 () => ShowDiscardPile());
@@ -823,13 +865,41 @@ namespace FWTCG.UI
             var logPanel = MakePanel(gameRoot, "LogPanel",
                 new Vector2(0.75f, 0f), new Vector2(1f, 1f), C_LogBg);
 
-            AddLabel(logPanel.transform, "=== 战斗日志 ===", C_Cyan);
+            // P29: 日志标题行（标签 + 折叠按钮）
+            var logHeaderGo = new GameObject("LogHeader");
+            logHeaderGo.transform.SetParent(logPanel.transform, false);
+            var logHeaderRt = logHeaderGo.AddComponent<RectTransform>();
+            logHeaderRt.anchorMin = new Vector2(0, 0.95f);
+            logHeaderRt.anchorMax = Vector2.one;
+            logHeaderRt.offsetMin = logHeaderRt.offsetMax = Vector2.zero;
+            var logHeaderLayout = logHeaderGo.AddComponent<HorizontalLayoutGroup>();
+            logHeaderLayout.childControlWidth  = false;
+            logHeaderLayout.childControlHeight = true;
+            logHeaderLayout.childAlignment     = TextAnchor.MiddleLeft;
+            logHeaderLayout.padding            = new RectOffset(4, 4, 2, 2);
+            logHeaderLayout.spacing            = 6;
+
+            var logTitleRt = AddLabelRt(logHeaderGo.transform, "=== 战斗日志 ===", C_Cyan);
+            logTitleRt.sizeDelta = new Vector2(130, 24);
+
+            // 折叠/展开按钮（_logToggleText 先存为字段，供 lambda 捕获）
+            var (logToggleBtn, logToggleLblTmp) = MakeButton(logHeaderGo.transform, "▼", 11,
+                () =>
+                {
+                    _logVisible = !_logVisible;
+                    if (_logScrollGo  != null) _logScrollGo.SetActive(_logVisible);
+                    if (_logToggleText != null) _logToggleText.text = _logVisible ? "▼" : "▶";
+                });
+            _logToggleText = logToggleLblTmp;
+            logToggleBtn.GetComponent<RectTransform>().sizeDelta = new Vector2(28, 22);
+            _logToggleText.color = C_Cyan;
 
             var logScrollGo = new GameObject("LogScroll");
+            _logScrollGo = logScrollGo; // P29: 折叠引用
             logScrollGo.transform.SetParent(logPanel.transform, false);
             var logScrollRt = logScrollGo.AddComponent<RectTransform>();
             logScrollRt.anchorMin = new Vector2(0, 0);
-            logScrollRt.anchorMax = new Vector2(1, 0.95f);
+            logScrollRt.anchorMax = new Vector2(1, 0.95f); // 留出顶部 5% 给 LogHeader
             logScrollRt.offsetMin = logScrollRt.offsetMax = Vector2.zero;
             _logScroll = logScrollGo.AddComponent<ScrollRect>();
             _logScroll.horizontal = false;
@@ -1189,6 +1259,19 @@ namespace FWTCG.UI
             _ = btn;
             lbl.color = col;
 
+            // P29: Buff/Debuff 光晕（ATK 增加→绿，减少→红）
+            if (_prevUnitAtk.TryGetValue(u.uid, out int prevAtk) && !isNew)
+            {
+                if (u.currentAtk > prevAtk)
+                    StartCoroutine(UITween.PulseColor(lbl, new Color(0.25f, 0.91f, 0.54f), 0.6f));
+                else if (u.currentAtk < prevAtk)
+                    StartCoroutine(UITween.PulseColor(lbl, new Color(1f, 0.30f, 0.30f), 0.6f));
+            }
+
+            // P29: 眩晕光晕（新晕→橙黄）
+            if (u.stunned && !_prevStunnedUids.Contains(u.uid))
+                StartCoroutine(UITween.PulseColor(lbl, new Color(1f, 0.80f, 0.20f), 0.6f));
+
             // 新入场单位：0.3s 落地震动
             if (isNew)
                 StartCoroutine(UITween.Shake(btn.GetComponent<RectTransform>(), 4f, 0.3f));
@@ -1364,19 +1447,36 @@ namespace FWTCG.UI
             rt.localScale = Vector3.one;
         }
 
-        /// <summary>P28 — 翻币结果面板：PopIn 0.4s → 显示 1.5s → ClosePanel 0.25s。</summary>
+        /// <summary>
+        /// P28/P29 — 翻币结果面板：
+        /// PopIn(0.4s) → 显示"..." → Y-scale 1→0(0.25s) → 换结果文字 → Y-scale 0→1(0.3s) → 等 1.3s → ClosePanel。
+        /// </summary>
         private IEnumerator ShowCoinFlipResult()
         {
-            bool playerFirst       = _gm.G.first == Owner.Player;
-            _coinResultText.text   = playerFirst ? "正面\n玩家先手！" : "反面\n对手先手！";
-            _coinResultText.color  = playerFirst
-                ? new Color(0.25f, 0.91f, 0.54f)
-                : new Color(1f,    0.45f, 0.45f);
+            // 初始占位文字
+            _coinResultText.text  = "？";
+            _coinResultText.color = Color.white;
             _coinPanelShowing = true;
             _coinPanel.SetActive(true);
-            StartCoroutine(UITween.PopIn(_coinPanel.GetComponent<RectTransform>(), 0.4f));
-            yield return new WaitForSeconds(1.8f);
+            yield return UITween.PopIn(_coinPanel.GetComponent<RectTransform>(), 0.4f);
+
+            // P29: 假翻转 — Y 缩到 0
+            var coinTxtRt = _coinResultText.GetComponent<RectTransform>();
+            yield return UITween.ScaleTo(coinTxtRt, new Vector3(1f, 0f, 1f), 0.22f, UITween.Ease.InQuad);
+
+            // 翻到结果面
+            bool playerFirst      = _gm.G.first == Owner.Player;
+            _coinResultText.text  = playerFirst ? "正面\n玩家先手！" : "反面\n对手先手！";
+            _coinResultText.color = playerFirst
+                ? new Color(0.25f, 0.91f, 0.54f)
+                : new Color(1f,    0.45f, 0.45f);
+
+            // Y 弹回
+            yield return UITween.ScaleTo(coinTxtRt, Vector3.one, 0.30f, UITween.Ease.OutBack);
+
+            yield return new WaitForSeconds(1.3f);
             yield return StartCoroutine(ClosePanel(_coinPanel, 0.25f));
+            coinTxtRt.localScale  = Vector3.one; // 保证下次复用时 scale 正常
             _coinPanelShowing = false;
         }
 

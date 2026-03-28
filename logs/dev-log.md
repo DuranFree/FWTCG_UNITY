@@ -2,6 +2,27 @@
 
 ---
 
+## 2026-03-28 — P29: Buff/眩晕光晕 + 传奇激活环 + 翻币旋转 + 日志折叠
+
+**Phase**: P29 Visual Polish — Unit Glow + Legend Ring + Coin Flip + Log Collapse
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — 新增字段/方法/协程修改
+
+**实现内容**:
+
+- **Buff/Debuff 光晕**：`AddUnitButton` 对比 `_prevUnitAtk[uid]`；ATK 升→绿色 PulseColor(0.6s)，ATK 降→红色 PulseColor(0.6s)；`RebuildUnitTracking()` 在 Refresh 末尾重建基准值，确保只对"本帧变化"触发
+- **眩晕光晕**：`AddUnitButton` 检查 `_prevStunnedUids`；新晕单位→橙黄 PulseColor(1f,0.8f,0.2f,0.6s)
+- **传奇技能激活环**：`LegendActivateFlash` 协程；金色 PulseColor(_legendBtnText, 0.5s) 并行 ScaleTo(1.18→1, 0.35s)；点击传奇技能按钮后立即触发
+- **翻币旋转**（升级 P28）：`ShowCoinFlipResult` 加入 Y-scale 假翻转：显示"？"→ PopIn 整体面板 → ScaleTo Y:0(0.22s InQuad) → 换文字+颜色 → ScaleTo Y:1(0.3s OutBack)；coin txt scale 在 ClosePanel 后归 1
+- **日志折叠**：LogPanel 顶部 5% 改为 LogHeader 行（标签 + ▼/▶ 按钮）；`_logScrollGo`/`_logToggleText`/`_logVisible` 三字段协同；折叠时隐藏 ScrollRect，展开时恢复
+
+**DOTween 安装**：manifest.json 新增 OpenUPM 注册 + `com.demigiant.dotween:1.2.765`；Unity 重启后自动下载
+
+**Test results**: 395（无新测试，纯视觉层；静态分析逻辑正确）
+
+---
+
 ## 2026-03-28 — P28: 翻币界面 + Mulligan PopIn + 单位死亡飞出
 
 **Phase**: P28 Coin Flip UI + Mulligan PopIn + Unit Death Fly

@@ -16,7 +16,7 @@
 - [ ] 标题界面（品牌标志 + 开始按钮 + 光效）
 - ✅ 翻币界面（旋转动画 + 结果）— P28 CoinPanel；PopIn 0.4s + 显示 1.8s + ClosePanel 0.25s；先手用绿色，后手用红色文字
 - ✅ 调整手牌界面（Mulligan）— P28 首次激活时 PopIn(0.4s)；_mulliganPopInDone 防止重复动画
-- [ ] 战斗日志面板（右侧可折叠）
+- ✅ 战斗日志面板（右侧可折叠）— P29 LogHeader 行（标签+▼/▶按钮）；点击切换 _logVisible，SetActive(_logScrollGo)
 - ✅ Toast 通知堆（浮动）— P14 ToastSystem.cs，淡入上滑+淡出，重要战斗事件触发
 - [ ] 法术提示弹窗（目标选取）
 
@@ -40,15 +40,15 @@
 - ✅ 积分轨道得分脉冲（绿/红 0.5s）— P22 RefreshPlayerInfo/RefreshEnemyInfo，分数增加时 UITween.PulseColor(Text, 0.5s)；我方绿色(0.25,0.91,0.54)，敌方红色(1,0.27,0.27)
 - ✅ 伤害数字浮起（1.2s ease-out，向上 60px）— P14 DamageFloatText.cs，5色分类（伤害/治疗/增益/减益/金色）
 - ✅ 全屏震动（0.42s）— P14 UITween.Shake()，Coroutine 实现
-- [ ] 翻币旋转（1.2s linear）
+- ✅ 翻币旋转（1.2s linear）— P29 ShowCoinFlipResult Y-scale 1→0(0.22s InQuad) + 换文字 + 0→1(0.3s OutBack)；总时长约 0.52s
 - ✅ 标题界面（简版：金色标题 + 青色副标题 + 开始按钮）— P19 TitlePanel，BuildCanvas 最后添加（保证最高层级）
 - ✅ Toast 浮入/浮出（0.35s/0.25s）— P14 ToastSystem.cs，Coroutine 缓动
 - [ ] 漩涡旋转（3 层不同转速 8/10/12s，10 个轨道粒子）
 - [ ] 法术施法动画（目标高亮 + 投射物 + 冲击波）
 - ✅ 单位死亡飞出 — P28 DetectDeathsAndAnimate + UnitDeathFly；红色"✕ 单位名"ghost MoveY(+80px) + FadeOut 0.65s；玩家基地+玩家战场侧触发
-- [ ] Buff/Debuff 光晕（绿/红 0.6s）
-- [ ] 眩晕光晕（0.6s）
-- [ ] 传奇技能激活环（0.8s）
+- ✅ Buff/Debuff 光晕（绿/红 0.6s）— P29 AddUnitButton _prevUnitAtk 追踪；ATK↑→绿 PulseColor，ATK↓→红 PulseColor，RebuildUnitTracking 每帧更新基准
+- ✅ 眩晕光晕（0.6s）— P29 AddUnitButton _prevStunnedUids；新晕→橙黄 PulseColor(1f,0.8f,0.2f)
+- ✅ 传奇技能激活环（0.8s）— P29 LegendActivateFlash 协程；金色 PulseColor(0.5s) + ScaleTo(1.18) + 回弹(0.35s)
 - ✅ 符文入场错落（每张 50ms 间隔）— P19 RefreshPlayerRunes，i >= oldCount 时 DelayedPopIn(0.25s, i*50ms)
 - ✅ 符文回收飞行（弧线到计数器）— P27 RuneRecycleFly 协程；回收按钮点击时生成 ghost label，MoveY(+60px) + FadeOut 并行 0.7s，parented to _rootCanvasRt
 - ✅ 卡牌落地震动（0.3s）— P23 AddUnitButton isNew 参数，UITween.Shake(4f, 0.3s)；_prevPBaseUids/_prevPBFUids 追踪玩家基地+战场新入场单位
