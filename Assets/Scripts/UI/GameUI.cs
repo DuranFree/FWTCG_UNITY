@@ -1463,7 +1463,7 @@ namespace FWTCG.UI
             var glowGo = new GameObject("TitleGlow");
             glowGo.transform.SetParent(logoGo.transform, false);
             glowGo.AddComponent<LayoutElement>().ignoreLayout = true;
-            var glowRt = glowGo.AddComponent<RectTransform>();
+            var glowRt = glowGo.GetComponent<RectTransform>();
             glowRt.anchorMin = glowRt.anchorMax = Vector2.one * 0.5f;
             glowRt.pivot     = Vector2.one * 0.5f;
             glowRt.sizeDelta = new Vector2(600f, 600f);
