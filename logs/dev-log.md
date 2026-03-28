@@ -2,6 +2,27 @@
 
 ---
 
+## 2026-03-28 — P24: 界面淡入 + 战场名称飞入
+
+**Phase**: P24 Title Fade-in & Battlefield Name Pop-in
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — `_gameRootCg`/`_prevBF0CardId`/`_prevBF1CardId` 字段；BuildCanvas 添加 CanvasGroup；"开始游戏"改为淡入；`AddLabel` 重构为调用 `AddLabelRt`；`RefreshBF` 战场标题改用 `AddLabelRt`，cardId 变化时 PopIn
+
+**New features**:
+- **标题→游戏淡入（0.7s）**：`_gameRootCg`（SafeArea CanvasGroup）；"开始游戏"点击 → alpha=0 → FadeIn(0.7f)，游戏内容从全透明淡出
+- **战场名称飞入（0.4s）**：`_prevBF0CardId`/`_prevBF1CardId` 追踪；cardId 从空→有值（游戏开始时）触发 `UITween.PopIn(titleRt, 0.4f)` 弹入缩放动画
+- `AddLabelRt` — `AddLabel` 的 RectTransform 返回变体，被 `AddLabel` 内部复用，零冗余
+
+**Test results**: 391/391（纯UI层，无新测试）
+
+**Design decisions**:
+- `_gameRootCg.alpha` 仅在点击"开始游戏"时设为 0，其余时间保持 1，不影响游戏中正常渲染
+- PopIn 用 localScale 变换，不与 LayoutGroup anchoredPosition 冲突
+- 战场名称 PopIn 触发条件：`!string.IsNullOrEmpty(cardId) && cardId != prevId`，避免每次 Refresh 重复触发
+
+---
+
 ## 2026-03-28 — P23: 卡牌落地震动
 
 **Phase**: P23 Card Landing Shake

@@ -89,6 +89,9 @@ namespace FWTCG.UI
         private int           _prevEScore    = 0;  // 积分脉冲追踪（敌方）
         private HashSet<int>  _prevPBaseUids = new(); // 落地震动追踪（玩家基地）
         private HashSet<int>  _prevPBFUids   = new(); // 落地震动追踪（玩家战场）
+        private CanvasGroup   _gameRootCg;            // 标题→游戏淡入
+        private string        _prevBF0CardId = "";    // 战场名称飞入追踪
+        private string        _prevBF1CardId = "";
 
         // 拖拽出牌
         private GameObject   _dragGhost;
@@ -276,11 +279,19 @@ namespace FWTCG.UI
             ClearChildren(trans);
             var G = _gm.G;
 
-            // 战场标题
-            string ctrl = bf.ctrl == null ? "中立" : (bf.ctrl == Owner.Player ? "我方" : "敌方");
-            AddLabel(trans,
+            // 战场标题（战场牌首次出现时 PopIn 飞入）
+            string ctrl    = bf.ctrl == null ? "中立" : (bf.ctrl == Owner.Player ? "我方" : "敌方");
+            string cardId  = bf.card?.id ?? "";
+            string prevId  = bfIdx == 0 ? _prevBF0CardId : _prevBF1CardId;
+            var    titleRt = AddLabelRt(trans,
                 $"=== 战场{bf.id} [{ctrl}] BF卡:{bf.card?.cardName ?? "-"} ===",
                 Color.yellow);
+
+            if (!string.IsNullOrEmpty(cardId) && cardId != prevId)
+                StartCoroutine(UITween.PopIn(titleRt, 0.4f));
+
+            if (bfIdx == 0) _prevBF0CardId = cardId;
+            else            _prevBF1CardId = cardId;
 
             // 敌方单位
             foreach (var u in bf.eU)
@@ -697,6 +708,7 @@ namespace FWTCG.UI
             safeAreaRt.anchorMax = Vector2.one;
             safeAreaRt.offsetMin = safeAreaRt.offsetMax = Vector2.zero;
             safeAreaGo.AddComponent<SafeAreaFitter>();
+            _gameRootCg  = safeAreaGo.AddComponent<CanvasGroup>();
             var gameRoot = safeAreaGo.transform;
 
             // ── 敌方信息栏（顶部 8%）──
@@ -880,6 +892,8 @@ namespace FWTCG.UI
                     _prevEScore    = 0;
                     _prevPBaseUids.Clear();
                     _prevPBFUids.Clear();
+                    _prevBF0CardId = "";
+                    _prevBF1CardId = "";
                     _lastPhase = GamePhase.Init;
                     _lastTurn  = Owner.Player;
                     _titlePanel.SetActive(true);
@@ -971,7 +985,9 @@ namespace FWTCG.UI
                 () =>
                 {
                     _titlePanel.SetActive(false);
+                    _gameRootCg.alpha = 0f;
                     _gm.StartGame(DeckFactory.MakeKaisaVsMasterYi());
+                    StartCoroutine(UITween.FadeIn(_gameRootCg, 0.7f));
                 });
             startBtn.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 48);
             startBtnLbl.color = C_Gold;
@@ -1079,6 +1095,12 @@ namespace FWTCG.UI
 
         private static void AddLabel(Transform parent, string text, Color col)
         {
+            AddLabelRt(parent, text, col);
+        }
+
+        /// <summary>创建文字标签并返回其 RectTransform（供需要动画的调用方使用）。</summary>
+        private static RectTransform AddLabelRt(Transform parent, string text, Color col)
+        {
             var go = new GameObject("Label");
             go.transform.SetParent(parent, false);
             var rt = go.AddComponent<RectTransform>();
@@ -1089,6 +1111,7 @@ namespace FWTCG.UI
             t.color     = col;
             t.alignment = TextAnchor.MiddleLeft;
             t.text      = text;
+            return rt;
         }
 
         private void AddUnitButton(Transform parent, CardInstance u, Owner owner, bool selected,

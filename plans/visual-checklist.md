@@ -70,7 +70,7 @@
 - [ ] 径向环境光（多层 radial-gradient，青/金双色）
 
 ## 过渡效果
-- [ ] 界面淡入淡出（标题→游戏，0.7-1s）
+- ✅ 界面淡入淡出（标题→游戏，0.7-1s）— P24 safeAreaGo._gameRootCg；"开始游戏"按钮 alpha=0→FadeIn(0.7f)
 - [ ] Prompt 弹窗弹入/弹出（scale+blur，0.4s/0.3s）
 - ✅ 阶段切换横幅（FadeIn 0.25s / 停留 1.1s / FadeOut 0.3s）— P18 PhaseBanner + BannerSequence Coroutine，回合/阶段切换时触发
-- [ ] 战场名称飞入（0.4s）
+- ✅ 战场名称飞入（0.4s）— P24 RefreshBF AddLabelRt；cardId != prevId 时 UITween.PopIn(titleRt, 0.4f)
