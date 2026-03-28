@@ -1076,6 +1076,7 @@ namespace FWTCG.UI
             var bgPanel = MakePanel(root, "Background", Vector2.zero, Vector2.one, C_Dark);
             BuildAmbientLights(bgPanel.transform);           // P34: 径向环境光（3 层渐变圆）
             bgPanel.gameObject.AddComponent<VortexRings>();  // P34: 漩涡旋转（3 弧 + 6 符文）
+            BuildBackgroundTextures(bgPanel.transform);      // P36: 六边形网格 + 拉丝条纹 + 噪点
 
             // ── SafeArea 容器（刘海/圆角/底部条安全区域适配）──
             var safeAreaGo = new GameObject("SafeArea");
@@ -2462,6 +2463,7 @@ namespace FWTCG.UI
                 {
                     string n = _unitNames.TryGetValue(uid, out var saved) ? saved : "单位";
                     StartCoroutine(UnitDeathFly(localPos, n));
+                    StartCoroutine(ExplosionBurst(localPos)); // P36
                 }
             }
         }
@@ -2549,6 +2551,199 @@ namespace FWTCG.UI
             RuneType.Order    => C_RuneOrder,
             _                 => Color.white,
         };
+
+        // ─────────────────────────────────────────────
+        // P36 — 背景纹理（六边形网格 + 拉丝条纹 + 噪点）
+        // ─────────────────────────────────────────────
+
+        /// <summary>P36 — 在背景面板添加 3 层程序化纹理叠加（均极低 alpha，raycastTarget=false）。</summary>
+        private static void BuildBackgroundTextures(Transform parent)
+        {
+            AddTexOverlay(parent, "HexGrid",    MakeHexGridSprite());
+            AddTexOverlay(parent, "BrushStripe", MakeBrushStripeSprite());
+            AddTexOverlay(parent, "Noise",       MakeNoiseSprite());
+        }
+
+        private static void AddTexOverlay(Transform parent, string name, Sprite spr)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            var rt = go.AddComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = rt.offsetMax = Vector2.zero;
+            var img = go.AddComponent<Image>();
+            img.sprite        = spr;
+            img.type          = Image.Type.Tiled;
+            img.color         = Color.white;
+            img.raycastTarget = false;
+        }
+
+        /// <summary>P36 — 64×64 程序化六边形网格 Sprite（Repeat tile，alpha≈0.04）。</summary>
+        private static Sprite MakeHexGridSprite()
+        {
+            const int Sz    = 64;
+            const float R   = 9f;              // 六边形外接圆半径（px）
+            const float InR = 7.794f;          // R * sqrt(3)/2，内切圆半径
+            const byte  A   = 10;              // ≈ 0.04 alpha
+            const float Thr = 0.6f;            // 边线宽度阈值（px）
+
+            var tex = new Texture2D(Sz, Sz, TextureFormat.RGBA32, false);
+            var pix = new Color32[Sz * Sz];
+
+            for (int y = 0; y < Sz; y++)
+            for (int x = 0; x < Sz; x++)
+            {
+                float px = x + 0.5f, py = y + 0.5f;
+                // 轴坐标（flat-top 六边形）
+                float q = (2f / 3f) * px / R;
+                float r = (-1f / 3f) * px / R + (Mathf.Sqrt(3f) / 3f) * py / R;
+                float s = -q - r;
+                // 取最近六边形中心
+                float rq = Mathf.Round(q), rr = Mathf.Round(r), rs = Mathf.Round(s);
+                float dq = Mathf.Abs(rq - q), dr = Mathf.Abs(rr - r), ds = Mathf.Abs(rs - s);
+                if (dq > dr && dq > ds)      rq = -rr - rs;
+                else if (dr > ds)            rr = -rq - rs;
+                // 六边形中心像素坐标
+                float cx = R * 1.5f * rq;
+                float cy = R * Mathf.Sqrt(3f) * (rr + rq * 0.5f);
+                float lx = px - cx, ly = py - cy;
+                // Hexagon SDF（IQ 公式，flat-top，内切圆半径 InR）
+                float d = SdHexagon(lx, ly, InR);
+                pix[y * Sz + x] = Mathf.Abs(d) < Thr
+                    ? new Color32(255, 255, 255, A)
+                    : new Color32(0, 0, 0, 0);
+            }
+            tex.SetPixels32(pix);
+            tex.Apply();
+            tex.wrapMode   = TextureWrapMode.Repeat;
+            tex.filterMode = FilterMode.Point;
+            return Sprite.Create(tex, new Rect(0, 0, Sz, Sz), Vector2.one * 0.5f, 1f);
+        }
+
+        /// <summary>六边形有向距离函数（flat-top，内切圆半径 r）。负值=内部，0=边线，正值=外部。</summary>
+        private static float SdHexagon(float px, float py, float r)
+        {
+            const float kx = -0.866025404f, ky = 0.5f, kz = 0.577350269f;
+            float ax = Mathf.Abs(px), ay = Mathf.Abs(py);
+            float dot = Mathf.Min(kx * ax + ky * ay, 0f);
+            ax -= 2f * dot * kx;
+            ay -= 2f * dot * ky;
+            float qx = ax - Mathf.Clamp(ax, -kz * r, kz * r);
+            float qy = ay - r;
+            return Mathf.Sqrt(qx * qx + qy * qy) * Mathf.Sign(qy);
+        }
+
+        /// <summary>P36 — 32×4 程序化拉丝金属条纹 Sprite（水平亮线间距 4px，alpha≈0.04）。</summary>
+        private static Sprite MakeBrushStripeSprite()
+        {
+            const int W = 32, H = 4;
+            const byte A = 10; // ≈ 0.04 alpha
+            var tex = new Texture2D(W, H, TextureFormat.RGBA32, false);
+            var pix = new Color32[W * H];
+            for (int x = 0; x < W; x++)
+            {
+                pix[0 * W + x] = new Color32(255, 255, 255, A); // 亮线
+                pix[1 * W + x] = new Color32(0, 0, 0, 0);
+                pix[2 * W + x] = new Color32(0, 0, 0, 0);
+                pix[3 * W + x] = new Color32(0, 0, 0, 0);
+            }
+            tex.SetPixels32(pix);
+            tex.Apply();
+            tex.wrapMode   = TextureWrapMode.Repeat;
+            tex.filterMode = FilterMode.Point;
+            return Sprite.Create(tex, new Rect(0, 0, W, H), Vector2.one * 0.5f, 1f);
+        }
+
+        /// <summary>P36 — 128×128 程序化随机噪点 Sprite（alpha≈0.035）。</summary>
+        private static Sprite MakeNoiseSprite()
+        {
+            const int Sz = 128;
+            const byte A = 9; // ≈ 0.035 alpha
+            var tex = new Texture2D(Sz, Sz, TextureFormat.RGBA32, false);
+            var pix = new Color32[Sz * Sz];
+            var rng = new System.Random(42);
+            for (int i = 0; i < pix.Length; i++)
+            {
+                byte v = (byte)rng.Next(200, 256);
+                pix[i] = new Color32(v, v, v, A);
+            }
+            tex.SetPixels32(pix);
+            tex.Apply();
+            tex.wrapMode   = TextureWrapMode.Repeat;
+            tex.filterMode = FilterMode.Point;
+            return Sprite.Create(tex, new Rect(0, 0, Sz, Sz), Vector2.one * 0.5f, 1f);
+        }
+
+        // ─────────────────────────────────────────────
+        // P36 — 爆炸粒子
+        // ─────────────────────────────────────────────
+
+        /// <summary>
+        /// P36 — 单位死亡爆炸：12 粒子从 center 向 30° 间隔方向散射，
+        /// 飞行 60px + FadeOut 0.5s OutQuad，颜色橙/青/金交替。
+        /// DetectDeathsAndAnimate 触发。
+        /// </summary>
+        private IEnumerator ExplosionBurst(Vector2 center)
+        {
+            var colors = new Color[]
+            {
+                new Color(1f, 0.50f, 0.10f),             // 橙
+                new Color(0.04f, 0.78f, 0.73f),           // 青
+                new Color(0.78f, 0.67f, 0.43f),           // 金
+                new Color(1f, 0.50f, 0.10f),
+                new Color(0.04f, 0.78f, 0.73f),
+                new Color(0.78f, 0.67f, 0.43f),
+                new Color(1f, 0.50f, 0.10f),
+                new Color(0.04f, 0.78f, 0.73f),
+                new Color(0.78f, 0.67f, 0.43f),
+                new Color(1f, 1f, 1f),
+                new Color(1f, 1f, 1f),
+                new Color(1f, 1f, 1f),
+            };
+            for (int i = 0; i < 12; i++)
+            {
+                float angle = i * 30f * Mathf.Deg2Rad;
+                StartCoroutine(ExplosionParticle(center, angle, colors[i]));
+            }
+            yield return null;
+        }
+
+        /// <summary>P36 — 单颗爆炸粒子：8×8px 圆形，OutQuad 飞行 + 同步淡出，0.5s 后自销毁。</summary>
+        private IEnumerator ExplosionParticle(Vector2 center, float angle, Color col)
+        {
+            var go = new GameObject("ExplPart");
+            go.transform.SetParent(_rootCanvasRt, false);
+            var rt = go.AddComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot     = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(8f, 8f);
+            rt.anchoredPosition = center;
+
+            var img = go.AddComponent<Image>();
+            img.color         = col;
+            img.raycastTarget = false;
+
+            var cg = go.AddComponent<CanvasGroup>();
+            cg.blocksRaycasts = false;
+            cg.interactable   = false;
+
+            float dx = Mathf.Cos(angle) * 60f;
+            float dy = Mathf.Sin(angle) * 60f;
+            const float Dur = 0.5f;
+            float t = 0f;
+            while (t < Dur)
+            {
+                t += Time.deltaTime;
+                float p = Mathf.Clamp01(t / Dur);
+                float e = 1f - (1f - p) * (1f - p); // OutQuad
+                rt.anchoredPosition = center + new Vector2(dx * e, dy * e);
+                cg.alpha = 1f - p;
+                yield return null;
+            }
+            Destroy(go);
+        }
 
         private static void EnsureEventSystem()
         {

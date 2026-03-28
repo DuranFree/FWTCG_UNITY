@@ -58,15 +58,15 @@
 ## 特效
 - [ ] Canvas 粒子系统（75 基础粒子：主粒子+符文字形+萤火虫，含星座连线）
 - ✅ 拖拽放置漩涡（2 环旋转，螺旋粒子待后续）— P35 DropVortex.cs MonoBehaviour；80/120px 弧形 Image Radial360，青色(0.04,0.78,0.73)，60/90°/s；SpawnDropVortices 在每个 ZoneDropTarget 中央生成；EndCardDrag 后 DestroyDropVortices 清理
-- [ ] 爆炸粒子（散射 12 粒子）
+- ✅ 爆炸粒子（散射 12 粒子）— P36 ExplosionBurst + ExplosionParticle 协程；8×8px 圆形，12方向各30°，飞行60px OutQuad 0.5s，橙/青/金/白色；DetectDeathsAndAnimate 触发
 - [ ] URP Bloom（替代所有 box-shadow glow）
 - [ ] 卡牌 3D 真实翻转（替代 CSS rotateY hack）
 - [ ] 粒子物理（重力/风/碰撞，替代线性运动）
 
 ## 背景与纹理
-- [ ] 六边形网格纹理（SVG pattern，28×49px，0.04 alpha）
-- [ ] 拉丝金属条纹（repeating-linear-gradient）
-- [ ] 噪点叠加（fractal turbulence，0.035 opacity）
+- ✅ 六边形网格纹理（SVG pattern，28×49px，0.04 alpha）— P36 MakeHexGridSprite()；64×64 Texture2D，IQ SdHexagon SDF，R=9px，边线阈值0.6px，alpha=10；Image.Type.Tiled pixelsPerUnit=1
+- ✅ 拉丝金属条纹（repeating-linear-gradient）— P36 MakeBrushStripeSprite()；32×4 Texture2D，每4行1亮线，alpha=10；Image.Type.Tiled
+- ✅ 噪点叠加（fractal turbulence，0.035 opacity）— P36 MakeNoiseSprite()；128×128 Texture2D，System.Random(42)固定种子，v∈[200,255]，alpha=9；Image.Type.Tiled
 - ✅ 径向环境光（多层 radial-gradient，青/金双色）— P34 BuildAmbientLights；MakeRadialGradientSprite(256) 程序化生成径向渐变 Sprite；3 层：青900px右上(0.04a)、金700px左下(0.03a)、青1200px中央(0.025a)；挂在 Background 面板
 
 ## 过渡效果

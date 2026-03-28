@@ -2,6 +2,26 @@
 
 ---
 
+## 2026-03-28 — P36: 背景纹理 + 爆炸粒子
+
+**Phase**: P36 Background Textures + Explosion Particles
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — BuildBackgroundTextures + 3 sprite generators + SdHexagon SDF + ExplosionBurst/ExplosionParticle coroutines
+
+**实现内容**:
+1. **六边形网格**（MakeHexGridSprite）: 64×64 Texture2D，轴坐标 + IQ SdHexagon SDF（flat-top，R=9px，InR=7.794px），边线阈值0.6px，alpha=10（≈0.04）；Image.Type.Tiled + pixelsPerUnit=1 全屏铺贴。
+2. **拉丝金属条纹**（MakeBrushStripeSprite）: 32×4 Texture2D，每4行1亮行，alpha=10；Tiled 每4px重复一条水平亮线。
+3. **噪点叠加**（MakeNoiseSprite）: 128×128 Texture2D，System.Random(42)固定种子，灰度[200-255]，alpha=9（≈0.035）；Tiled 覆盖全屏。
+4. **爆炸粒子**（ExplosionBurst + ExplosionParticle）: 单位死亡时在 localPos 生成12个8×8px粒子，每30°一颗，OutQuad飞行60px + 同步淡出0.5s。颜色橙/青/金各3颗+白3颗。DetectDeathsAndAnimate 触发。
+
+**决策**:
+- IQ hexagon SDF 代替逐像素遍历，计算精确且高效（O(1) per pixel）。
+- Noise 使用固定种子确保每次运行纹理一致。
+- Image.Type.Tiled + pixelsPerUnit=1：1 canvas pixel = 1 texture pixel，无需额外缩放计算。
+
+---
+
 ## 2026-03-28 — P35: 文字光晕 + 法术投射物 + 拖拽漩涡
 
 **Phase**: P35 Text Glow + Spell Projectile + Drag Drop Vortex
