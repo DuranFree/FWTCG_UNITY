@@ -103,7 +103,9 @@ namespace FWTCG.UI
         private static Sprite LoadCardSprite(string imgPath)
         {
             if (string.IsNullOrEmpty(imgPath)) return null;
-            return Resources.Load<Sprite>(imgPath);
+            var tex = Resources.Load<Texture2D>(imgPath);
+            if (tex == null) return null;
+            return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
         }
 
         // P30: 标题光效追踪
@@ -1232,6 +1234,12 @@ namespace FWTCG.UI
             _logToggleText = logToggleLblTmp;
             logToggleBtn.GetComponent<RectTransform>().sizeDelta = new Vector2(28, 22);
             _logToggleText.color = C_Cyan;
+
+            // ✕ 关闭按钮（关闭整个日志浮动面板）
+            var (closeLogBtn, closeLogLbl) = MakeButton(logHeaderGo.transform, "✕", 11,
+                () => _logOverlayPanel?.SetActive(false));
+            closeLogBtn.GetComponent<RectTransform>().sizeDelta = new Vector2(28, 22);
+            closeLogLbl.color = new Color(0.9f, 0.4f, 0.4f);
 
             var logScrollGo = new GameObject("LogScroll");
             _logScrollGo = logScrollGo; // P29: 折叠引用
@@ -2473,8 +2481,8 @@ namespace FWTCG.UI
             yield return UITween.PopIn(_coinPanel.GetComponent<RectTransform>(), 0.4f);
 
             // 初始显示硬币背面（未翻）
-            var coinFrontSpr = Resources.Load<Sprite>("Coins/xianshou");
-            var coinBackSpr  = Resources.Load<Sprite>("Coins/houshou");
+            var coinFrontSpr = LoadCardSprite("Coins/xianshou");
+            var coinBackSpr  = LoadCardSprite("Coins/houshou");
             if (_coinImg != null && coinBackSpr != null) _coinImg.sprite = coinBackSpr;
 
             // P37: 真实 Y 轴翻转（替代 Y-scale hack）
