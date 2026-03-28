@@ -2,6 +2,28 @@
 
 ---
 
+## 2026-03-28 — P27: 符文回收飞行动画
+
+**Phase**: P27 Rune Recycle Fly Animation
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — RefreshPlayerRunes 回收按钮 + RuneRecycleFly 协程
+
+**实现内容**:
+- **符文回收飞行动画**（visual-checklist `符文回收飞行（弧线到计数器）`）
+- 点击"回收"时：用 `GetWorldCorners` 获取符文行世界坐标 → `RectTransformUtility` 转换为 root canvas 局部坐标 → 创建 ghost label（Arial 18px，符文颜色）parented to `_rootCanvasRt`
+- 并行协程：`UITween.MoveY(+60px, 0.7s OutQuad)` + `UITween.FadeOut(0.7s)` → `Destroy(ghost)`
+- 原"新抽符文 PopIn"逻辑复用 `rowRt` 变量，消除变量重复声明
+
+**Design decisions**:
+- Ghost parented to `_rootCanvasRt` 而非 `_playerRuneTrans`：避免被 Refresh 的 ClearChildren 立即销毁
+- 位置在 RecycleRune+Refresh 之前采集（row 仍存活时）：避免 NullReference
+- CanvasGroup.blocksRaycasts=false：ghost 不拦截点击事件
+
+**Test results**: 395（无新测试，纯视觉层；静态分析逻辑正确）
+
+---
+
 ## 2026-03-28 — P26: 传奇死亡 Bug 修复 + 链路集成测试
 
 **Phase**: P26 Legend Death Chain Fix + Integration Tests

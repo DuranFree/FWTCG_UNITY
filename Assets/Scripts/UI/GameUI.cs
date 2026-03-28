@@ -353,7 +353,10 @@ namespace FWTCG.UI
                 Color  baseRune  = RuneColor(r.runeType);
                 Color  runeCol   = r.tapped ? baseRune * 0.38f : baseRune;
 
-                var row = AddHorizontalGroup(_playerRuneTrans);
+                var row   = AddHorizontalGroup(_playerRuneTrans);
+                var rowRt = row.GetComponent<RectTransform>(); // P27 飞行动画用
+                string capturedLabel = runeLabel;
+                Color  capturedCol   = runeCol;
 
                 // 显示标签
                 AddLabel(row, runeLabel, runeCol);
@@ -365,17 +368,31 @@ namespace FWTCG.UI
                         AddSmallButton(row, "横置", Color.green,
                             () => { _gm.TapRune(capturedIdx); });
 
-                    // 回收按钮
+                    // 回收按钮 — P27：先生成飞行 ghost，再执行回收
                     AddSmallButton(row, "回收", Color.yellow,
-                        () => { _gm.RecycleRune(capturedIdx); Refresh(); });
+                        () =>
+                        {
+                            // 获取符文行的画布局部坐标（此时 row 仍在场景中）
+                            var canvas = _rootCanvasRt.GetComponent<Canvas>();
+                            var cam    = canvas.renderMode == RenderMode.ScreenSpaceOverlay
+                                         ? null : canvas.worldCamera;
+                            Vector3[] corners = new Vector3[4];
+                            rowRt.GetWorldCorners(corners);
+                            var worldCenter = (corners[0] + corners[2]) * 0.5f;
+                            var screenPt    = RectTransformUtility.WorldToScreenPoint(cam, worldCenter);
+                            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                                    _rootCanvasRt, screenPt, cam, out var localPos))
+                                StartCoroutine(RuneRecycleFly(localPos, capturedLabel, capturedCol));
+                            _gm.RecycleRune(capturedIdx);
+                            Refresh();
+                        });
                 }
 
                 // 新抽到的符文播放错落入场动画（每张间隔 50ms）
                 if (i >= oldCount)
                 {
                     float delay = (i - oldCount) * 0.05f;
-                    var rowRt = row.GetComponent<RectTransform>();
-                    StartCoroutine(DelayedPopIn(rowRt, 0.25f, delay));
+                    StartCoroutine(DelayedPopIn(rowRt, 0.25f, delay)); // rowRt 已在上方声明
                 }
             }
 
@@ -1305,6 +1322,32 @@ namespace FWTCG.UI
         {
             if (delay > 0f) yield return new WaitForSeconds(delay);
             yield return UITween.PopIn(rt, duration);
+        }
+
+        /// <summary>
+        /// P27 — 符文回收飞行动画：在 root canvas 生成 ghost label，
+        /// 向上飘 60px + 淡出 0.7s，模拟符文飞入符能计数器效果。
+        /// </summary>
+        private IEnumerator RuneRecycleFly(Vector2 startPos, string label, Color col)
+        {
+            var ghost  = new GameObject("RuneRecycleGhost");
+            ghost.transform.SetParent(_rootCanvasRt, false);
+            var ghostRt = ghost.AddComponent<RectTransform>();
+            ghostRt.sizeDelta        = new Vector2(120f, 28f);
+            ghostRt.anchoredPosition = startPos;
+            var txt           = ghost.AddComponent<Text>();
+            txt.text          = label;
+            txt.color         = col;
+            txt.fontSize      = 18;
+            txt.alignment     = TextAnchor.MiddleCenter;
+            txt.font          = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            var cg            = ghost.AddComponent<CanvasGroup>();
+            cg.blocksRaycasts = false;
+            cg.interactable   = false;
+            // 向上飘 + 淡出并行（弧线飞向符能计数器）
+            StartCoroutine(UITween.MoveY(ghostRt, 60f, 0.7f, UITween.Ease.OutQuad));
+            yield return UITween.FadeOut(cg, 0.7f, UITween.Ease.OutQuad);
+            Destroy(ghost);
         }
 
         private void ShowCardDetail(CardInstance card)

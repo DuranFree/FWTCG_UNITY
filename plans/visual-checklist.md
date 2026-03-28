@@ -50,7 +50,7 @@
 - [ ] 眩晕光晕（0.6s）
 - [ ] 传奇技能激活环（0.8s）
 - ✅ 符文入场错落（每张 50ms 间隔）— P19 RefreshPlayerRunes，i >= oldCount 时 DelayedPopIn(0.25s, i*50ms)
-- [ ] 符文回收飞行（弧线到计数器）
+- ✅ 符文回收飞行（弧线到计数器）— P27 RuneRecycleFly 协程；回收按钮点击时生成 ghost label，MoveY(+60px) + FadeOut 并行 0.7s，parented to _rootCanvasRt
 - ✅ 卡牌落地震动（0.3s）— P23 AddUnitButton isNew 参数，UITween.Shake(4f, 0.3s)；_prevPBaseUids/_prevPBFUids 追踪玩家基地+战场新入场单位
 - [ ] 落地涟漪波（0.55s）
 - ✅ 战斗冲击波（0.38s）— P18 AppendLog 检测"死亡"触发 UITween.Shake(rootCanvasRt, 3.5f)
