@@ -138,6 +138,11 @@ namespace FWTCG.UI
         // P31: 日志浮动覆盖层
         private GameObject _logOverlayPanel;
 
+        // P33: 法术目标区域高亮
+        private Image _enemyZonePanelImg;
+        private Image _playerBasePanelImg;
+        private readonly List<(Image img, Color orig, Coroutine co)> _spellZoneGlows = new();
+
         // P32: 战斗闪光覆盖层
         private GameObject _combatOverlay;
         private Text        _combatOverlayText;
@@ -282,9 +287,10 @@ namespace FWTCG.UI
             RefreshPlayerHand();
             RefreshPlayerInfo();
             RefreshActionButtons();
-            RefreshScoreTracks();   // P31: 积分轨道圆圈颜色
-            RefreshLegendSlots();   // P31: 传奇牌槽数据
-            RebuildUnitTracking();  // P29: 每帧末尾更新 Buff/眩晕追踪基准值
+            RefreshScoreTracks();          // P31: 积分轨道圆圈颜色
+            RefreshLegendSlots();          // P31: 传奇牌槽数据
+            RefreshSpellTargetHighlight(); // P33: 法术目标区域高亮
+            RebuildUnitTracking();         // P29: 每帧末尾更新 Buff/眩晕追踪基准值
         }
 
         // ─────────────────────────────────────────────
@@ -605,6 +611,26 @@ namespace FWTCG.UI
                 drag.OnBeginDragCb = (id, pos) => BeginCardDrag(id, pos);
                 drag.OnDragCb      = pos        => UpdateCardDrag(pos);
                 drag.OnEndDragCb   = (id, pos)  => EndCardDrag(id, pos);
+            }
+
+            // ── P33: 旋转光弧（可打出时）──
+            if (canPlay)
+            {
+                var glowGo  = new GameObject("CanPlayGlow");
+                glowGo.transform.SetParent(go.transform, false);
+                var glowRt  = glowGo.AddComponent<RectTransform>();
+                glowRt.anchorMin = Vector2.zero;
+                glowRt.anchorMax = Vector2.one;
+                glowRt.offsetMin = new Vector2(-4f, -4f);
+                glowRt.offsetMax = new Vector2(4f,  4f);
+                var glowImg = glowGo.AddComponent<Image>();
+                glowImg.type       = Image.Type.Filled;
+                glowImg.fillMethod = Image.FillMethod.Radial360;
+                glowImg.fillAmount = 0.22f;  // ~80° 弧 = 彗星尾
+                glowImg.color      = new Color(0.25f, 0.91f, 0.54f, 0.55f);
+                glowImg.raycastTarget = false;
+                glowGo.AddComponent<CanPlayGlow>();
+                glowGo.transform.SetAsFirstSibling(); // 渲染在卡背景之上、其余内容之下
             }
 
             // ── 详情按钮（右上角小覆盖）──
@@ -988,6 +1014,7 @@ namespace FWTCG.UI
             // ── P31: 敌方区域（80-91%）— 左侧 13% 为传奇牌槽，其余为单位区 ──
             var enemyZonePanel = MakePanel(gameRoot, "EnemyZonePanel",
                 new Vector2(0.045f, 0.80f), new Vector2(0.955f, 0.91f), C_EnemyBg);
+            _enemyZonePanelImg = enemyZonePanel; // P33: 法术目标高亮
             BuildLegendSlot(enemyZonePanel.transform,
                 new Vector2(0f, 0f), new Vector2(0.13f, 1f), false,
                 out _eLegSlotEmoji, out _eLegSlotStats, out _eLegSlotHpFill);
@@ -1014,6 +1041,7 @@ namespace FWTCG.UI
             // ── P31: 玩家基地（22-31%）— 左侧 87% 为单位区，右侧 13% 为传奇牌槽 ──
             var playerBasePanel = MakePanel(gameRoot, "PlayerBasePanel",
                 new Vector2(0.045f, 0.22f), new Vector2(0.955f, 0.31f), C_PlayBg);
+            _playerBasePanelImg = playerBasePanel; // P33: 法术目标高亮
             _playerBaseTrans = MakeScrollContentAnchored(playerBasePanel.transform, "PlayerBaseContent",
                 horizontal: true, new Vector2(0f, 0f), new Vector2(0.87f, 1f));
             BuildLegendSlot(playerBasePanel.transform,
@@ -1899,6 +1927,10 @@ namespace FWTCG.UI
             if (isNew)
                 StartCoroutine(UITween.Shake(cardRt, 4f, 0.3f));
 
+            // P33: 落地涟漪波
+            if (isNew)
+                StartCoroutine(UnitLandRipple(cardRt));
+
             // 敌方单位：右上角"?"详情按钮
             if (isEnemy)
             {
@@ -1978,6 +2010,103 @@ namespace FWTCG.UI
             hpFill.color      = pct > 0.5f ? new Color(0.25f, 0.85f, 0.42f)
                               : pct > 0.25f ? new Color(0.95f, 0.75f, 0.15f)
                                             : new Color(0.9f, 0.2f, 0.2f);
+        }
+
+        // ─────────────────────────────────────────────
+        // P33 新增方法
+        // ─────────────────────────────────────────────
+
+        /// <summary>P33 — 法术/装备牌选中时高亮所有可放置区域，取消选中时停止。</summary>
+        private void RefreshSpellTargetHighlight()
+        {
+            var G = _gm.G;
+            CardInstance selCard = _sel.IsCardSelected
+                ? G.pHand.Find(c => c.uid == _sel.SelectedUid)
+                : null;
+            bool needGlow = selCard != null
+                && (selCard.type == CardType.Spell || selCard.type == CardType.Equipment)
+                && _gm.IsPlayerTurn;
+
+            if (needGlow && _spellZoneGlows.Count == 0)
+            {
+                // 启动各区域青色脉冲循环
+                Image[] zones = { _bf0PanelImg, _bf1PanelImg,
+                                  _enemyZonePanelImg, _playerBasePanelImg };
+                var glowCol = new Color(0.04f, 0.78f, 0.73f, 0.55f);
+                foreach (var img in zones)
+                {
+                    if (img == null) continue;
+                    var orig = img.color;
+                    var co   = StartCoroutine(SpellZoneGlowLoop(img, glowCol));
+                    _spellZoneGlows.Add((img, orig, co));
+                }
+                // Toast 提示
+                if (ToastSystem.Instance != null)
+                    ToastSystem.Instance.Show($"⚡ 请选择目标：{selCard.cardName}", 2.0f);
+            }
+            else if (!needGlow && _spellZoneGlows.Count > 0)
+            {
+                foreach (var (img, orig, co) in _spellZoneGlows)
+                {
+                    if (co  != null) StopCoroutine(co);
+                    if (img != null) img.color = orig;
+                }
+                _spellZoneGlows.Clear();
+            }
+        }
+
+        /// <summary>P33 — 区域高亮脉冲循环协程（origColor ↔ glowColor 0.4s）。</summary>
+        private IEnumerator SpellZoneGlowLoop(Image img, Color glowColor)
+        {
+            Color origColor = img.color;
+            while (true)
+            {
+                yield return UITween.TintTo(img, glowColor,  0.40f, UITween.Ease.InOutQuad);
+                yield return UITween.TintTo(img, origColor,  0.40f, UITween.Ease.InOutQuad);
+            }
+        }
+
+        /// <summary>P33 — 单位落地涟漪波：圆形 ghost 从单位中心向外扩散（0.55s）。</summary>
+        private IEnumerator UnitLandRipple(RectTransform sourceRt)
+        {
+            if (_rootCanvasRt == null) yield break;
+
+            // 在根 Canvas 上创建涟漪 Ghost
+            var ripGo  = new GameObject("LandRipple");
+            ripGo.transform.SetParent(_rootCanvasRt, false);
+            var ripRt  = ripGo.AddComponent<RectTransform>();
+            ripRt.sizeDelta   = new Vector2(88f, 88f);
+            ripRt.localScale  = Vector3.zero;
+            ripRt.pivot       = new Vector2(0.5f, 0.5f);
+
+            // 定位到 sourceRt 世界中心
+            var corners = new Vector3[4];
+            sourceRt.GetWorldCorners(corners);
+            Vector3 worldCenter = (corners[0] + corners[2]) * 0.5f;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                _rootCanvasRt,
+                RectTransformUtility.WorldToScreenPoint(null, worldCenter),
+                null, out Vector2 localPos);
+            ripRt.anchoredPosition = localPos;
+
+            var ripImg = ripGo.AddComponent<Image>();
+            ripImg.color = new Color(0.25f, 0.91f, 0.54f, 0.50f);
+            ripImg.raycastTarget = false;
+
+            // 扩散 + 淡出
+            const float duration = 0.55f;
+            float t = 0f;
+            while (t < duration)
+            {
+                t += Time.deltaTime;
+                float p     = Mathf.Clamp01(t / duration);
+                float eased = 1f - (1f - p) * (1f - p); // OutQuad
+                ripRt.localScale = Vector3.one * Mathf.Lerp(0f, 1.6f, eased);
+                ripImg.color     = new Color(0.25f, 0.91f, 0.54f, Mathf.Lerp(0.50f, 0f, p));
+                yield return null;
+            }
+
+            Destroy(ripGo);
         }
 
         private static Button AddButton(Transform parent, string label, Color col,

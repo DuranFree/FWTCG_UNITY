@@ -2,6 +2,24 @@
 
 ---
 
+## 2026-03-28 — P33: 法术目标高亮 + 旋转光环 + 落地涟漪
+
+**Phase**: P33 Spell Target Highlight + CanPlay Glow + Landing Ripple
+
+**Modified files**:
+- `Assets/Scripts/UI/CanPlayGlow.cs` — 新建 MonoBehaviour（旋转光弧）
+- `Assets/Scripts/UI/GameUI.cs` — 5处修改（字段/BuildCanvas/MkHandCard/Refresh/AddUnitCard）+ 3新方法
+
+**实现内容**:
+
+- **法术目标高亮（Feature A）**：`RefreshSpellTargetHighlight()` 在 Refresh() 末尾调用；选中法术/装备牌时启动 `SpellZoneGlowLoop`（BF0/BF1/敌区/我基 四区域，青色 #0ac8b9，0.4s InOutQuad 双向脉冲）；同时触发 Toast 提示「⚡ 请选择目标：{卡名}」（2s）；取消选中自动停止并恢复原色；`_spellZoneGlows` 追踪协程引用防重复
+- **旋转光弧（Feature B）**：`CanPlayGlow.cs` MonoBehaviour，`Update()` 持续 Z 轴旋转 120°/s（3s一圈）；MkHandCard 在 canPlay 时创建子 GO，`Image.Type.Filled + Radial360 + fillAmount=0.22f`（约80°弧 = 彗星尾），绿色 #40e88a 0.55 alpha，尺寸比卡片大 4px；SetAsFirstSibling 保证渲染层级
+- **落地涟漪（Feature C）**：`UnitLandRipple(RectTransform)` 协程；88×88px Image ghost 挂在 rootCanvas；`GetWorldCorners` + `ScreenPointToLocalPoint` 世界坐标转换；Scale 0→1.6 OutQuad + alpha 0.5→0 线性，持续 0.55s；AddUnitCard `isNew` 时触发（与震动并发）
+
+**Test results**: N/A（纯视觉层）
+
+---
+
 ## 2026-03-28 — P32: 扇形手牌弧线布局 + 战斗闪光覆盖层
 
 **Phase**: P32 Fan Hand Arc + Combat Flash Overlay

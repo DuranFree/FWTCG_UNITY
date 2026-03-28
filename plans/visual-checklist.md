@@ -18,7 +18,7 @@
 - ✅ 调整手牌界面（Mulligan）— P28 首次激活时 PopIn(0.4s)；_mulliganPopInDone 防止重复动画
 - ✅ 战斗日志面板（右侧可折叠）— P29 LogHeader 行（标签+▼/▶按钮）；点击切换 _logVisible，SetActive(_logScrollGo)
 - ✅ Toast 通知堆（浮动）— P14 ToastSystem.cs，淡入上滑+淡出，重要战斗事件触发
-- [ ] 法术提示弹窗（目标选取）
+- ✅ 法术提示弹窗（目标选取）— P33 RefreshSpellTargetHighlight；选中法术/装备时 Toast 提示 + 四区域 SpellZoneGlowLoop（青色 0.4s 双向脉冲）；取消选中自动停止
 
 ## 颜色
 - ✅ 主色调：金色 #c8aa6e、深黑 #010a13、青色 #0ac8b9 — P14 GameUI C_Gold/C_Dark/C_Cyan 常量，应用到全部面板
@@ -32,7 +32,7 @@
 
 ## 动画
 - ✅ 手牌入场动画（PopIn 0.28s OutBack）— P15 GameUI.RefreshPlayerHand，新 uid 检测，StartCoroutine UITween.PopIn
-- [ ] 卡牌可打出旋转光环（3s 线性，绿色彗星边框）
+- ✅ 卡牌可打出旋转光环（3s 线性，绿色彗星边框）— P33 CanPlayGlow.cs MonoBehaviour；Image.Filled + Radial360 + fillAmount=0.22（彗星弧）；120°/s Update 旋转；MkHandCard canPlay 时挂载
 - ✅ 悬停缩放（手牌 1→1.07，0.1s OutQuad）— P30 HoverScale.cs；IPointerEnterHandler/IPointerExitHandler + UITween.ScaleTo（Unity 无 CSS perspective，用 2D scale 替代）
 - [ ] 全息闪光扫过（foil-sweep 0.8s）
 - ✅ 战场区域呼吸动画（约 4.2s 循环）— P15 BFGlowLoop Coroutine，Sin 波 × InOutQuad，BF0/BF1 面板背景持续呼吸
@@ -52,7 +52,7 @@
 - ✅ 符文入场错落（每张 50ms 间隔）— P19 RefreshPlayerRunes，i >= oldCount 时 DelayedPopIn(0.25s, i*50ms)
 - ✅ 符文回收飞行（弧线到计数器）— P27 RuneRecycleFly 协程；回收按钮点击时生成 ghost label，MoveY(+60px) + FadeOut 并行 0.7s，parented to _rootCanvasRt
 - ✅ 卡牌落地震动（0.3s）— P23 AddUnitButton isNew 参数，UITween.Shake(4f, 0.3s)；_prevPBaseUids/_prevPBFUids 追踪玩家基地+战场新入场单位
-- [ ] 落地涟漪波（0.55s）
+- ✅ 落地涟漪波（0.55s）— P33 UnitLandRipple 协程；88×88px ghost Image 挂在 rootCanvas，GetWorldCorners 定位，Scale 0→1.6 + alpha 0.5→0 OutQuad 0.55s；AddUnitCard isNew 触发
 - ✅ 战斗冲击波（0.38s）— P18 AppendLog 检测"死亡"触发 UITween.Shake(rootCanvasRt, 3.5f)
 
 ## 特效
