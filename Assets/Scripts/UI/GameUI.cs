@@ -123,6 +123,21 @@ namespace FWTCG.UI
         private bool       _logVisible    = true;
         private Text       _logToggleText;          // 折叠按钮文字（▼/▶）
 
+        // P31: 积分轨道圆圈（玩家8个 + 敌方8个）
+        private readonly Image[] _pScoreCircles = new Image[8];
+        private readonly Image[] _eScoreCircles = new Image[8];
+
+        // P31: 传奇牌槽显示引用
+        private Text  _pLegSlotStats;   // 玩家传奇：名/HP/ATK
+        private Image _pLegSlotHpFill;  // 玩家传奇 HP 填充条
+        private Text  _pLegSlotEmoji;   // 玩家传奇 emoji
+        private Text  _eLegSlotStats;
+        private Image _eLegSlotHpFill;
+        private Text  _eLegSlotEmoji;
+
+        // P31: 日志浮动覆盖层
+        private GameObject _logOverlayPanel;
+
         // 拖拽出牌
         private GameObject   _dragGhost;
         private int          _dragUid = -1;
@@ -262,7 +277,9 @@ namespace FWTCG.UI
             RefreshPlayerHand();
             RefreshPlayerInfo();
             RefreshActionButtons();
-            RebuildUnitTracking(); // P29: 每帧末尾更新 Buff/眩晕追踪基准值
+            RefreshScoreTracks();   // P31: 积分轨道圆圈颜色
+            RefreshLegendSlots();   // P31: 传奇牌槽数据
+            RebuildUnitTracking();  // P29: 每帧末尾更新 Buff/眩晕追踪基准值
         }
 
         // ─────────────────────────────────────────────
@@ -292,14 +309,9 @@ namespace FWTCG.UI
         {
             ClearChildren(_enemyZoneTrans);
             var G = _gm.G;
-            // 显示敌方基地单位（不可交互，仅显示；可点详情）
+            // P31: 敌方基地单位改为小卡片（compact 横版）
             foreach (var u in G.eBase)
-            {
-                var capturedU = u;
-                var row = AddHorizontalGroup(_enemyZoneTrans);
-                AddLabel(row, UnitLabel(u), Color.red);
-                AddSmallButton(row, "详", C_Gold, () => ShowCardDetail(capturedU));
-            }
+                AddUnitCard(_enemyZoneTrans, u, Owner.Enemy, false, compact: true);
         }
 
         private void RefreshBattlefields()
@@ -335,16 +347,16 @@ namespace FWTCG.UI
             if (bfIdx == 0) _prevBF0CardId = cardId;
             else            _prevBF1CardId = cardId;
 
-            // 敌方单位
+            // P31: 敌方单位 — 竖版小卡片
             foreach (var u in bf.eU)
-                AddLabel(trans, UnitLabel(u), Color.red);
+                AddUnitCard(trans, u, Owner.Enemy, false);
 
-            // 玩家单位（可点击选中/选目标）
+            // P31: 玩家单位 — 竖版小卡片（可点击）
             foreach (var u in bf.pU)
             {
                 bool isSel = _sel.IsUnitSelected && _sel.SelectedUid == u.uid;
                 bool isNew = !_prevPBFUids.Contains(u.uid);
-                AddUnitButton(trans, u, Owner.Player, isSel, isNew);
+                AddUnitCard(trans, u, Owner.Player, isSel, isNew);
             }
 
             // 空战场区域：可作为出牌目标 / 移动目标
@@ -362,13 +374,12 @@ namespace FWTCG.UI
             DetectDeathsAndAnimate(_playerBaseTrans, G.pBase); // P28: 死亡飞出
             ClearChildren(_playerBaseTrans);
 
-            AddLabel(_playerBaseTrans, "--- 我方基地 ---", Color.white);
-
+            // P31: 玩家基地单位 — compact 横版小卡片
             foreach (var u in G.pBase)
             {
                 bool isSel = _sel.IsUnitSelected && _sel.SelectedUid == u.uid;
                 bool isNew = !_prevPBaseUids.Contains(u.uid);
-                AddUnitButton(_playerBaseTrans, u, Owner.Player, isSel, isNew);
+                AddUnitCard(_playerBaseTrans, u, Owner.Player, isSel, isNew, compact: true);
             }
 
             if (_gm.IsPlayerTurn)
@@ -801,21 +812,24 @@ namespace FWTCG.UI
             _gameRootCg  = safeAreaGo.AddComponent<CanvasGroup>();
             var gameRoot = safeAreaGo.transform;
 
-            // ── 敌方信息栏（顶部 8%）──
+            // ── P31: 敌方信息栏（91-100%，4.5%侧边留给积分轨道）──
             var enemyInfoPanel = MakePanel(gameRoot, "EnemyInfoPanel",
-                new Vector2(0, 0.92f), new Vector2(0.75f, 1f), C_EnemyBg);
-            _enemyInfoText = MakeText(enemyInfoPanel.transform, "EnemyInfoText", 13);
+                new Vector2(0.045f, 0.91f), new Vector2(0.955f, 1f), C_EnemyBg);
+            _enemyInfoText = MakeText(enemyInfoPanel.transform, "EnemyInfoText", 12);
             _enemyInfoText.color = C_Gold;
 
-            // ── 敌方区域（86-92%）──
+            // ── P31: 敌方区域（80-91%）— 左侧 13% 为传奇牌槽，其余为单位区 ──
             var enemyZonePanel = MakePanel(gameRoot, "EnemyZonePanel",
-                new Vector2(0, 0.77f), new Vector2(0.75f, 0.92f), C_EnemyBg);
-            _enemyZoneTrans = MakeScrollContent(enemyZonePanel.transform, "EnemyZoneContent",
-                horizontal: true);
+                new Vector2(0.045f, 0.80f), new Vector2(0.955f, 0.91f), C_EnemyBg);
+            BuildLegendSlot(enemyZonePanel.transform,
+                new Vector2(0f, 0f), new Vector2(0.13f, 1f), false,
+                out _eLegSlotEmoji, out _eLegSlotStats, out _eLegSlotHpFill);
+            _enemyZoneTrans = MakeScrollContentAnchored(enemyZonePanel.transform, "EnemyZoneContent",
+                horizontal: true, new Vector2(0.13f, 0f), new Vector2(1f, 1f));
 
-            // ── 战场（44-77%）──
+            // ── P31: 战场（31-80%，扩大后约 353px）──
             var bfPanel = MakePanel(gameRoot, "BattlefieldPanel",
-                new Vector2(0, 0.34f), new Vector2(0.75f, 0.77f), C_BFBg);
+                new Vector2(0.045f, 0.31f), new Vector2(0.955f, 0.80f), C_BFBg);
             var bfLayout = bfPanel.gameObject.AddComponent<HorizontalLayoutGroup>();
             bfLayout.childControlWidth  = true;
             bfLayout.childControlHeight = true;
@@ -830,55 +844,68 @@ namespace FWTCG.UI
             _bf1PanelImg = _bf1Trans.gameObject.AddComponent<Image>();
             _bf1PanelImg.color = C_BFBg;
 
-            // ── 玩家基地（25-34%）──
+            // ── P31: 玩家基地（22-31%）— 左侧 87% 为单位区，右侧 13% 为传奇牌槽 ──
             var playerBasePanel = MakePanel(gameRoot, "PlayerBasePanel",
-                new Vector2(0, 0.25f), new Vector2(0.75f, 0.34f), C_PlayBg);
-            _playerBaseTrans = MakeScrollContent(playerBasePanel.transform, "PlayerBaseContent",
-                horizontal: true);
+                new Vector2(0.045f, 0.22f), new Vector2(0.955f, 0.31f), C_PlayBg);
+            _playerBaseTrans = MakeScrollContentAnchored(playerBasePanel.transform, "PlayerBaseContent",
+                horizontal: true, new Vector2(0f, 0f), new Vector2(0.87f, 1f));
+            BuildLegendSlot(playerBasePanel.transform,
+                new Vector2(0.87f, 0f), new Vector2(1f, 1f), true,
+                out _pLegSlotEmoji, out _pLegSlotStats, out _pLegSlotHpFill);
 
-            // ── 玩家符文（16-25%）──
+            // ── P31: 玩家符文（13-22%）──
             var playerRunePanel = MakePanel(gameRoot, "PlayerRunePanel",
-                new Vector2(0, 0.16f), new Vector2(0.75f, 0.25f), C_RuneBg);
+                new Vector2(0.045f, 0.13f), new Vector2(0.955f, 0.22f), C_RuneBg);
             _playerRuneTrans = MakeScrollContent(playerRunePanel.transform, "PlayerRuneContent",
                 horizontal: true);
 
-            // ── 玩家手牌（5-16%）──
+            // ── P31: 玩家手牌（5-13%）──
             var playerHandPanel = MakePanel(gameRoot, "PlayerHandPanel",
-                new Vector2(0, 0.05f), new Vector2(0.75f, 0.16f), C_HandBg);
+                new Vector2(0.045f, 0.05f), new Vector2(0.955f, 0.15f), C_HandBg);
             _playerHandTrans = MakeScrollContent(playerHandPanel.transform, "PlayerHandContent",
                 horizontal: true);
 
-            // ── 玩家信息 + 操作栏（0-5%）──
+            // ── P31: 玩家操作栏（0-5%）──
             var actionPanel = MakePanel(gameRoot, "ActionPanel",
-                new Vector2(0, 0f), new Vector2(0.75f, 0.05f), C_DarkBg);
+                new Vector2(0.045f, 0f), new Vector2(0.955f, 0.05f), C_DarkBg);
             var actionLayout = actionPanel.gameObject.AddComponent<HorizontalLayoutGroup>();
             actionLayout.childControlWidth  = false;
             actionLayout.childControlHeight = true;
             actionLayout.spacing = 6;
             actionLayout.padding = new RectOffset(4, 4, 2, 2);
 
-            _playerInfoText = MakeText(actionPanel.transform, "PlayerInfoText", 12);
+            _playerInfoText = MakeText(actionPanel.transform, "PlayerInfoText", 11);
             _playerInfoText.color = C_Gold;
             var pInfoRt     = _playerInfoText.GetComponent<RectTransform>();
-            pInfoRt.sizeDelta = new Vector2(600, 0);
+            pInfoRt.sizeDelta = new Vector2(480, 0);
 
-            (_endTurnBtn, _endTurnBtnText) = MakeButton(actionPanel.transform, "结束回合", 14,
+            (_endTurnBtn, _endTurnBtnText) = MakeButton(actionPanel.transform, "结束回合", 13,
                 () => { _sel.Clear(); _gm.PlayerEndTurn(); });
             _endTurnBtnText.color = C_Gold;
 
-            (_legendBtn, _legendBtnText) = MakeButton(actionPanel.transform, "传奇技能", 12,
+            (_legendBtn, _legendBtnText) = MakeButton(actionPanel.transform, "传奇技能", 11,
                 () =>
                 {
                     _gm.ActivateLegendAbility("ability1");
                     StartCoroutine(LegendActivateFlash()); // P29: 激活光环
                 });
 
-            MakeButton(actionPanel.transform, "废牌堆", 11,
+            MakeButton(actionPanel.transform, "废牌堆", 10,
                 () => ShowDiscardPile());
 
-            // ── 右侧日志面板（75-100%宽，全高）──
+            // P31: 日志浮动按钮（覆盖层开关）
+            MakeButton(actionPanel.transform, "日志", 10,
+                () =>
+                {
+                    bool nowVisible = !(_logOverlayPanel?.activeSelf ?? false);
+                    _logOverlayPanel?.SetActive(nowVisible);
+                });
+
+            // ── P31: 日志浮动覆盖层（默认隐藏，点"日志"按钮弹出）──
             var logPanel = MakePanel(gameRoot, "LogPanel",
-                new Vector2(0.75f, 0f), new Vector2(1f, 1f), C_LogBg);
+                new Vector2(0.55f, 0f), new Vector2(1f, 1f), C_LogBg);
+            _logOverlayPanel = logPanel.gameObject;
+            _logOverlayPanel.SetActive(false);
 
             // P29: 日志标题行（标签 + 折叠按钮）
             var logHeaderGo = new GameObject("LogHeader");
@@ -948,6 +975,22 @@ namespace FWTCG.UI
             logViewport.AddComponent<Mask>();
             logViewport.AddComponent<Image>().color = new Color(0, 0, 0, 0.01f);
             _logScroll.viewport = logViewportRt;
+
+            // ── P31: 玩家积分轨道（左侧，y: 0.05-0.85）──
+            {
+                var trackPanel = MakePanel(gameRoot, "PlayerScoreTrack",
+                    new Vector2(0f, 0.05f), new Vector2(0.045f, 0.85f),
+                    new Color(0.02f, 0.02f, 0.06f, 0.9f));
+                BuildScoreTrack(trackPanel.transform, _pScoreCircles, isPlayer: true);
+            }
+
+            // ── P31: 敌方积分轨道（右侧，y: 0.15-0.95）──
+            {
+                var trackPanel = MakePanel(gameRoot, "EnemyScoreTrack",
+                    new Vector2(0.955f, 0.15f), new Vector2(1f, 0.95f),
+                    new Color(0.06f, 0.02f, 0.02f, 0.9f));
+                BuildScoreTrack(trackPanel.transform, _eScoreCircles, isPlayer: false);
+            }
 
             // ── Mulligan 面板（全屏覆盖）──
             _mulliganPanel = MakePanel(gameRoot, "MulliganPanel",
@@ -1198,6 +1241,213 @@ namespace FWTCG.UI
             return go.transform;
         }
 
+        /// <summary>P31 — 指定 anchorMin/Max 的 ScrollContent 容器（与 MakeScrollContent 逻辑相同，但支持自定义锚点）。</summary>
+        private static Transform MakeScrollContentAnchored(Transform parent, string name, bool horizontal,
+            Vector2 anchorMin, Vector2 anchorMax)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            var rt = go.AddComponent<RectTransform>();
+            rt.anchorMin = anchorMin;
+            rt.anchorMax = anchorMax;
+            rt.offsetMin = rt.offsetMax = Vector2.zero;
+
+            if (horizontal)
+            {
+                var layout = go.AddComponent<HorizontalLayoutGroup>();
+                layout.childControlWidth  = false;
+                layout.childControlHeight = true;
+                layout.spacing = 4;
+                layout.padding = new RectOffset(4, 4, 4, 4);
+                layout.childAlignment = TextAnchor.MiddleLeft;
+            }
+            else
+            {
+                var layout = go.AddComponent<VerticalLayoutGroup>();
+                layout.childControlWidth  = true;
+                layout.childControlHeight = false;
+                layout.spacing = 2;
+                layout.padding = new RectOffset(4, 4, 4, 4);
+            }
+            return go.transform;
+        }
+
+        /// <summary>
+        /// P31 — 积分轨道：8 个圆圈纵向排列，底部=1分 / 顶部=8分。
+        /// circles[] 由调用方传入，供 RefreshScoreTracks 每帧更新颜色。
+        /// </summary>
+        private static void BuildScoreTrack(Transform parent, Image[] circles, bool isPlayer)
+        {
+            var go = new GameObject("ScoreCircles");
+            go.transform.SetParent(parent, false);
+            var rt = go.AddComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = rt.offsetMax = Vector2.zero;
+
+            var layout = go.AddComponent<VerticalLayoutGroup>();
+            layout.childAlignment        = TextAnchor.MiddleCenter;
+            layout.childControlWidth     = true;
+            layout.childControlHeight    = false;
+            layout.spacing               = 2;
+            layout.padding               = new RectOffset(3, 3, 6, 6);
+            layout.reverseArrangement    = true;   // 1分在底部
+
+            // 标题文字（"我"/"敌"）
+            var titleGo = new GameObject("TrackLabel");
+            titleGo.transform.SetParent(go.transform, false);
+            var titleRt = titleGo.AddComponent<RectTransform>();
+            titleRt.sizeDelta = new Vector2(0, 14);
+            var titleTxt = titleGo.AddComponent<Text>();
+            titleTxt.font      = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            titleTxt.fontSize  = 8;
+            titleTxt.alignment = TextAnchor.MiddleCenter;
+            titleTxt.color     = isPlayer ? new Color(0.25f, 0.91f, 0.54f) : new Color(1f, 0.4f, 0.4f);
+            titleTxt.text      = isPlayer ? "我" : "敌";
+
+            // 8 个得分圆圈
+            for (int i = 0; i < 8; i++)
+            {
+                var circleGo = new GameObject($"Circle_{i + 1}");
+                circleGo.transform.SetParent(go.transform, false);
+                var cRt = circleGo.AddComponent<RectTransform>();
+                cRt.sizeDelta = new Vector2(0, 20);
+
+                var bg = circleGo.AddComponent<Image>();
+                bg.color = new Color(0.22f, 0.22f, 0.28f, 0.7f);
+                circles[i] = bg;
+
+                // 分值文字
+                var numGo = new GameObject("Num");
+                numGo.transform.SetParent(circleGo.transform, false);
+                var numRt = numGo.AddComponent<RectTransform>();
+                numRt.anchorMin = Vector2.zero;
+                numRt.anchorMax = Vector2.one;
+                numRt.offsetMin = numRt.offsetMax = Vector2.zero;
+                var numTxt = numGo.AddComponent<Text>();
+                numTxt.font           = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                numTxt.fontSize       = 9;
+                numTxt.alignment      = TextAnchor.MiddleCenter;
+                numTxt.color          = Color.white;
+                numTxt.text           = (i + 1).ToString();
+                numTxt.raycastTarget  = false;
+            }
+        }
+
+        /// <summary>
+        /// P31 — 传奇牌槽（62×全高，静态面板，Refresh 时只更新文字/颜色）。
+        /// isPlayer=true 置于玩家基地右侧，false 置于敌方区域左侧。
+        /// </summary>
+        private void BuildLegendSlot(Transform parent, Vector2 anchorMin, Vector2 anchorMax, bool isPlayer,
+            out Text emojiText, out Text statsText, out Image hpFill)
+        {
+            var slot = new GameObject(isPlayer ? "PlayerLegendSlot" : "EnemyLegendSlot");
+            slot.transform.SetParent(parent, false);
+            var slotRt = slot.AddComponent<RectTransform>();
+            slotRt.anchorMin = anchorMin;
+            slotRt.anchorMax = anchorMax;
+            slotRt.offsetMin = new Vector2(2, 2);
+            slotRt.offsetMax = new Vector2(-2, -2);
+
+            var slotBg = slot.AddComponent<Image>();
+            slotBg.color = isPlayer
+                ? new Color(0.04f, 0.10f, 0.20f, 0.92f)
+                : new Color(0.18f, 0.04f, 0.04f, 0.92f);
+
+            // 顶部边框线
+            var borderGo = new GameObject("Border");
+            borderGo.transform.SetParent(slot.transform, false);
+            var borderRt = borderGo.AddComponent<RectTransform>();
+            borderRt.anchorMin = Vector2.zero;
+            borderRt.anchorMax = Vector2.one;
+            borderRt.offsetMin = Vector2.zero;
+            borderRt.offsetMax = Vector2.zero;
+            var borderImg = borderGo.AddComponent<Image>();
+            borderImg.color = new Color(C_Gold.r, C_Gold.g, C_Gold.b, 0.45f);
+            borderImg.raycastTarget = false;
+            // 用内边距模拟细描边
+            var innerGo = new GameObject("Inner");
+            innerGo.transform.SetParent(slot.transform, false);
+            var innerRt = innerGo.AddComponent<RectTransform>();
+            innerRt.anchorMin = Vector2.zero;
+            innerRt.anchorMax = Vector2.one;
+            innerRt.offsetMin = new Vector2(1, 1);
+            innerRt.offsetMax = new Vector2(-1, -1);
+            var innerImg = innerGo.AddComponent<Image>();
+            innerImg.color = slotBg.color;
+            innerImg.raycastTarget = false;
+
+            // Emoji / 卡图区域（上方 55%）
+            var artGo = new GameObject("Art");
+            artGo.transform.SetParent(slot.transform, false);
+            var artRt = artGo.AddComponent<RectTransform>();
+            artRt.anchorMin = new Vector2(0f, 0.38f);
+            artRt.anchorMax = Vector2.one;
+            artRt.offsetMin = new Vector2(2, 0);
+            artRt.offsetMax = new Vector2(-2, -2);
+
+            var artBg = artGo.AddComponent<Image>();
+            artBg.color = new Color(0.08f, 0.08f, 0.12f, 0.8f);
+            artBg.raycastTarget = false;
+
+            var eGo = new GameObject("EmojiText");
+            eGo.transform.SetParent(artGo.transform, false);
+            var eRt = eGo.AddComponent<RectTransform>();
+            eRt.anchorMin = Vector2.zero;
+            eRt.anchorMax = Vector2.one;
+            eRt.offsetMin = eRt.offsetMax = Vector2.zero;
+            emojiText = eGo.AddComponent<Text>();
+            emojiText.font           = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            emojiText.fontSize       = 20;
+            emojiText.alignment      = TextAnchor.MiddleCenter;
+            emojiText.color          = Color.white;
+            emojiText.text           = "?";
+            emojiText.raycastTarget  = false;
+
+            // 数据区（下方 38%）
+            var statsGo = new GameObject("Stats");
+            statsGo.transform.SetParent(slot.transform, false);
+            var statsRt = statsGo.AddComponent<RectTransform>();
+            statsRt.anchorMin = new Vector2(0f, 0f);
+            statsRt.anchorMax = new Vector2(1f, 0.38f);
+            statsRt.offsetMin = new Vector2(2, 14);
+            statsRt.offsetMax = new Vector2(-2, 0);
+
+            statsText = statsGo.AddComponent<Text>();
+            statsText.font          = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            statsText.fontSize      = 8;
+            statsText.alignment     = TextAnchor.UpperCenter;
+            statsText.color         = Color.white;
+            statsText.text          = "-";
+            statsText.raycastTarget = false;
+
+            // HP 条背景（下边缘 13px）
+            var hpBgGo = new GameObject("HpBarBg");
+            hpBgGo.transform.SetParent(slot.transform, false);
+            var hpBgRt = hpBgGo.AddComponent<RectTransform>();
+            hpBgRt.anchorMin = new Vector2(0f, 0f);
+            hpBgRt.anchorMax = new Vector2(1f, 0f);
+            hpBgRt.offsetMin = new Vector2(3, 3);
+            hpBgRt.offsetMax = new Vector2(-3, 12);
+            hpBgGo.AddComponent<Image>().color = new Color(0.15f, 0.15f, 0.18f, 1f);
+
+            // HP 条填充（Image.Filled）
+            var hpFillGo = new GameObject("HpFill");
+            hpFillGo.transform.SetParent(hpBgGo.transform, false);
+            var hpFillRt = hpFillGo.AddComponent<RectTransform>();
+            hpFillRt.anchorMin = Vector2.zero;
+            hpFillRt.anchorMax = Vector2.one;
+            hpFillRt.offsetMin = hpFillRt.offsetMax = Vector2.zero;
+            hpFill = hpFillGo.AddComponent<Image>();
+            hpFill.type       = Image.Type.Filled;
+            hpFill.fillMethod = Image.FillMethod.Horizontal;
+            hpFill.fillAmount = 1f;
+            hpFill.color      = isPlayer
+                ? new Color(0.25f, 0.85f, 0.42f)
+                : new Color(0.88f, 0.30f, 0.30f);
+            hpFill.raycastTarget = false;
+        }
+
         private static Text MakeText(Transform parent, string name, int fontSize)
         {
             var go = new GameObject(name);
@@ -1307,6 +1557,239 @@ namespace FWTCG.UI
             var (btn, lbl) = MakeButton(parent, label, 11, () => OnZoneClicked(zone));
             lbl.color = col;
             btn.gameObject.AddComponent<ZoneDropTarget>().ZoneId = zone;
+        }
+
+        /// <summary>
+        /// P31 — 单位小卡片（战场用竖版 70×95px，基地用横版 110×52px）。
+        /// 取代原 AddUnitButton 的文字按钮；保留 "UnitBtn_{uid}" 命名供死亡检测。
+        /// </summary>
+        private void AddUnitCard(Transform parent, CardInstance u, Owner owner,
+            bool selected, bool isNew = false, bool compact = false)
+        {
+            int capturedUid = u.uid;
+            bool isEnemy = owner == Owner.Enemy;
+
+            // ── 容器 ──
+            var cardGo = new GameObject($"UnitBtn_{u.uid}");
+            cardGo.transform.SetParent(parent, false);
+            var cardRt = cardGo.AddComponent<RectTransform>();
+            cardRt.sizeDelta = compact ? new Vector2(110, 52) : new Vector2(70, 95);
+
+            var bg = cardGo.AddComponent<Image>();
+            bg.color = selected ? new Color(0.04f, 0.35f, 0.42f, 0.95f)
+                     : isEnemy  ? new Color(0.28f, 0.05f, 0.05f, 0.9f)
+                                : new Color(0.05f, 0.11f, 0.22f, 0.9f);
+
+            // 描边（1px 金色/红色外框）
+            var borderGo = new GameObject("Border");
+            borderGo.transform.SetParent(cardGo.transform, false);
+            var borderRt = borderGo.AddComponent<RectTransform>();
+            borderRt.anchorMin = Vector2.zero;
+            borderRt.anchorMax = Vector2.one;
+            borderRt.offsetMin = Vector2.zero;
+            borderRt.offsetMax = Vector2.zero;
+            var borderImg = borderGo.AddComponent<Image>();
+            borderImg.color = selected ? C_Cyan
+                            : isEnemy  ? new Color(0.8f, 0.25f, 0.25f, 0.6f)
+                                       : new Color(C_Gold.r, C_Gold.g, C_Gold.b, 0.4f);
+            borderImg.raycastTarget = false;
+            var innerOverlay = new GameObject("BgFill");
+            innerOverlay.transform.SetParent(cardGo.transform, false);
+            var ioRt = innerOverlay.AddComponent<RectTransform>();
+            ioRt.anchorMin = Vector2.zero;
+            ioRt.anchorMax = Vector2.one;
+            ioRt.offsetMin = new Vector2(1, 1);
+            ioRt.offsetMax = new Vector2(-1, -1);
+            var ioImg = innerOverlay.AddComponent<Image>();
+            ioImg.color = bg.color;
+            ioImg.raycastTarget = false;
+
+            // 按钮（仅玩家单位）
+            if (!isEnemy)
+            {
+                var btn = cardGo.AddComponent<Button>();
+                btn.targetGraphic = bg;
+                var cols = btn.colors;
+                cols.highlightedColor = new Color(0.10f, 0.26f, 0.38f, 1f);
+                cols.pressedColor     = new Color(0.02f, 0.08f, 0.16f, 1f);
+                btn.colors = cols;
+                btn.onClick.AddListener(() => OnPlayerUnitClicked(capturedUid));
+            }
+
+            _unitNames[u.uid] = u.cardName; // P28: 死亡飞出
+
+            // ── Emoji / 图标区域 ──
+            float emojiAnchorY = compact ? 0.30f : 0.36f;
+            float emojiLeft    = compact ? 0f    : 0f;
+            float emojiRight   = compact ? 0.35f : 1f;
+
+            var artGo = new GameObject("Art");
+            artGo.transform.SetParent(cardGo.transform, false);
+            var artRt = artGo.AddComponent<RectTransform>();
+            artRt.anchorMin = new Vector2(emojiLeft,  emojiAnchorY);
+            artRt.anchorMax = new Vector2(emojiRight, 1f);
+            artRt.offsetMin = artRt.offsetMax = Vector2.zero;
+            artGo.AddComponent<Image>().color = new Color(0.1f, 0.1f, 0.14f, 0.5f);
+
+            var eGo = new GameObject("Emoji");
+            eGo.transform.SetParent(artGo.transform, false);
+            var eRt = eGo.AddComponent<RectTransform>();
+            eRt.anchorMin = Vector2.zero;
+            eRt.anchorMax = Vector2.one;
+            eRt.offsetMin = eRt.offsetMax = Vector2.zero;
+            var emojiTxt = eGo.AddComponent<Text>();
+            emojiTxt.font          = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            emojiTxt.fontSize      = compact ? 16 : 20;
+            emojiTxt.alignment     = TextAnchor.MiddleCenter;
+            emojiTxt.color         = Color.white;
+            emojiTxt.text          = u.emoji ?? "?";
+            emojiTxt.raycastTarget = false;
+
+            // ── 名称 ──
+            float nameLeft   = compact ? 0.37f : 0f;
+            float nameTop    = compact ? 0.55f : emojiAnchorY;
+            float nameBottom = compact ? 1f    : emojiAnchorY + 0.18f;
+
+            var nameGo = new GameObject("Name");
+            nameGo.transform.SetParent(cardGo.transform, false);
+            var nameRt = nameGo.AddComponent<RectTransform>();
+            nameRt.anchorMin = new Vector2(nameLeft, compact ? 0.55f : (emojiAnchorY - 0.18f));
+            nameRt.anchorMax = new Vector2(1f,       compact ? 1f    : emojiAnchorY);
+            nameRt.offsetMin = new Vector2(2, 0);
+            nameRt.offsetMax = new Vector2(-2, 0);
+            var nameTxt = nameGo.AddComponent<Text>();
+            nameTxt.font          = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            nameTxt.fontSize      = 8;
+            nameTxt.alignment     = compact ? TextAnchor.UpperLeft : TextAnchor.MiddleCenter;
+            nameTxt.color         = new Color(0.85f, 0.85f, 0.85f);
+            string displayName    = u.cardName.Length > 5 ? u.cardName.Substring(0, 5) : u.cardName;
+            nameTxt.text          = displayName;
+            nameTxt.raycastTarget = false;
+
+            // ── ATK/HP 数值 ──
+            var statsGo = new GameObject("Stats");
+            statsGo.transform.SetParent(cardGo.transform, false);
+            var statsRt = statsGo.AddComponent<RectTransform>();
+            statsRt.anchorMin = new Vector2(compact ? 0.37f : 0f, 0f);
+            statsRt.anchorMax = new Vector2(1f, compact ? 0.55f : (emojiAnchorY - 0.18f));
+            statsRt.offsetMin = new Vector2(2, 1);
+            statsRt.offsetMax = new Vector2(-2, -1);
+            statsGo.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0.5f);
+
+            var stGo = new GameObject("StatsTxt");
+            stGo.transform.SetParent(statsGo.transform, false);
+            var stRt = stGo.AddComponent<RectTransform>();
+            stRt.anchorMin = Vector2.zero;
+            stRt.anchorMax = Vector2.one;
+            stRt.offsetMin = stRt.offsetMax = Vector2.zero;
+            var statsTxt = stGo.AddComponent<Text>();
+            statsTxt.font       = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            statsTxt.fontSize   = 10;
+            statsTxt.fontStyle  = FontStyle.Bold;
+            statsTxt.alignment  = TextAnchor.MiddleCenter;
+            statsTxt.color      = selected ? C_Cyan
+                                : isEnemy  ? new Color(1f, 0.65f, 0.65f)
+                                           : Color.white;
+            string exStr   = u.exhausted ? "疲" : "";
+            string stunStr = u.stunned   ? "晕" : "";
+            string suffix  = string.IsNullOrEmpty(exStr + stunStr) ? "" : $"[{exStr}{stunStr}]";
+            statsTxt.text = $"{u.currentAtk}/{u.currentHp}{suffix}";
+            statsTxt.raycastTarget = false;
+
+            // P29: Buff/Debuff 光晕
+            if (_prevUnitAtk.TryGetValue(u.uid, out int prevAtk) && !isNew)
+            {
+                if (u.currentAtk > prevAtk)
+                    StartCoroutine(UITween.PulseColor(statsTxt, new Color(0.25f, 0.91f, 0.54f), 0.6f));
+                else if (u.currentAtk < prevAtk)
+                    StartCoroutine(UITween.PulseColor(statsTxt, new Color(1f, 0.30f, 0.30f), 0.6f));
+            }
+            if (u.stunned && !_prevStunnedUids.Contains(u.uid))
+                StartCoroutine(UITween.PulseColor(statsTxt, new Color(1f, 0.80f, 0.20f), 0.6f));
+
+            // P28: 落地震动
+            if (isNew)
+                StartCoroutine(UITween.Shake(cardRt, 4f, 0.3f));
+
+            // 敌方单位：右上角"?"详情按钮
+            if (isEnemy)
+            {
+                var capturedU = u;
+                var detGo = new GameObject("DetailBtn");
+                detGo.transform.SetParent(cardGo.transform, false);
+                var detRt = detGo.AddComponent<RectTransform>();
+                detRt.anchorMin = new Vector2(0.6f, 0.78f);
+                detRt.anchorMax = Vector2.one;
+                detRt.offsetMin = detRt.offsetMax = Vector2.zero;
+                var detBg = detGo.AddComponent<Image>();
+                detBg.color = new Color(0.2f, 0.1f, 0.1f, 0.85f);
+                var detBtn = detGo.AddComponent<Button>();
+                detBtn.targetGraphic = detBg;
+                detBtn.onClick.AddListener(() => ShowCardDetail(capturedU));
+                var detTxtGo = new GameObject("L");
+                detTxtGo.transform.SetParent(detGo.transform, false);
+                var detTxtRt = detTxtGo.AddComponent<RectTransform>();
+                detTxtRt.anchorMin = Vector2.zero;
+                detTxtRt.anchorMax = Vector2.one;
+                detTxtRt.offsetMin = detTxtRt.offsetMax = Vector2.zero;
+                var detTxt = detTxtGo.AddComponent<Text>();
+                detTxt.font      = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                detTxt.fontSize  = 8;
+                detTxt.color     = C_Gold;
+                detTxt.alignment = TextAnchor.MiddleCenter;
+                detTxt.text      = "?";
+            }
+        }
+
+        /// <summary>P31 — 刷新积分轨道圆圈颜色（每次 Refresh 调用）。</summary>
+        private void RefreshScoreTracks()
+        {
+            var G = _gm.G;
+            var green = new Color(0.25f, 0.91f, 0.54f);
+            var red   = new Color(1f,    0.38f, 0.38f);
+            var empty = new Color(0.22f, 0.22f, 0.28f, 0.7f);
+
+            for (int i = 0; i < 8; i++)
+            {
+                if (_pScoreCircles[i] != null)
+                    _pScoreCircles[i].color = i < G.pScore
+                        ? (G.pScore >= 8 ? C_Gold : green)
+                        : empty;
+                if (_eScoreCircles[i] != null)
+                    _eScoreCircles[i].color = i < G.eScore
+                        ? (G.eScore >= 8 ? C_Gold : red)
+                        : empty;
+            }
+        }
+
+        /// <summary>P31 — 刷新传奇牌槽显示（emoji / 名称 / ATK / HP条）。</summary>
+        private void RefreshLegendSlots()
+        {
+            var G = _gm.G;
+            UpdateLegendSlot(G.pLeg, _pLegSlotEmoji, _pLegSlotStats, _pLegSlotHpFill, isPlayer: true);
+            UpdateLegendSlot(G.eLeg, _eLegSlotEmoji, _eLegSlotStats, _eLegSlotHpFill, isPlayer: false);
+        }
+
+        private static void UpdateLegendSlot(CardInstance leg,
+            Text emojiTxt, Text statsTxt, Image hpFill, bool isPlayer)
+        {
+            if (emojiTxt == null || statsTxt == null || hpFill == null) return;
+
+            if (leg == null)
+            {
+                emojiTxt.text  = "?";
+                statsTxt.text  = "-";
+                hpFill.fillAmount = 1f;
+                return;
+            }
+
+            emojiTxt.text = leg.emoji ?? (isPlayer ? "⚔" : "💀");
+            statsTxt.text = $"{leg.data.cardName}\nATK:{leg.currentAtk}";
+            float pct     = leg.maxHp > 0 ? Mathf.Clamp01((float)leg.currentHp / leg.maxHp) : 1f;
+            hpFill.fillAmount = pct;
+            hpFill.color      = pct > 0.5f ? new Color(0.25f, 0.85f, 0.42f)
+                              : pct > 0.25f ? new Color(0.95f, 0.75f, 0.15f)
+                                            : new Color(0.9f, 0.2f, 0.2f);
         }
 
         private static Button AddButton(Transform parent, string label, Color col,

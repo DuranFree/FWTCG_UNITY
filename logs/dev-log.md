@@ -2,6 +2,26 @@
 
 ---
 
+## 2026-03-28 — P31: 主界面 Grid 骨架重构 + 积分轨道 + 传奇牌槽 + 单位卡片化
+
+**Phase**: P31 Layout Grid Skeleton — Score Track + Legend Slots + Unit Cards + Log Overlay
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — BuildCanvas 全面重构 + 4 个新工厂方法 + Refresh 扩展
+
+**实现内容**:
+
+- **Grid 骨架重构**：所有游戏面板宽度从 0-75% 扩展至 4.5%-95.5%（两侧留给积分轨道）；纵向重新分区匹配 Web 版 5 行 Grid 比例（敌方信息9%/敌方区域11%/战场49%/玩家基地9%/符文8%/手牌10%/操作栏5%）
+- **积分轨道**：`BuildScoreTrack` 创建 8 圆圈 VerticalLayoutGroup；玩家轨道（左侧绿色）+ 敌方轨道（右侧红色）；`RefreshScoreTracks` 每帧更新填充色，满分时变金色
+- **传奇牌槽**：`BuildLegendSlot` 创建静态面板（玩家基地右13%/敌方区域左13%）；emoji 区 + 名称/ATK 文字 + HP 填充条（满>50% 绿/危险 25-50% 黄/<25% 红）；`RefreshLegendSlots` 每帧更新
+- **单位卡片化**：`AddUnitCard` 取代 `AddUnitButton`；竖版 70×95px（战场用）+ 横版 110×52px（基地用）；emoji 图标 + 名称 + ATK/HP 粗体；金色/红色描边；敌方单位带"?"详情按钮；继承 P29 buff/眩晕光晕和 P28 落地震动
+- **日志浮动覆盖层**：LogPanel 从常驻 25% 侧栏改为 55-100% 浮动覆盖层，默认隐藏；ActionPanel 新增"日志"按钮切换显示/隐藏
+- **工具方法**：`MakeScrollContentAnchored`（自定义锚点容器）
+
+**Test results**: N/A（纯视觉层）
+
+---
+
 ## 2026-03-28 — P30: Cinzel字体 + Courier New + HoverScale + TitlePulse
 
 **Phase**: P30 Visual Polish — Fonts + Hover Scale + Title Pulse
