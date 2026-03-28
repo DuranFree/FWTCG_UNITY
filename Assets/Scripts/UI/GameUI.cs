@@ -2135,7 +2135,7 @@ namespace FWTCG.UI
             UpdateLegendSlot(G.eLeg, _eLegSlotEmoji, _eLegSlotStats, _eLegSlotHpFill, isPlayer: false);
         }
 
-        private static void UpdateLegendSlot(CardInstance leg,
+        private static void UpdateLegendSlot(LegendInstance leg,
             Text emojiTxt, Text statsTxt, Image hpFill, bool isPlayer)
         {
             if (emojiTxt == null || statsTxt == null || hpFill == null) return;
@@ -2148,8 +2148,8 @@ namespace FWTCG.UI
                 return;
             }
 
-            emojiTxt.text = leg.emoji ?? (isPlayer ? "⚔" : "💀");
-            statsTxt.text = $"{leg.data.cardName}\nATK:{leg.currentAtk}";
+            emojiTxt.text = (leg.data != null ? leg.data.emoji : null) ?? (isPlayer ? "⚔" : "💀");
+            statsTxt.text = $"{(leg.data != null ? leg.data.cardName : "?")}\nATK:{leg.currentAtk}";
             float pct     = leg.maxHp > 0 ? Mathf.Clamp01((float)leg.currentHp / leg.maxHp) : 1f;
             hpFill.fillAmount = pct;
             hpFill.color      = pct > 0.5f ? new Color(0.25f, 0.85f, 0.42f)
