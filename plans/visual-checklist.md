@@ -26,14 +26,14 @@
 - ✅ 状态色：可打绿 #40e88a — P16 RefreshPlayerHand，canPlay → textCol (0.25,0.91,0.54) + bgCol 深绿；不可打灰色降暗；伤害红/法术蓝/装备青待后续 Phase
 
 ## 字体
-- [ ] Cinzel 字体（标题、UI 标签、强调文字，多尺寸）
-- [ ] 等宽字体（战斗日志 Courier New 13px）
+- ✅ Cinzel 字体（标题、UI 标签、强调文字）— P30 Resources/Fonts/Cinzel-Regular.ttf + Cinzel-Bold.ttf；标题用 Bold，副标题/按钮用 Regular
+- ✅ 等宽字体（战斗日志 Courier New 13px）— P30 Font.CreateDynamicFontFromOSFont("Courier New", 13)；_logText.font 应用
 - [ ] 文字光晕效果（金色 text-shadow 0 0 12~40px rgba(200,170,110)）
 
 ## 动画
 - ✅ 手牌入场动画（PopIn 0.28s OutBack）— P15 GameUI.RefreshPlayerHand，新 uid 检测，StartCoroutine UITween.PopIn
 - [ ] 卡牌可打出旋转光环（3s 线性，绿色彗星边框）
-- [ ] 悬停 3D 倾斜（±18°，perspective 800px，JS 驱动）
+- ✅ 悬停缩放（手牌 1→1.07，0.1s OutQuad）— P30 HoverScale.cs；IPointerEnterHandler/IPointerExitHandler + UITween.ScaleTo（Unity 无 CSS perspective，用 2D scale 替代）
 - [ ] 全息闪光扫过（foil-sweep 0.8s）
 - ✅ 战场区域呼吸动画（约 4.2s 循环）— P15 BFGlowLoop Coroutine，Sin 波 × InOutQuad，BF0/BF1 面板背景持续呼吸
 - ✅ 战场控制光晕（player 青色 / enemy 红色 / neutral 灰色）— P15 BFGlowLoop + BFCtrlColor 静态方法
@@ -41,7 +41,7 @@
 - ✅ 伤害数字浮起（1.2s ease-out，向上 60px）— P14 DamageFloatText.cs，5色分类（伤害/治疗/增益/减益/金色）
 - ✅ 全屏震动（0.42s）— P14 UITween.Shake()，Coroutine 实现
 - ✅ 翻币旋转（1.2s linear）— P29 ShowCoinFlipResult Y-scale 1→0(0.22s InQuad) + 换文字 + 0→1(0.3s OutBack)；总时长约 0.52s
-- ✅ 标题界面（简版：金色标题 + 青色副标题 + 开始按钮）— P19 TitlePanel，BuildCanvas 最后添加（保证最高层级）
+- ✅ 标题界面（简版：金色标题 + 青色副标题 + 开始按钮 + 标题脉冲光效）— P19 TitlePanel，BuildCanvas 最后添加（保证最高层级）；P30 新增 TitlePulse 协程（C_Gold↔亮金 2.2s 循环 PulseColor，"开始游戏"时停止，"再来一局"时重启）
 - ✅ Toast 浮入/浮出（0.35s/0.25s）— P14 ToastSystem.cs，Coroutine 缓动
 - [ ] 漩涡旋转（3 层不同转速 8/10/12s，10 个轨道粒子）
 - [ ] 法术施法动画（目标高亮 + 投射物 + 冲击波）

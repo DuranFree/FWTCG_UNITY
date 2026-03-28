@@ -2,6 +2,27 @@
 
 ---
 
+## 2026-03-28 — P30: Cinzel字体 + Courier New + HoverScale + TitlePulse
+
+**Phase**: P30 Visual Polish — Fonts + Hover Scale + Title Pulse
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — 字体字段/加载/应用 + TitlePulse 协程 + HoverScale 挂载
+- `Assets/Scripts/UI/HoverScale.cs` — 新增：IPointerEnterHandler/ExitHandler 悬停缩放组件
+- `Assets/Resources/Fonts/Cinzel-Regular.ttf` — 新增：从 GitHub googlefonts/Cinzel 下载
+- `Assets/Resources/Fonts/Cinzel-Bold.ttf` — 新增：同上
+
+**实现内容**:
+
+- **Cinzel 字体**：`Resources.Load<Font>("Fonts/Cinzel-Regular/Bold")`；标题用 Bold，副标题/符文/按钮文字用 Regular；null 守卫防止 Resources 加载失败
+- **Courier New**：`Font.CreateDynamicFontFromOSFont("Courier New", 13)`；应用到 `_logText`，使战斗日志接近原 Web 端等宽字体效果
+- **HoverScale.cs**：`IPointerEnterHandler + IPointerExitHandler`；OnEnter ScaleTo(1.07, 0.10s OutQuad)，OnExit ScaleTo(1.0, 0.12s OutQuad)；`_current` 字段防止协程堆叠；RefreshPlayerHand 每张手牌 row 添加 `AddComponent<HoverScale>()`
+- **TitlePulse**：`_titlePulseRoutine` 管理无限协程；C_Gold ↔ 亮金色(1,0.95,0.65) PulseColor(2.2s) + 间隔 0.3s；"开始游戏"停止+重置颜色；"再来一局"重启协程
+
+**Test results**: N/A（纯视觉层，无逻辑测试）
+
+---
+
 ## 2026-03-28 — P29: Buff/眩晕光晕 + 传奇激活环 + 翻币旋转 + 日志折叠
 
 **Phase**: P29 Visual Polish — Unit Glow + Legend Ring + Coin Flip + Log Collapse

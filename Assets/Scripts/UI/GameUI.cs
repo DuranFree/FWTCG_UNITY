@@ -94,6 +94,15 @@ namespace FWTCG.UI
         private string        _prevBF0CardId = "";    // 战场名称飞入追踪
         private string        _prevBF1CardId = "";
 
+        // P30: 字体资源（Awake 加载）
+        private Font _cinzelFont;
+        private Font _cinzelBold;
+        private Font _courierFont;
+
+        // P30: 标题光效追踪
+        private Text      _titleText;
+        private Coroutine _titlePulseRoutine;
+
         // P28: 翻币界面
         private GameObject _coinPanel;
         private Text       _coinResultText;
@@ -163,6 +172,11 @@ namespace FWTCG.UI
             // 平台适配：横屏锁定 + 禁止多点触控缩放误触
             Screen.orientation     = ScreenOrientation.LandscapeLeft;
             Input.multiTouchEnabled = false;
+
+            // P30: 加载字体资源（Resources/Fonts/ 目录）
+            _cinzelFont  = Resources.Load<Font>("Fonts/Cinzel-Regular");
+            _cinzelBold  = Resources.Load<Font>("Fonts/Cinzel-Bold");
+            _courierFont = Font.CreateDynamicFontFromOSFont("Courier New", 13);
 
             EnsureEventSystem();
             BuildCanvas();
@@ -461,6 +475,7 @@ namespace FWTCG.UI
 
                 // 每张手牌 = [牌按钮] + [详按钮] 横向排列
                 var row = AddHorizontalGroup(_playerHandTrans);
+                row.gameObject.AddComponent<HoverScale>(); // P30: 悬停缩放
 
                 var btn = AddButton(row, CardLabel(card), textCol,
                     () =>
@@ -920,6 +935,7 @@ namespace FWTCG.UI
 
             _logText = MakeText(logContent.transform, "LogText", 11);
             _logText.alignment = TextAnchor.UpperLeft;
+            if (_courierFont != null) _logText.font = _courierFont; // P30: 等宽字体
             var logTextRt = _logText.GetComponent<RectTransform>();
             logTextRt.sizeDelta = new Vector2(0, 2000);
 
@@ -1028,6 +1044,7 @@ namespace FWTCG.UI
                     _lastPhase = GamePhase.Init;
                     _lastTurn  = Owner.Player;
                     _titlePanel.SetActive(true);
+                    _titlePulseRoutine = StartCoroutine(TitlePulse()); // P30: 重启标题脉冲
                 });
             _gameOverPanel.SetActive(false);
 
@@ -1097,12 +1114,15 @@ namespace FWTCG.UI
             titleText.color     = C_Gold;
             titleText.alignment = TextAnchor.MiddleCenter;
             titleText.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 70);
+            if (_cinzelBold != null) titleText.font = _cinzelBold; // P30: Cinzel Bold
+            _titleText = titleText; // P30: 标题光效引用
 
             var subtitleText = MakeText(_titlePanel.transform, "SubtitleText", 18);
             subtitleText.text      = "Trading Card Game";
             subtitleText.color     = C_Cyan;
             subtitleText.alignment = TextAnchor.MiddleCenter;
             subtitleText.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 30);
+            if (_cinzelFont != null) subtitleText.font = _cinzelFont; // P30: Cinzel Regular
 
             var startBtnGo = new GameObject("StartBtnRow");
             startBtnGo.transform.SetParent(_titlePanel.transform, false);
@@ -1116,6 +1136,8 @@ namespace FWTCG.UI
                 () =>
                 {
                     _titlePanel.SetActive(false);
+                    if (_titlePulseRoutine != null) StopCoroutine(_titlePulseRoutine); // P30
+                    if (_titleText != null) _titleText.color = C_Gold; // 恢复原色
                     _gameRootCg.alpha = 0f;
                     _gm.StartGame(DeckFactory.MakeKaisaVsMasterYi());
                     StartCoroutine(UITween.FadeIn(_gameRootCg, 0.7f));
@@ -1124,6 +1146,9 @@ namespace FWTCG.UI
             startBtn.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 48);
             startBtnLbl.color = C_Gold;
             _ = startBtn;
+
+            // P30: 启动标题脉冲（BuildCanvas 末尾，标题面板已创建）
+            _titlePulseRoutine = StartCoroutine(TitlePulse());
         }
 
         // ─────────────────────────────────────────────
@@ -1448,6 +1473,18 @@ namespace FWTCG.UI
         }
 
         /// <summary>
+        /// <summary>P30 — 标题文字持续金色脉冲（dim→bright，2.2s 周期无限循环）。</summary>
+        private IEnumerator TitlePulse()
+        {
+            if (_titleText == null) yield break;
+            var bright = new Color(1f, 0.95f, 0.65f); // 亮金
+            while (true)
+            {
+                yield return UITween.PulseColor(_titleText, bright, 2.2f);
+                yield return new WaitForSeconds(0.3f);
+            }
+        }
+
         /// P28/P29 — 翻币结果面板：
         /// PopIn(0.4s) → 显示"..." → Y-scale 1→0(0.25s) → 换结果文字 → Y-scale 0→1(0.3s) → 等 1.3s → ClosePanel。
         /// </summary>
