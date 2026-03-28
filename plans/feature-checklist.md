@@ -112,7 +112,7 @@
 - ✅ 战斗日志（滚动面板）— P13 GameUI.cs 右侧 LogPanel，AppendLog 追加；P14 重要事件触发 Toast
 - ✅ 游戏结束界面（胜/败）— P13 GameUI.cs GameOverPanel + 再来一局按钮
 - ✅ 卡牌详情预览（点击查看完整文字）— P17 CardDetailPanel 模态框，手牌/敌方基地均有"详"按钮，显示名称/类型/费用/关键词/效果文字
-- [ ] 弃牌堆/放逐堆查看器— UI Phase
+- ✅ 弃牌堆查看器 — P18 DiscardPanel 模态框，"废牌堆"按钮，显示我方/敌方废牌堆全部卡牌
 - ✅ 30秒回合计时器（逻辑：TurnTimerSystem.Reset/Start/Stop/Tick/OnTimeout）
 - ✅ 本地化字符串表（LocalizationTable，中文全套，Format 支持占位符）
 

@@ -5,3 +5,4 @@
 - [ ] 装备"optional target"提示弹窗 — 原因：PromptTarget 返回 null 时装备留在基地，玩家手动激活路径需要 UI 层 Prompt，P10 实现 — Phase P7
 - [ ] 传奇初始HP/ATK/Cost ScriptableObject 配置 — 原因：CardData SO 尚未在 Unity Editor 中填写卡莎14HP/易12HP，需 UI Phase 在 Inspector 配置 — Phase P10
 - [ ] ascending_stairs 实现与 text 字段描述不一致（text：WIN_SCORE+1；实现：据守/征服额外+1分）— 等待规则确认再同步 text — Phase P9
+- [ ] PhaseBanner 的 CanvasGroup 在 BannerSequence 首次运行时才 AddComponent（懒加载），若多次快速切换阶段可能出现重复 AddComponent — 原因：保持 BuildCanvas 简洁；可在 BuildCanvas 中预先添加解决 — Phase P18

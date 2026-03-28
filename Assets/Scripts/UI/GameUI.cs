@@ -64,6 +64,19 @@ namespace FWTCG.UI
         private GameObject _cardDetailPanel;
         private Text       _cardDetailText;
 
+        // 弃牌堆面板
+        private GameObject _discardPanel;
+        private Text       _discardText;
+
+        // 阶段横幅
+        private GameObject _phaseBanner;
+        private Text       _phaseBannerText;
+
+        // 震动 + 阶段追踪
+        private RectTransform _rootCanvasRt;
+        private GamePhase     _lastPhase = GamePhase.Init;
+        private Owner         _lastTurn  = Owner.Player;
+
         // 日志面板
         private Text       _logText;
         private ScrollRect _logScroll;
@@ -154,6 +167,19 @@ namespace FWTCG.UI
         private void Refresh()
         {
             var G = _gm.G;
+
+            // 阶段/回合切换横幅
+            bool phaseChanged = G.phase != _lastPhase;
+            bool turnChanged  = G.turn  != _lastTurn && G.phase == GamePhase.Action;
+            if (phaseChanged || turnChanged)
+            {
+                string bannerMsg = turnChanged && G.phase == GamePhase.Action
+                    ? (G.turn == Owner.Player ? "— 你的回合 —" : "— 对手回合 —")
+                    : PhaseName(G.phase);
+                ShowPhaseBanner(bannerMsg);
+                _lastPhase = G.phase;
+                _lastTurn  = G.turn;
+            }
 
             // 模拟换牌阶段：只显示 mulligan 面板
             if (G.phase == GamePhase.Init && G.pHand.Count > 0)
@@ -481,6 +507,10 @@ namespace FWTCG.UI
             // 重要事件推送 Toast（伤害/积分/阶段切换）
             if (ToastSystem.Instance != null && IsImportantLog(msg))
                 ToastSystem.Instance.Show(msg, 1.8f);
+
+            // 单位死亡 → 轻微震动
+            if (_rootCanvasRt != null && msg.Contains("死亡"))
+                StartCoroutine(UITween.Shake(_rootCanvasRt, 3.5f, 0.38f, 10));
         }
 
         private static bool IsImportantLog(string msg)
@@ -518,6 +548,7 @@ namespace FWTCG.UI
             canvasGo.AddComponent<GraphicRaycaster>();
 
             var root = canvas.transform;
+            _rootCanvasRt = canvasGo.GetComponent<RectTransform>();
 
             // ── 背景底色 ──
             var bgPanel = MakePanel(root, "Background", Vector2.zero, Vector2.one, C_Dark);
@@ -590,6 +621,9 @@ namespace FWTCG.UI
 
             (_legendBtn, _legendBtnText) = MakeButton(actionPanel.transform, "传奇技能", 12,
                 () => { _gm.ActivateLegendAbility("ability1"); });
+
+            MakeButton(actionPanel.transform, "废牌堆", 11,
+                () => ShowDiscardPile());
 
             // ── 右侧日志面板（75-100%宽，全高）──
             var logPanel = MakePanel(root, "LogPanel",
@@ -698,6 +732,35 @@ namespace FWTCG.UI
                     _gm.StartGame(DeckFactory.MakeKaisaVsMasterYi());
                 });
             _gameOverPanel.SetActive(false);
+
+            // ── 弃牌堆查看面板 ──
+            _discardPanel = MakePanel(root, "DiscardPanel",
+                new Vector2(0.12f, 0.08f), new Vector2(0.75f, 0.92f),
+                new Color(0.05f, 0.03f, 0.12f, 0.97f)).gameObject;
+            var discLayout = _discardPanel.AddComponent<VerticalLayoutGroup>();
+            discLayout.childControlWidth  = true;
+            discLayout.childControlHeight = false;
+            discLayout.spacing = 8;
+            discLayout.padding = new RectOffset(18, 18, 14, 14);
+
+            _discardText = MakeText(_discardPanel.transform, "DiscardText", 12);
+            _discardText.alignment = TextAnchor.UpperLeft;
+            _discardText.color     = Color.white;
+            _discardText.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 600);
+
+            MakeButton(_discardPanel.transform, "关闭", 14,
+                () => _discardPanel.SetActive(false));
+            _discardPanel.SetActive(false);
+
+            // ── 阶段切换横幅 ──
+            var bannerPanel = MakePanel(root, "PhaseBanner",
+                new Vector2(0.2f, 0.44f), new Vector2(0.8f, 0.56f),
+                new Color(0f, 0f, 0f, 0.82f));
+            _phaseBanner = bannerPanel.gameObject;
+            _phaseBannerText = MakeText(_phaseBanner.transform, "PhaseBannerText", 20);
+            _phaseBannerText.alignment = TextAnchor.MiddleCenter;
+            _phaseBannerText.color     = C_Gold;
+            _phaseBanner.SetActive(false);
 
             // ── 卡牌详情预览面板（居中模态框）──
             _cardDetailPanel = MakePanel(root, "CardDetailPanel",
@@ -970,6 +1033,41 @@ namespace FWTCG.UI
             }
         }
 
+        private void ShowDiscardPile()
+        {
+            var G = _gm.G;
+            var sb = new System.Text.StringBuilder();
+
+            sb.AppendLine($"=== 我方废牌堆 ({G.pDiscard.Count}) ===");
+            foreach (var c in G.pDiscard)
+                sb.AppendLine($"  {CardLabel(c)}");
+
+            sb.AppendLine();
+            sb.AppendLine($"=== 敌方废牌堆 ({G.eDiscard.Count}) ===");
+            foreach (var c in G.eDiscard)
+                sb.AppendLine($"  {CardLabel(c)}");
+
+            _discardText.text = sb.ToString();
+            _discardPanel.SetActive(true);
+        }
+
+        private void ShowPhaseBanner(string text)
+        {
+            _phaseBannerText.text = text;
+            _phaseBanner.SetActive(true);
+            StartCoroutine(BannerSequence());
+        }
+
+        private IEnumerator BannerSequence()
+        {
+            var cg = _phaseBanner.GetComponent<CanvasGroup>()
+                     ?? _phaseBanner.AddComponent<CanvasGroup>();
+            yield return UITween.FadeIn(cg, 0.25f);
+            yield return new WaitForSeconds(1.1f);
+            yield return UITween.FadeOut(cg, 0.30f, UITween.Ease.OutQuad,
+                () => _phaseBanner.SetActive(false));
+        }
+
         private void ShowCardDetail(CardInstance card)
         {
             _cardDetailText.text = FormatCardDetail(card);
@@ -994,6 +1092,17 @@ namespace FWTCG.UI
             }
             return sb.ToString();
         }
+
+        private static string PhaseName(GamePhase p) => p switch
+        {
+            GamePhase.Awaken => "觉醒阶段",
+            GamePhase.Start  => "开始阶段",
+            GamePhase.Summon => "召唤阶段",
+            GamePhase.Draw   => "摸牌阶段",
+            GamePhase.Action => "行动阶段",
+            GamePhase.End    => "结束阶段",
+            _                => p.ToString(),
+        };
 
         /// <summary>积分轨道文字表示，如 "■■■□□□□□"。</summary>
         private static string ScoreBar(int score)

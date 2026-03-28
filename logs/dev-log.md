@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-03-28 — P18: 弃牌堆查看器 + 战斗震动 + 阶段横幅
+
+**Phase**: P18 Discard Viewer, Combat Shake, Phase Banner
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — DiscardPanel 模态框；PhaseBanner 渐入渐出；AppendLog 接入 Shake；Refresh 阶段/回合切换检测
+
+**New features**:
+- `ShowDiscardPile()` — 列出 pDiscard/eDiscard 全部卡牌，DiscardPanel SetActive(true)
+- `BannerSequence()` — CanvasGroup FadeIn(0.25s)→等待1.1s→FadeOut(0.3s)→SetActive(false)
+- `PhaseName(GamePhase)` — 阶段枚举→中文名称 switch 表达式
+- `_lastPhase`/`_lastTurn` 追踪，Refresh 检测切换 → ShowPhaseBanner
+- 回合横幅文字：玩家回合="— 你的回合 —"，敌方="— 对手回合 —"
+- 阶段横幅文字：觉醒/开始/召唤/摸牌/行动/结束 阶段
+- 死亡震动：AppendLog 检测 `msg.Contains("死亡")` → `UITween.Shake(_rootCanvasRt, 3.5f, 0.38f, 10)`
+- `_rootCanvasRt` 存储 Canvas 根 RectTransform（BuildCanvas 中赋值）
+
+**Test results**: 391/391（纯UI层，无新测试）
+
+**Design decisions**:
+- BannerSequence 使用 CanvasGroup（懒加载 AddComponent）保持 Banner GameObject 结构简单
+- 震动强度 3.5px / 0.38s，轻量感，不干扰游戏画面
+- 阶段横幅只在 phase 或 turn 真实切换时触发，避免 Refresh 频繁调用重复弹出
+
+---
+
 ## 2026-03-28 — P17: 卡牌详情预览 + 平台适配基础
 
 **Phase**: P17 Card Detail Preview & Platform Adaptation
