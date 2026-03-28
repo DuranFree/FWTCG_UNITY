@@ -1454,6 +1454,49 @@ namespace FWTCG.UI
             titleLayout.spacing             = 20;
             titleLayout.padding             = new RectOffset(0, 0, 160, 0);
 
+            // P37: 品牌标志行（VerticalLayout 首项：大光晕 + 圆环 + 剑符文）
+            var logoGo = new GameObject("BrandLogo");
+            logoGo.transform.SetParent(_titlePanel.transform, false);
+            logoGo.AddComponent<RectTransform>().sizeDelta = new Vector2(0, 88);
+            // 大光晕圆（600×600，忽略布局，视觉溢出）
+            var glowGo = new GameObject("TitleGlow");
+            glowGo.transform.SetParent(logoGo.transform, false);
+            glowGo.AddComponent<LayoutElement>().ignoreLayout = true;
+            var glowRt = glowGo.AddComponent<RectTransform>();
+            glowRt.anchorMin = glowRt.anchorMax = Vector2.one * 0.5f;
+            glowRt.pivot     = Vector2.one * 0.5f;
+            glowRt.sizeDelta = new Vector2(600f, 600f);
+            var glowImg = glowGo.AddComponent<Image>();
+            glowImg.sprite        = MakeRadialGradientSprite(256);
+            glowImg.color         = new Color(0.78f, 0.67f, 0.43f, 0.04f);
+            glowImg.raycastTarget = false;
+            StartCoroutine(TitleGlowPulse(glowImg));
+            // 金色圆环（80×80）
+            var ringGo = new GameObject("LogoRing");
+            ringGo.transform.SetParent(logoGo.transform, false);
+            var ringRt = ringGo.AddComponent<RectTransform>();
+            ringRt.anchorMin = ringRt.anchorMax = Vector2.one * 0.5f;
+            ringRt.pivot     = Vector2.one * 0.5f;
+            ringRt.sizeDelta = new Vector2(80f, 80f);
+            var ringImg = ringGo.AddComponent<Image>();
+            ringImg.sprite        = MakeRingSprite(64, 4f);
+            ringImg.color         = C_Gold;
+            ringImg.raycastTarget = false;
+            // 剑符文字
+            var swordGo = new GameObject("LogoSword");
+            swordGo.transform.SetParent(logoGo.transform, false);
+            var swordRt = swordGo.AddComponent<RectTransform>();
+            swordRt.anchorMin = swordRt.anchorMax = Vector2.one * 0.5f;
+            swordRt.pivot     = Vector2.one * 0.5f;
+            swordRt.sizeDelta = new Vector2(60f, 60f);
+            var swordTxt = swordGo.AddComponent<Text>();
+            swordTxt.text          = "⚔";
+            swordTxt.fontSize      = 36;
+            swordTxt.alignment     = TextAnchor.MiddleCenter;
+            swordTxt.color         = C_Gold;
+            swordTxt.font          = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            swordTxt.raycastTarget = false;
+
             var titleText = MakeText(_titlePanel.transform, "TitleText", 48);
             titleText.text      = "风舞天际";
             titleText.color     = C_Gold;
@@ -1491,6 +1534,20 @@ namespace FWTCG.UI
                 });
             startBtn.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 48);
             startBtnLbl.color = C_Gold;
+            // P37: 按钮旋转青色光弧
+            var btnGlowGo = new GameObject("BtnGlowArc");
+            btnGlowGo.transform.SetParent(startBtn.transform, false);
+            var btnGlowRt = btnGlowGo.AddComponent<RectTransform>();
+            btnGlowRt.anchorMin = btnGlowRt.anchorMax = Vector2.one * 0.5f;
+            btnGlowRt.pivot     = Vector2.one * 0.5f;
+            btnGlowRt.sizeDelta = new Vector2(244f, 92f);
+            var btnGlowImg = btnGlowGo.AddComponent<Image>();
+            btnGlowImg.type          = Image.Type.Filled;
+            btnGlowImg.fillMethod    = Image.FillMethod.Radial360;
+            btnGlowImg.fillAmount    = 0.25f;
+            btnGlowImg.color         = new Color(0.04f, 0.78f, 0.73f, 0.70f);
+            btnGlowImg.raycastTarget = false;
+            btnGlowGo.AddComponent<CanPlayGlow>(); // 120°/s = 3s/圈
             _ = startBtn;
 
             // P30: 启动标题脉冲（BuildCanvas 末尾，标题面板已创建）
@@ -2372,8 +2429,8 @@ namespace FWTCG.UI
             }
         }
 
-        /// P28/P29 — 翻币结果面板：
-        /// PopIn(0.4s) → 显示"..." → Y-scale 1→0(0.25s) → 换结果文字 → Y-scale 0→1(0.3s) → 等 1.3s → ClosePanel。
+        /// P28/P37 — 翻币结果面板：
+        /// PopIn(0.4s) → P37 CardFlip3D(0→90°→0，0.44s) → 等 1.3s → ClosePanel。
         /// </summary>
         private IEnumerator ShowCoinFlipResult()
         {
@@ -2384,23 +2441,20 @@ namespace FWTCG.UI
             _coinPanel.SetActive(true);
             yield return UITween.PopIn(_coinPanel.GetComponent<RectTransform>(), 0.4f);
 
-            // P29: 假翻转 — Y 缩到 0
-            var coinTxtRt = _coinResultText.GetComponent<RectTransform>();
-            yield return UITween.ScaleTo(coinTxtRt, new Vector3(1f, 0f, 1f), 0.22f, UITween.Ease.InQuad);
-
-            // 翻到结果面
-            bool playerFirst      = _gm.G.first == Owner.Player;
-            _coinResultText.text  = playerFirst ? "正面\n玩家先手！" : "反面\n对手先手！";
-            _coinResultText.color = playerFirst
-                ? new Color(0.25f, 0.91f, 0.54f)
-                : new Color(1f,    0.45f, 0.45f);
-
-            // Y 弹回
-            yield return UITween.ScaleTo(coinTxtRt, Vector3.one, 0.30f, UITween.Ease.OutBack);
+            // P37: 真实 Y 轴翻转（替代 Y-scale hack）
+            var coinTxtRt    = _coinResultText.GetComponent<RectTransform>();
+            bool playerFirst = _gm.G.first == Owner.Player;
+            yield return CardFlip3D(coinTxtRt, () =>
+            {
+                _coinResultText.text  = playerFirst ? "正面\n玩家先手！" : "反面\n对手先手！";
+                _coinResultText.color = playerFirst
+                    ? new Color(0.25f, 0.91f, 0.54f)
+                    : new Color(1f,    0.45f, 0.45f);
+            });
 
             yield return new WaitForSeconds(1.3f);
             yield return StartCoroutine(ClosePanel(_coinPanel, 0.25f));
-            coinTxtRt.localScale  = Vector3.one; // 保证下次复用时 scale 正常
+            coinTxtRt.localEulerAngles = Vector3.zero; // 保证下次复用时旋转归零
             _coinPanelShowing = false;
         }
 
@@ -2551,6 +2605,79 @@ namespace FWTCG.UI
             RuneType.Order    => C_RuneOrder,
             _                 => Color.white,
         };
+
+        // ─────────────────────────────────────────────
+        // P37 — 标题完整版 + 卡牌 3D 翻转
+        // ─────────────────────────────────────────────
+
+        /// <summary>P37 — 生成圆环 Sprite（size×size，外半径-1px，厚度 thickness px，白色）。</summary>
+        private static Sprite MakeRingSprite(int size, float thickness)
+        {
+            var tex    = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            var pix    = new Color32[size * size];
+            float center = size * 0.5f;
+            float outerR = center - 1f;
+            float innerR = outerR - thickness;
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float dx = x + 0.5f - center, dy = y + 0.5f - center;
+                float dist = Mathf.Sqrt(dx * dx + dy * dy);
+                bool onRing = dist >= innerR && dist <= outerR;
+                pix[y * size + x] = onRing
+                    ? new Color32(255, 255, 255, 255)
+                    : new Color32(0, 0, 0, 0);
+            }
+            tex.SetPixels32(pix);
+            tex.Apply();
+            return Sprite.Create(tex, new Rect(0, 0, size, size), Vector2.one * 0.5f, size);
+        }
+
+        /// <summary>P37 — 标题大光晕持续金色脉冲（dim↔bright，3s 周期，随面板隐藏自动停止）。</summary>
+        private IEnumerator TitleGlowPulse(Image img)
+        {
+            var dimCol    = new Color(0.78f, 0.67f, 0.43f, 0.04f);
+            var brightCol = new Color(0.78f, 0.67f, 0.43f, 0.09f);
+            while (img != null && img.gameObject.activeInHierarchy)
+            {
+                yield return UITween.TintTo(img, brightCol, 1.5f, UITween.Ease.InOutQuad);
+                if (img == null || !img.gameObject.activeInHierarchy) yield break;
+                yield return UITween.TintTo(img, dimCol,    1.5f, UITween.Ease.InOutQuad);
+            }
+        }
+
+        /// <summary>
+        /// P37 — 卡牌真实 3D Y 轴翻转：0°→90° InQuad(halfDur) → onMid() → 90°→0° OutBack(halfDur)。
+        /// 替代原有 ScaleY 1→0→1 hack。
+        /// </summary>
+        private static IEnumerator CardFlip3D(RectTransform rt, System.Action onMid, float halfDur = 0.22f)
+        {
+            // 前半段：0° → 90° InQuad
+            float t = 0f;
+            while (t < halfDur)
+            {
+                t += Time.deltaTime;
+                float p = Mathf.Clamp01(t / halfDur);
+                rt.localEulerAngles = new Vector3(0f, p * p * 90f, 0f);
+                yield return null;
+            }
+            rt.localEulerAngles = new Vector3(0f, 90f, 0f);
+            onMid?.Invoke();
+
+            // 后半段：90° → 0° OutBack（弹开展示结果面）
+            t = 0f;
+            const float c1 = 1.70158f, c3 = 2.70158f;
+            while (t < halfDur)
+            {
+                t += Time.deltaTime;
+                float p = Mathf.Clamp01(t / halfDur);
+                float q = p - 1f;
+                float e = 1f + c3 * q * q * q + c1 * q * q; // OutBack 0→1
+                rt.localEulerAngles = new Vector3(0f, (1f - e) * 90f, 0f);
+                yield return null;
+            }
+            rt.localEulerAngles = Vector3.zero;
+        }
 
         // ─────────────────────────────────────────────
         // P36 — 背景纹理（六边形网格 + 拉丝条纹 + 噪点）

@@ -13,7 +13,7 @@
 - ✅ 传奇/英雄牌槽（两侧基地区）— P31 BuildLegendSlot；emoji+名称+ATK+HP填充条；玩家基地右侧/敌方区域左侧
 - ✅ 战斗覆盖层（全屏战斗结算 overlay）— P32 CombatOverlay 全屏 CanvasGroup（blocksRaycasts=false）；CombatFlash 协程 0→0.5→0 alpha 共 0.6s；AppendLog "战斗" 触发
 - ✅ 卡牌详情预览模态框 — P17 CardDetailPanel，居中深蓝底，显示全部文字字段，关闭按钮
-- [ ] 标题界面（品牌标志 + 开始按钮 + 光效）
+- ✅ 标题界面（品牌标志 + 开始按钮 + 光效）— P37 BrandLogo行(圆环MakeRingSprite+⚔文字)；TitleGlow 600px径向渐变金色(0.04→0.09a 3s脉冲)；BtnGlowArc 244×92px青色弧(fillAmount=0.25，CanPlayGlow 120°/s)；CardFlip3D替换Y-scale hack
 - ✅ 翻币界面（旋转动画 + 结果）— P28 CoinPanel；PopIn 0.4s + 显示 1.8s + ClosePanel 0.25s；先手用绿色，后手用红色文字
 - ✅ 调整手牌界面（Mulligan）— P28 首次激活时 PopIn(0.4s)；_mulliganPopInDone 防止重复动画
 - ✅ 战斗日志面板（右侧可折叠）— P29 LogHeader 行（标签+▼/▶按钮）；点击切换 _logVisible，SetActive(_logScrollGo)
@@ -60,7 +60,7 @@
 - ✅ 拖拽放置漩涡（2 环旋转，螺旋粒子待后续）— P35 DropVortex.cs MonoBehaviour；80/120px 弧形 Image Radial360，青色(0.04,0.78,0.73)，60/90°/s；SpawnDropVortices 在每个 ZoneDropTarget 中央生成；EndCardDrag 后 DestroyDropVortices 清理
 - ✅ 爆炸粒子（散射 12 粒子）— P36 ExplosionBurst + ExplosionParticle 协程；8×8px 圆形，12方向各30°，飞行60px OutQuad 0.5s，橙/青/金/白色；DetectDeathsAndAnimate 触发
 - [ ] URP Bloom（替代所有 box-shadow glow）
-- [ ] 卡牌 3D 真实翻转（替代 CSS rotateY hack）
+- ✅ 卡牌 3D 真实翻转（替代 CSS rotateY hack）— P37 CardFlip3D 协程；localEulerAngles.y 0°→90° InQuad(0.22s) + onMid回调 + 90°→0° OutBack(0.22s)；ShowCoinFlipResult 已替换
 - [ ] 粒子物理（重力/风/碰撞，替代线性运动）
 
 ## 背景与纹理

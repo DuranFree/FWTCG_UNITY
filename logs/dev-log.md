@@ -2,6 +2,26 @@
 
 ---
 
+## 2026-03-28 — P37: 标题界面完整版 + 卡牌 3D 翻转
+
+**Phase**: P37 Title Screen Complete + Card 3D Flip
+
+**Modified files**:
+- `Assets/Scripts/UI/GameUI.cs` — TitlePanel 扩展(品牌标志+大光晕+按钮光弧) + ShowCoinFlipResult 替换 + CardFlip3D/MakeRingSprite/TitleGlowPulse 新方法
+
+**实现内容**:
+1. **品牌标志行**（BrandLogo GO）: VerticalLayout 首项(88px高)；金色圆环(MakeRingSprite 64×64,厚4px) + ⚔文字(36px)，居中叠放。
+2. **大光晕圆**（TitleGlow）: 600×600px，ignoreLayout，MakeRadialGradientSprite(256)，金色，TitleGlowPulse 协程(0.04→0.09a，InOutQuad 1.5s单程，3s循环)，随面板隐藏自动停止。
+3. **按钮旋转青色光弧**（BtnGlowArc）: 244×92px，Image.Type.Filled Radial360，fillAmount=0.25，青色0.7a，CanPlayGlow 复用(120°/s=3s/圈)。
+4. **CardFlip3D**（通用协程）: localEulerAngles.y 0°→90° InQuad(0.22s) → onMid回调(换文字/颜色) → 90°→0° OutBack(0.22s)；替代 ScaleY hack，ShowCoinFlipResult 已接入。
+5. **MakeRingSprite**（静态工厂）: size×size Texture2D，外径-1px ring，厚度参数化，白色遮罩。
+
+**决策**:
+- OutBack 系数复用 UITween.cs 内 c1=1.70158, c3=2.70158（确保一致）。
+- TitleGlowPulse 检查 `img.gameObject.activeInHierarchy` 代替 StopCoroutine，避免需存储引用。
+
+---
+
 ## 2026-03-28 — P36: 背景纹理 + 爆炸粒子
 
 **Phase**: P36 Background Textures + Explosion Particles
